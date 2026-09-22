@@ -490,10 +490,10 @@ la mise en forme du rapport.
 
 | Lot | Contenu | État |
 |---|---|---|
-| 1 | Socle : ignore/attributes/clang-format, CMake racine, presets, sous-modules, CI, LICENSE, README, `docs/references/README.md` | **en cours** |
-| 2 | ICD : YAML, schéma, générateur, vecteurs de référence, tests de collision/chevauchement/ordre ARM-GO | à faire |
-| 3 | `firmware/common` + `tests_host` | à faire |
-| 4 | `ports/g431_fdcan` + `boards/nucleo_g431kb` + horloges (HSE/HSI sélectionnable) | à faire |
+| 1 | Socle : ignore/attributes/clang-format, CMake racine, presets, sous-modules, CI, LICENSE, README, `docs/references/README.md` | **fait** |
+| 2 | ICD : YAML, schéma, générateur, vecteurs de référence, tests de collision/chevauchement/ordre ARM-GO | **fait** |
+| 3 | `firmware/common` + `tests_host` | **fait** |
+| 4 | `ports/g431_fdcan` + `boards/nucleo_g431kb` + horloges (HSE/HSI sélectionnable) | **fait** — n1 à n3 : 17,8 Ko flash (13,6 %), 2,8 Ko RAM (8,7 %) |
 | 5 | `ports/f103_bxcan` + `boards/bluepill_f103` | **bloqué** (Q4 : RM0008, DS5319, schéma) |
 | 6 | IHM SSD1306 DMA + pages partielles, LEDs, capteurs + simulateurs | à faire |
 | 7 | `pc/canbench` : CLI, simulateur de nœuds, `monitor`/`arbitration`/`encoding` | à faire |
@@ -533,3 +533,4 @@ la mise en forme du rapport.
 | V8 | Tolérance du MCO ST-LINK (option B, §3.2) | UM2448 | si option B |
 | V9 | Présence/valeur des terminaisons sur les modules | inspection visuelle | T1, Q5b |
 | V10 | Errata G431 (ES) : anomalies FDCAN éventuelles | ES G431 | Lot 4 |
+| V11 | Cartographie mémoire du G431KB (128 Ko flash, 32 Ko RAM contigus) | RM0440 § Memory organization, DS12589 | script d'édition de liens |

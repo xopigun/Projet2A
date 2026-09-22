@@ -29,25 +29,25 @@
       "name": "n1",
       "inherits": "arm",
       "displayName": "N1 - commande energie (Nucleo-G431KB)",
-      "cacheVariables": { "BENCH_NODE_ID": "1", "BENCH_BOARD": "nucleo_g431kb" }
+      "cacheVariables": { "BENCH_NODE_ID": "1" }
     },
     {
       "name": "n2",
       "inherits": "arm",
       "displayName": "N2 - IMU + vitesse (Nucleo-G431KB)",
-      "cacheVariables": { "BENCH_NODE_ID": "2", "BENCH_BOARD": "nucleo_g431kb" }
+      "cacheVariables": { "BENCH_NODE_ID": "2" }
     },
     {
       "name": "n3",
       "inherits": "arm",
       "displayName": "N3 - temperature + batterie (Nucleo-G431KB)",
-      "cacheVariables": { "BENCH_NODE_ID": "3", "BENCH_BOARD": "nucleo_g431kb" }
+      "cacheVariables": { "BENCH_NODE_ID": "3" }
     },
     {
       "name": "n4",
       "inherits": "arm",
       "displayName": "N4 - noeud fautif (Blue Pill STM32F103)",
-      "cacheVariables": { "BENCH_NODE_ID": "4", "BENCH_BOARD": "bluepill_f103" }
+      "cacheVariables": { "BENCH_NODE_ID": "4" }
     }
   ],
 

@@ -51,6 +51,9 @@ jobs:
       - name: Tailles flash et RAM
         run: arm-none-eabi-size --format=berkeley build/${{ matrix.node }}/firmware/*.elf
 
+      - name: Temps de bit corrects et alignes entre noeuds
+        run: python scripts/bit_timing.py --check
+
   tests-hote:
     name: Tests unitaires C (natif)
     runs-on: ubuntu-latest
