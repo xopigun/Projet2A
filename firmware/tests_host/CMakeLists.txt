@@ -10,6 +10,9 @@ set(BENCH_COMMON_DIR ${CMAKE_SOURCE_DIR}/firmware/common)
 # --- code commun, compilé nativement ---------------------------------------
 add_library(bench_common STATIC
     ${BENCH_COMMON_DIR}/icd_gen/icd_gen.c
+    ${BENCH_COMMON_DIR}/util/ring_buffer.c
+    ${BENCH_COMMON_DIR}/protocol/arbitration.c
+    ${BENCH_COMMON_DIR}/protocol/heartbeat.c
 )
 target_include_directories(bench_common PUBLIC
     ${BENCH_COMMON_DIR}
@@ -39,6 +42,9 @@ function(bench_add_test name)
 endfunction()
 
 bench_add_test(test_icd_vectors)
+bench_add_test(test_ring_buffer)
+bench_add_test(test_arbitration)
+bench_add_test(test_heartbeat)
 
 # --- garde-fou : aucun en-tête HAL dans firmware/common ---------------------
 #

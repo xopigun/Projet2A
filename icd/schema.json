@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ensea.fr/g69/banc-can/icd/schema.json",
+  "title": "ICD du banc de test CAN (G69-BANC-001)",
+  "description": "Schéma de validation de icd/bench_icd.yaml. Il contrôle la forme du document ; les règles qui demandent une analyse croisée (collisions d'identifiants, chevauchement de signaux, contrainte d'ordre ARM/GO, représentabilité des valeurs de simulation) sont vérifiées par tools/codegen/model.py.",
+  "type": "object",
+  "required": ["version", "bus", "profiles", "default_profile", "nodes", "messages"],
+  "additionalProperties": false,
+
+  "properties": {
+    "version": { "type": "integer", "const": 1 },
+
+    "bus": {
+      "type": "object",
+      "required": ["name", "bitrate", "frame_format", "id_bits"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "bitrate": { "type": "integer", "minimum": 1000, "maximum": 1000000 },
+        "frame_format": { "enum": ["classic"] },
+        "id_bits": { "type": "integer", "const": 11 }
+      }
+    },
+
+    "profiles": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/profile" }
+    },
+
+    "default_profile": { "type": "string" },
+
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/node" }
+    },
+
+    "messages": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/message" }
+    },
+
+    "simulations": {
+      "type": "object",
+      "description": "Séquences déterministes émises quand le capteur réel n'est pas détecté.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["steps"],
+        "additionalProperties": false,
+        "properties": {
+          "period_ms": { "type": "integer", "minimum": 1 },
+          "steps": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": { "type": "number" }
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "$defs": {
+    "can_id": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2047,
+      "description": "Identifiant CAN 2.0A sur 11 bits."
+    },
+
+    "profile": {
+      "type": "object",
+      "required": ["services", "heartbeat_base"],
+      "additionalProperties": false,
+      "properties": {
+        "description": { "type": "string" },
+        "services": {
+          "type": "object",
+          "required": ["ARM", "GO", "BENCH_CFG", "BENCH_RESULT"],
+          "additionalProperties": { "$ref": "#/$defs/can_id" }
+        },
+        "heartbeat_base": {
+          "$ref": "#/$defs/can_id",
+          "description": "L'identifiant d'un nœud vaut heartbeat_base + node_id."
+        },
+        "reserved_ranges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["first", "last"],
+            "additionalProperties": false,
+            "properties": {
+              "first": { "$ref": "#/$defs/can_id" },
+              "last": { "$ref": "#/$defs/can_id" },
+              "purpose": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "node": {
+      "type": "object",
+      "required": ["node_id", "name", "board", "role"],
+      "additionalProperties": false,
+      "properties": {
+        "node_id": { "type": "integer", "minimum": 1, "maximum": 15 },
+        "name": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" },
+        "board": { "enum": ["nucleo_g431kb", "bluepill_f103"] },
+        "role": { "type": "string" },
+        "contender": { "type": "boolean" }
+      }
+    },
+
+    "message": {
+      "type": "object",
+      "required": ["name", "dlc"],
+      "additionalProperties": false,
+      "oneOf": [
+        { "required": ["id"] },
+        { "required": ["id_ref"] }
+      ],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" },
+        "id": { "$ref": "#/$defs/can_id" },
+        "id_ref": {
+          "type": "string",
+          "description": "Nom d'un service du profil actif, ou « heartbeat »."
+        },
+        "per_node": {
+          "type": "boolean",
+          "description": "Génère une instance par nœud, à heartbeat_base + node_id."
+        },
+        "dlc": { "type": "integer", "minimum": 0, "maximum": 8 },
+        "sender": { "type": "string" },
+        "receivers": { "type": "array", "items": { "type": "string" } },
+        "period_ms": { "type": ["integer", "null"], "minimum": 1 },
+        "kind": { "enum": ["service", "application"] },
+        "contender": { "type": "boolean" },
+        "comment": { "type": "string" },
+        "signals": { "type": "array", "items": { "$ref": "#/$defs/signal" } }
+      }
+    },
+
+    "signal": {
+      "type": "object",
+      "required": ["name", "start_byte", "start_bit", "length"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" },
+        "start_byte": { "type": "integer", "minimum": 0, "maximum": 7 },
+        "start_bit": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 7,
+          "description": "Bit de poids faible en Intel, de poids fort en Motorola."
+        },
+        "length": { "type": "integer", "minimum": 1, "maximum": 64 },
+        "byte_order": { "enum": ["little_endian", "big_endian"] },
+        "signed": { "type": "boolean" },
+        "factor": { "type": "number", "not": { "const": 0 } },
+        "offset": { "type": "number" },
+        "unit": { "type": "string" },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "default": { "type": "number" },
+        "comment": { "type": "string" }
+      }
+    }
+  }
+}

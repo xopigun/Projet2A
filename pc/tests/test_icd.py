@@ -302,3 +302,24 @@ def test_detecte_id_ref_inconnu(raw_spec: dict, tmp_path: Path) -> None:
     next(m for m in spec["messages"] if m["name"] == "ARM")["id_ref"] = "INEXISTANT"
     with pytest.raises(model.IcdError, match="introuvable"):
         _load(spec, tmp_path)
+
+
+# ---------------------------------------------------------------------------
+#  Conformité au schéma JSON
+# ---------------------------------------------------------------------------
+
+
+def test_icd_conforme_au_schema(raw_spec: dict) -> None:
+    jsonschema = pytest.importorskip("jsonschema")
+    schema = json.loads((REPO_ROOT / "icd" / "schema.json").read_text(encoding="utf-8"))
+    jsonschema.Draft202012Validator.check_schema(schema)
+    jsonschema.validate(raw_spec, schema)
+
+
+def test_schema_rejette_un_identifiant_hors_11_bits(raw_spec: dict) -> None:
+    jsonschema = pytest.importorskip("jsonschema")
+    schema = json.loads((REPO_ROOT / "icd" / "schema.json").read_text(encoding="utf-8"))
+    spec = copy.deepcopy(raw_spec)
+    spec["messages"][-1]["id"] = 0x800  # au-delà de 11 bits
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(spec, schema)
