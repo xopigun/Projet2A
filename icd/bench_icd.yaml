@@ -1,0 +1,561 @@
+# =============================================================================
+#  ICD du banc de test CAN — source unique
+#  G69-BANC-001 — groupe 69, ENSEA
+# =============================================================================
+#
+#  Ce fichier est la SEULE source de vérité pour les identifiants, les signaux et
+#  leur encodage. Le code C, le module Python, le fichier DBC et les tableaux LaTeX
+#  en sont dérivés par tools/codegen. Ne jamais éditer les fichiers générés.
+#
+#  Les identifiants de service ne sont pas en dur : ils sont portés par un « profil
+#  réseau » (section profiles). Un groupe partenaire dont le plan d'adressage entre
+#  en conflit définit son propre profil, sans toucher au reste du fichier.
+#
+#  Regénérer après toute modification :   python -m tools.codegen
+#
+version: 1
+
+bus:
+  name: bench
+  bitrate: 500000
+  frame_format: classic   # CAN 2.0A, identifiants 11 bits
+  id_bits: 11
+
+# -----------------------------------------------------------------------------
+#  Profils réseau
+# -----------------------------------------------------------------------------
+#  Le profil « bench » évite les identifiants prédéfinis de CANopen (CiA 301) :
+#    0x000 NMT, 0x080 SYNC, 0x081-0x0FF EMCY, 0x100 TIME, 0x181-0x57F PDO,
+#    0x581-0x67F SDO, 0x701-0x77F NMT error control (heartbeat), 0x7E4/0x7E5 LSS.
+#  Les services tombent dans 0x001-0x07F et le heartbeat dans 0x780-0x7DF, deux
+#  plages non attribuées. 0x780 offre en outre la priorité la plus basse du bus,
+#  ce qui est exactement ce que l'on attend d'un heartbeat.
+#
+profiles:
+  bench:
+    description: >-
+      Profil par défaut du banc. Les identifiants de service y sont déclarés
+      « réservés banc, reconfigurables » dans les ICD partenaires, jamais imposés.
+    services:
+      ARM:          0x010
+      GO:           0x011
+      BENCH_CFG:    0x012
+      BENCH_RESULT: 0x013
+    heartbeat_base: 0x780    # identifiant = base + node_id, soit 0x781 à 0x784
+    reserved_ranges:
+      - { first: 0x010, last: 0x01F, purpose: "services du banc" }
+      - { first: 0x780, last: 0x78F, purpose: "heartbeat des nœuds" }
+
+  # Profil de repli si un partenaire utilise déjà 0x010-0x01F ou 0x780-0x78F.
+  # Sert aussi de vecteur de test : le générateur doit traiter plusieurs profils.
+  alt_high:
+    description: Profil alternatif, services et heartbeat décalés vers le haut.
+    services:
+      ARM:          0x020
+      GO:           0x021
+      BENCH_CFG:    0x022
+      BENCH_RESULT: 0x023
+    heartbeat_base: 0x790
+    reserved_ranges:
+      - { first: 0x020, last: 0x02F, purpose: "services du banc" }
+      - { first: 0x790, last: 0x79F, purpose: "heartbeat des nœuds" }
+
+default_profile: bench
+
+# -----------------------------------------------------------------------------
+#  Nœuds
+# -----------------------------------------------------------------------------
+nodes:
+  - { node_id: 1, name: N1, board: nucleo_g431kb, role: energy_command, contender: true  }
+  - { node_id: 2, name: N2, board: nucleo_g431kb, role: imu_speed,      contender: true  }
+  - { node_id: 3, name: N3, board: nucleo_g431kb, role: temp_battery,   contender: true  }
+  - { node_id: 4, name: N4, board: bluepill_f103, role: faulty,         contender: false }
+
+# -----------------------------------------------------------------------------
+#  Trames
+# -----------------------------------------------------------------------------
+#  id_ref : identifiant résolu dans le profil actif (service ou heartbeat).
+#  id     : identifiant littéral, pour les trames applicatives d'exemple.
+#
+messages:
+
+  # --------------------------------------------------------------- services ---
+  - name: ARM
+    id_ref: ARM
+    dlc: 8
+    sender: PC
+    receivers: [N1, N2, N3, N4]
+    kind: service
+    comment: >-
+      Ordre d'armement. À sa réception, chaque contendant place sa trame de test dans
+      sa boîte d'émission et incrémente son compteur « ARM reçus ». Contenu nul.
+    signals: []
+
+  - name: GO
+    id_ref: GO
+    dlc: 8
+    sender: PC
+    receivers: [N1, N2, N3, N4]
+    kind: service
+    comment: >-
+      Trame de 8 octets sans contenu utile : elle occupe le bus (environ 250 µs) le
+      temps que tous les contendants aient armé. Contenu nul.
+    signals: []
+
+  - name: BENCH_CFG
+    id_ref: BENCH_CFG
+    dlc: 8
+    sender: PC
+    receivers: [N1, N2, N3, N4]
+    kind: service
+    comment: Commande de configuration d'un nœud pendant un test.
+    signals:
+      - name: target_node
+        start_byte: 0
+        start_bit: 0
+        length: 8
+        byte_order: little_endian
+        signed: false
+        unit: ""
+        min: 0
+        max: 255
+        default: 0
+        comment: Numéro du nœud visé ; 0 = tous les nœuds.
+      - name: mode
+        start_byte: 1
+        start_bit: 0
+        length: 8
+        byte_order: little_endian
+        signed: false
+        unit: ""
+        min: 0
+        max: 255
+        default: 0
+        comment: >-
+          0 normal, 1 babbling idiot, 2 débit erroné (250 kbit/s), 3 DLC incohérent,
+          4 silencieux (couvre aussi l'arrêt d'acquittement), 5 bus-off maintenu.
+      - name: param_u16
+        start_byte: 2
+        start_bit: 0
+        length: 16
+        byte_order: little_endian
+        signed: false
+        unit: ""
+        min: 0
+        max: 65535
+        default: 0
+        comment: Paramètre du mode ; pour le babbling idiot, identifiant à inonder.
+      - name: duration_ms
+        start_byte: 4
+        start_bit: 0
+        length: 16
+        byte_order: little_endian
+        signed: false
+        unit: ms
+        min: 0
+        max: 65535
+        default: 1000
+        comment: >-
+          Durée maximale du mode de faute. Toute faute est bornée dans le temps et
+          révocable ; 0 signifie « révoquer immédiatement ».
+      - name: heartbeat_period_ms
+        start_byte: 6
+        start_bit: 0
+        length: 16
+        byte_order: little_endian
+        signed: false
+        unit: ms
+        min: 0
+        max: 65535
+        default: 500
+        comment: 0 = ne pas modifier la période courante.
+
+  - name: BENCH_RESULT
+    id_ref: BENCH_RESULT
+    dlc: 8
+    sender: any_node
+    receivers: [PC]
+    kind: service
+    comment: Réponse de fin de test émise par le nœud visé.
+    signals:
+      - { name: node_id,     start_byte: 0, start_bit: 0, length: 8,  byte_order: little_endian, signed: false, unit: "", min: 0, max: 255,   default: 0 }
+      - { name: mode,        start_byte: 1, start_bit: 0, length: 8,  byte_order: little_endian, signed: false, unit: "", min: 0, max: 255,   default: 0 }
+      - { name: status,      start_byte: 2, start_bit: 0, length: 8,  byte_order: little_endian, signed: false, unit: "", min: 0, max: 255,   default: 0, comment: "0 succès, 1 refusé, 2 interrompu, 3 non supporté" }
+      - { name: arm_rx,      start_byte: 3, start_bit: 0, length: 8,  byte_order: little_endian, signed: false, unit: "", min: 0, max: 255,   default: 0 }
+      - { name: frames_sent, start_byte: 4, start_bit: 0, length: 16, byte_order: little_endian, signed: false, unit: "", min: 0, max: 65535, default: 0 }
+      - { name: frames_lost, start_byte: 6, start_bit: 0, length: 16, byte_order: little_endian, signed: false, unit: "", min: 0, max: 65535, default: 0 }
+
+  - name: HEARTBEAT
+    id_ref: heartbeat
+    per_node: true            # une instance par nœud : identifiant = base + node_id
+    dlc: 8
+    sender: self
+    receivers: [PC]
+    kind: service
+    comment: >-
+      État périodique d'un nœud (période par défaut 500 ms, configurable), suspendu
+      pendant un test d'arbitrage. TEC et REC proviennent des registres du contrôleur
+      (FDCAN ECR, bxCAN ESR) : aucun compteur d'erreur n'est réimplémenté en logiciel.
+    signals:
+      - name: ctrl_state
+        start_byte: 0
+        start_bit: 0
+        length: 2
+        byte_order: little_endian
+        signed: false
+        unit: ""
+        min: 0
+        max: 3
+        default: 0
+        comment: 0 error-active, 1 error-warning, 2 error-passive, 3 bus-off.
+      - name: last_error_code
+        start_byte: 0
+        start_bit: 2
+        length: 3
+        byte_order: little_endian
+        signed: false
+        unit: ""
+        min: 0
+        max: 7
+        default: 0
+        comment: LEC du contrôleur (FDCAN PSR.LEC / bxCAN ESR.LEC).
+      - name: clock_not_qualified
+        start_byte: 0
+        start_bit: 5
+        length: 1
+        byte_order: little_endian
+        signed: false
+        unit: ""
+        min: 0
+        max: 1
+        default: 0
+        comment: >-
+          1 si le nœud tourne sur HSI : la référence d'horloge n'est pas conforme et
+          aucun verdict de réussite ne doit être prononcé.
+      - name: fault_mode_active
+        start_byte: 0
+        start_bit: 6
+        length: 1
+        byte_order: little_endian
+        signed: false
+        unit: ""
+        min: 0
+        max: 1
+        default: 0
+      - name: silent_mode
+        start_byte: 0
+        start_bit: 7
+        length: 1
+        byte_order: little_endian
+        signed: false
+        unit: ""
+        min: 0
+        max: 1
+        default: 0
+      - { name: tec,           start_byte: 1, start_bit: 0, length: 8,  byte_order: little_endian, signed: false, unit: "", min: 0, max: 255,   default: 0, comment: "Transmit Error Counter, lu dans le matériel" }
+      - { name: rec,           start_byte: 2, start_bit: 0, length: 8,  byte_order: little_endian, signed: false, unit: "", min: 0, max: 255,   default: 0, comment: "Receive Error Counter, lu dans le matériel" }
+      - { name: current_mode,  start_byte: 3, start_bit: 0, length: 8,  byte_order: little_endian, signed: false, unit: "", min: 0, max: 255,   default: 0 }
+      - { name: rx_fifo_lost,  start_byte: 4, start_bit: 0, length: 16, byte_order: little_endian, signed: false, unit: "", min: 0, max: 65535, default: 0, comment: "Pertes FIFO matérielles (FDCAN RF0L)" }
+      - { name: ring_overflow, start_byte: 6, start_bit: 0, length: 16, byte_order: little_endian, signed: false, unit: "", min: 0, max: 65535, default: 0, comment: "Débordements du tampon circulaire logiciel" }
+
+  # ----------------------------------------------- trames applicatives d'exemple
+  #
+  #  ATTENTION : ces trois trames ne sont PAS une spécification partenaire. Ce sont
+  #  les vecteurs de test d'encodage du banc et les contendants du test d'arbitrage.
+  #  Leurs identifiants 0x100, 0x200 et 0x300 correspondent en CANopen à TIME,
+  #  PDO1-rx et PDO2-rx : ne pas les reprendre tels quels dans un ICD partenaire
+  #  qui utiliserait CANopen.
+  #
+  - name: ENERGY_COMMAND
+    id: 0x100
+    dlc: 8
+    sender: N1
+    receivers: [PC, N2, N3, N4]
+    period_ms: 20
+    kind: application
+    contender: true
+    comment: Commande énergie émise périodiquement par N1 ; contendant de rang 1 attendu.
+    signals:
+      - name: torque_setpoint
+        start_byte: 0
+        start_bit: 0
+        length: 16
+        byte_order: little_endian
+        signed: true
+        factor: 0.1
+        offset: 0.0
+        unit: "N.m"
+        min: -3276.8
+        max: 3276.7
+        default: 0.0
+      - name: speed_setpoint
+        start_byte: 2
+        start_bit: 0
+        length: 16
+        byte_order: little_endian
+        signed: true
+        factor: 0.5
+        offset: 0.0
+        unit: "rpm"
+        min: -16384.0
+        max: 16383.5
+        default: 0.0
+      - name: current_limit
+        start_byte: 4
+        start_bit: 0
+        length: 12
+        byte_order: little_endian
+        signed: false
+        factor: 0.05
+        offset: 0.0
+        unit: "A"
+        min: 0.0
+        max: 204.75
+        default: 0.0
+      - name: enable
+        start_byte: 5
+        start_bit: 4
+        length: 1
+        byte_order: little_endian
+        signed: false
+        unit: ""
+        min: 0
+        max: 1
+        default: 0
+      - name: direction
+        start_byte: 5
+        start_bit: 5
+        length: 1
+        byte_order: little_endian
+        signed: false
+        unit: ""
+        min: 0
+        max: 1
+        default: 0
+      - name: command_counter
+        start_byte: 6
+        start_bit: 0
+        length: 8
+        byte_order: little_endian
+        signed: false
+        unit: ""
+        min: 0
+        max: 255
+        default: 0
+        comment: Incrémenté à chaque émission ; sert à détecter une trame manquante.
+      - name: checksum
+        start_byte: 7
+        start_bit: 0
+        length: 8
+        byte_order: little_endian
+        signed: false
+        unit: ""
+        min: 0
+        max: 255
+        default: 0
+        comment: Somme XOR des octets 0 à 6.
+
+  - name: IMU_SPEED
+    id: 0x200
+    dlc: 8
+    sender: N2
+    receivers: [PC, N1, N3, N4]
+    period_ms: 20
+    kind: application
+    contender: true
+    comment: >-
+      IMU et vitesse roue émises par N2 ; contendant de rang 2 attendu. Le capteur
+      MPU-6050 (0x68) est utilisé s'il est détecté, sinon la séquence déterministe
+      déclarée en bas de ce fichier prend le relais.
+    signals:
+      - name: accel_x
+        start_byte: 0
+        start_bit: 0
+        length: 16
+        byte_order: little_endian
+        signed: true
+        factor: 0.001
+        offset: 0.0
+        unit: "g"
+        min: -32.768
+        max: 32.767
+        default: 0.0
+      - name: accel_y
+        start_byte: 2
+        start_bit: 0
+        length: 16
+        byte_order: little_endian
+        signed: true
+        factor: 0.001
+        offset: 0.0
+        unit: "g"
+        min: -32.768
+        max: 32.767
+        default: 0.0
+      - name: gyro_z
+        start_byte: 4
+        start_bit: 0
+        length: 16
+        byte_order: little_endian
+        signed: true
+        factor: 0.0625
+        offset: 0.0
+        unit: "deg/s"
+        min: -2048.0
+        max: 2047.9375
+        default: 0.0
+      - name: wheel_speed
+        start_byte: 6
+        start_bit: 0
+        length: 12
+        byte_order: little_endian
+        signed: false
+        factor: 0.25
+        offset: 0.0
+        unit: "km/h"
+        min: 0.0
+        max: 1023.75
+        default: 0.0
+        comment: Mesurée par capteur à effet Hall.
+      - name: sensor_present
+        start_byte: 7
+        start_bit: 4
+        length: 1
+        byte_order: little_endian
+        signed: false
+        unit: ""
+        min: 0
+        max: 1
+        default: 0
+        comment: 1 si le capteur réel répond, 0 si la séquence simulée est utilisée.
+      - name: frame_counter
+        start_byte: 7
+        start_bit: 5
+        length: 3
+        byte_order: little_endian
+        signed: false
+        unit: ""
+        min: 0
+        max: 7
+        default: 0
+
+  - name: TEMP_BATTERY
+    id: 0x300
+    dlc: 8
+    sender: N3
+    receivers: [PC, N1, N2, N4]
+    period_ms: 20
+    kind: application
+    contender: true
+    comment: >-
+      Température et état batterie émis par N3 ; contendant de rang 3 attendu. Le
+      DS18B20 est utilisé s'il est détecté, sinon la séquence déterministe.
+    signals:
+      - name: temperature
+        start_byte: 0
+        start_bit: 0
+        length: 16
+        byte_order: little_endian
+        signed: true
+        factor: 0.0625
+        offset: 0.0
+        unit: "degC"
+        min: -55.0
+        max: 125.0
+        default: 20.0
+        comment: Résolution native du DS18B20 (1/16 °C).
+      - name: pack_voltage
+        start_byte: 2
+        start_bit: 0
+        length: 16
+        byte_order: little_endian
+        signed: false
+        factor: 0.01
+        offset: 0.0
+        unit: "V"
+        min: 0.0
+        max: 655.35
+        default: 0.0
+      - name: pack_current
+        start_byte: 4
+        start_bit: 0
+        length: 16
+        byte_order: little_endian
+        signed: true
+        factor: 0.01
+        offset: 0.0
+        unit: "A"
+        min: -327.68
+        max: 327.67
+        default: 0.0
+      - name: state_of_charge
+        start_byte: 6
+        start_bit: 0
+        length: 7
+        byte_order: little_endian
+        signed: false
+        factor: 1.0
+        offset: 0.0
+        unit: "%"
+        min: 0.0
+        max: 100.0
+        default: 0.0
+      - name: sensor_present
+        start_byte: 6
+        start_bit: 7
+        length: 1
+        byte_order: little_endian
+        signed: false
+        unit: ""
+        min: 0
+        max: 1
+        default: 0
+      - name: frame_counter
+        start_byte: 7
+        start_bit: 0
+        length: 8
+        byte_order: little_endian
+        signed: false
+        unit: ""
+        min: 0
+        max: 255
+        default: 0
+
+# -----------------------------------------------------------------------------
+#  Séquences déterministes des simulateurs de capteurs
+# -----------------------------------------------------------------------------
+#  Quand le capteur réel n'est pas détecté, le nœud émet cette séquence, qui boucle.
+#  `canbench encoding` compare les valeurs reçues à ces valeurs exactes : c'est ce
+#  qui rend le test d'encodage automatisable sans matériel de mesure.
+#
+#  Les valeurs sont exprimées en unité physique et doivent être exactement
+#  représentables avec le facteur du signal (vérifié par le générateur).
+#
+simulations:
+  IMU_SPEED:
+    period_ms: 20
+    steps:
+      - { accel_x:  0.000, accel_y:  0.000, gyro_z:    0.0000, wheel_speed:  0.00 }
+      - { accel_x:  0.250, accel_y: -0.125, gyro_z:   90.0000, wheel_speed: 12.50 }
+      - { accel_x:  1.000, accel_y:  0.500, gyro_z: -180.0000, wheel_speed: 25.00 }
+      - { accel_x: -1.000, accel_y:  0.750, gyro_z:  360.0000, wheel_speed: 50.75 }
+      - { accel_x: 32.767, accel_y: -32.768, gyro_z: 2047.9375, wheel_speed: 1023.75 }
+      - { accel_x: -32.768, accel_y: 32.767, gyro_z: -2048.0000, wheel_speed:  0.25 }
+
+  TEMP_BATTERY:
+    period_ms: 20
+    steps:
+      - { temperature:  20.0000, pack_voltage:  0.00, pack_current:    0.00, state_of_charge: 100 }
+      - { temperature:   0.0000, pack_voltage: 48.00, pack_current:   12.50, state_of_charge:  75 }
+      - { temperature: -55.0000, pack_voltage: 12.34, pack_current: -327.68, state_of_charge:   0 }
+      - { temperature: 125.0000, pack_voltage: 655.35, pack_current:  327.67, state_of_charge:  50 }
+      - { temperature:  36.6875, pack_voltage: 24.01, pack_current:   -0.01, state_of_charge:   1 }
+
+  ENERGY_COMMAND:
+    period_ms: 20
+    steps:
+      - { torque_setpoint:    0.0, speed_setpoint:     0.0, current_limit:   0.00, enable: 0, direction: 0 }
+      - { torque_setpoint:   12.5, speed_setpoint:  1500.0, current_limit:  10.00, enable: 1, direction: 0 }
+      - { torque_setpoint:  -12.5, speed_setpoint: -1500.0, current_limit:  10.00, enable: 1, direction: 1 }
+      - { torque_setpoint: 3276.7, speed_setpoint: 16383.5, current_limit: 204.75, enable: 1, direction: 0 }
+      - { torque_setpoint: -3276.8, speed_setpoint: -16384.0, current_limit:  0.05, enable: 0, direction: 1 }

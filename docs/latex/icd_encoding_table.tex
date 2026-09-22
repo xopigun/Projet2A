@@ -1,0 +1,68 @@
+% ===========================================================================
+%  FICHIER GÉNÉRÉ — NE PAS ÉDITER À LA MAIN
+%  Produit par tools/codegen à partir de icd/bench_icd.yaml.
+%  Regénérer :  python -m tools.codegen
+% ===========================================================================
+
+\begin{longtable}{llrrcccrrl}
+\toprule
+\textbf{Trame} & \textbf{Signal} & \textbf{Oct.} & \textbf{Bit} & \textbf{Long.} & \textbf{Ordre} & \textbf{S} & \textbf{Facteur} & \textbf{Offset} & \textbf{Unité} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Trame} & \textbf{Signal} & \textbf{Oct.} & \textbf{Bit} & \textbf{Long.} & \textbf{Ordre} & \textbf{S} & \textbf{Facteur} & \textbf{Offset} & \textbf{Unité} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\texttt{ARM} & \multicolumn{9}{l}{\itshape aucun signal — 8 octets nuls} \\
+\texttt{GO} & \multicolumn{9}{l}{\itshape aucun signal — 8 octets nuls} \\
+\texttt{BENCH\_CFG} & \texttt{target\_node} & 0 & 0 & 8 & Intel & non & 1 & 0 & -- \\
+ & \texttt{mode} & 1 & 0 & 8 & Intel & non & 1 & 0 & -- \\
+ & \texttt{param\_u16} & 2 & 0 & 16 & Intel & non & 1 & 0 & -- \\
+ & \texttt{duration\_ms} & 4 & 0 & 16 & Intel & non & 1 & 0 & ms \\
+ & \texttt{heartbeat\_period\_ms} & 6 & 0 & 16 & Intel & non & 1 & 0 & ms \\
+\addlinespace
+\texttt{BENCH\_RESULT} & \texttt{node\_id} & 0 & 0 & 8 & Intel & non & 1 & 0 & -- \\
+ & \texttt{mode} & 1 & 0 & 8 & Intel & non & 1 & 0 & -- \\
+ & \texttt{status} & 2 & 0 & 8 & Intel & non & 1 & 0 & -- \\
+ & \texttt{arm\_rx} & 3 & 0 & 8 & Intel & non & 1 & 0 & -- \\
+ & \texttt{frames\_sent} & 4 & 0 & 16 & Intel & non & 1 & 0 & -- \\
+ & \texttt{frames\_lost} & 6 & 0 & 16 & Intel & non & 1 & 0 & -- \\
+\addlinespace
+\texttt{HEARTBEAT} & \texttt{ctrl\_state} & 0 & 0 & 2 & Intel & non & 1 & 0 & -- \\
+ & \texttt{last\_error\_code} & 0 & 2 & 3 & Intel & non & 1 & 0 & -- \\
+ & \texttt{clock\_not\_qualified} & 0 & 5 & 1 & Intel & non & 1 & 0 & -- \\
+ & \texttt{fault\_mode\_active} & 0 & 6 & 1 & Intel & non & 1 & 0 & -- \\
+ & \texttt{silent\_mode} & 0 & 7 & 1 & Intel & non & 1 & 0 & -- \\
+ & \texttt{tec} & 1 & 0 & 8 & Intel & non & 1 & 0 & -- \\
+ & \texttt{rec} & 2 & 0 & 8 & Intel & non & 1 & 0 & -- \\
+ & \texttt{current\_mode} & 3 & 0 & 8 & Intel & non & 1 & 0 & -- \\
+ & \texttt{rx\_fifo\_lost} & 4 & 0 & 16 & Intel & non & 1 & 0 & -- \\
+ & \texttt{ring\_overflow} & 6 & 0 & 16 & Intel & non & 1 & 0 & -- \\
+\addlinespace
+\texttt{ENERGY\_COMMAND} & \texttt{torque\_setpoint} & 0 & 0 & 16 & Intel & oui & 0.1 & 0 & N.m \\
+ & \texttt{speed\_setpoint} & 2 & 0 & 16 & Intel & oui & 0.5 & 0 & rpm \\
+ & \texttt{current\_limit} & 4 & 0 & 12 & Intel & non & 0.05 & 0 & A \\
+ & \texttt{enable} & 5 & 4 & 1 & Intel & non & 1 & 0 & -- \\
+ & \texttt{direction} & 5 & 5 & 1 & Intel & non & 1 & 0 & -- \\
+ & \texttt{command\_counter} & 6 & 0 & 8 & Intel & non & 1 & 0 & -- \\
+ & \texttt{checksum} & 7 & 0 & 8 & Intel & non & 1 & 0 & -- \\
+\addlinespace
+\texttt{IMU\_SPEED} & \texttt{accel\_x} & 0 & 0 & 16 & Intel & oui & 0.001 & 0 & g \\
+ & \texttt{accel\_y} & 2 & 0 & 16 & Intel & oui & 0.001 & 0 & g \\
+ & \texttt{gyro\_z} & 4 & 0 & 16 & Intel & oui & 0.0625 & 0 & deg/s \\
+ & \texttt{wheel\_speed} & 6 & 0 & 12 & Intel & non & 0.25 & 0 & km/h \\
+ & \texttt{sensor\_present} & 7 & 4 & 1 & Intel & non & 1 & 0 & -- \\
+ & \texttt{frame\_counter} & 7 & 5 & 3 & Intel & non & 1 & 0 & -- \\
+\addlinespace
+\texttt{TEMP\_BATTERY} & \texttt{temperature} & 0 & 0 & 16 & Intel & oui & 0.0625 & 0 & degC \\
+ & \texttt{pack\_voltage} & 2 & 0 & 16 & Intel & non & 0.01 & 0 & V \\
+ & \texttt{pack\_current} & 4 & 0 & 16 & Intel & oui & 0.01 & 0 & A \\
+ & \texttt{state\_of\_charge} & 6 & 0 & 7 & Intel & non & 1 & 0 & \% \\
+ & \texttt{sensor\_present} & 6 & 7 & 1 & Intel & non & 1 & 0 & -- \\
+ & \texttt{frame\_counter} & 7 & 0 & 8 & Intel & non & 1 & 0 & -- \\
+\addlinespace
+\caption{Encodage des signaux de l'ICD du banc, profil « bench ». Colonne S : signal signé.}
+\label{tab:icd-encodage}
+\end{longtable}

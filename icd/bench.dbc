@@ -1,0 +1,162 @@
+VERSION ""
+
+
+NS_ :
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	BA_DEF_DEF_
+
+BS_:
+
+BU_: N1 N2 N3 N4 PC
+
+BO_ 16 ARM: 8 PC
+
+BO_ 17 GO: 8 PC
+
+BO_ 18 BENCH_CFG: 8 PC
+ SG_ target_node : 0|8@1+ (1,0) [0|255] "" N1,N2,N3,N4
+ SG_ mode : 8|8@1+ (1,0) [0|255] "" N1,N2,N3,N4
+ SG_ param_u16 : 16|16@1+ (1,0) [0|65535] "" N1,N2,N3,N4
+ SG_ duration_ms : 32|16@1+ (1,0) [0|65535] "ms" N1,N2,N3,N4
+ SG_ heartbeat_period_ms : 48|16@1+ (1,0) [0|65535] "ms" N1,N2,N3,N4
+
+BO_ 19 BENCH_RESULT: 8 Vector__XXX
+ SG_ node_id : 0|8@1+ (1,0) [0|255] "" PC
+ SG_ mode : 8|8@1+ (1,0) [0|255] "" PC
+ SG_ status : 16|8@1+ (1,0) [0|255] "" PC
+ SG_ arm_rx : 24|8@1+ (1,0) [0|255] "" PC
+ SG_ frames_sent : 32|16@1+ (1,0) [0|65535] "" PC
+ SG_ frames_lost : 48|16@1+ (1,0) [0|65535] "" PC
+
+BO_ 1921 HEARTBEAT_N1: 8 Vector__XXX
+ SG_ ctrl_state : 0|2@1+ (1,0) [0|3] "" PC
+ SG_ last_error_code : 2|3@1+ (1,0) [0|7] "" PC
+ SG_ clock_not_qualified : 5|1@1+ (1,0) [0|1] "" PC
+ SG_ fault_mode_active : 6|1@1+ (1,0) [0|1] "" PC
+ SG_ silent_mode : 7|1@1+ (1,0) [0|1] "" PC
+ SG_ tec : 8|8@1+ (1,0) [0|255] "" PC
+ SG_ rec : 16|8@1+ (1,0) [0|255] "" PC
+ SG_ current_mode : 24|8@1+ (1,0) [0|255] "" PC
+ SG_ rx_fifo_lost : 32|16@1+ (1,0) [0|65535] "" PC
+ SG_ ring_overflow : 48|16@1+ (1,0) [0|65535] "" PC
+
+BO_ 1922 HEARTBEAT_N2: 8 Vector__XXX
+ SG_ ctrl_state : 0|2@1+ (1,0) [0|3] "" PC
+ SG_ last_error_code : 2|3@1+ (1,0) [0|7] "" PC
+ SG_ clock_not_qualified : 5|1@1+ (1,0) [0|1] "" PC
+ SG_ fault_mode_active : 6|1@1+ (1,0) [0|1] "" PC
+ SG_ silent_mode : 7|1@1+ (1,0) [0|1] "" PC
+ SG_ tec : 8|8@1+ (1,0) [0|255] "" PC
+ SG_ rec : 16|8@1+ (1,0) [0|255] "" PC
+ SG_ current_mode : 24|8@1+ (1,0) [0|255] "" PC
+ SG_ rx_fifo_lost : 32|16@1+ (1,0) [0|65535] "" PC
+ SG_ ring_overflow : 48|16@1+ (1,0) [0|65535] "" PC
+
+BO_ 1923 HEARTBEAT_N3: 8 Vector__XXX
+ SG_ ctrl_state : 0|2@1+ (1,0) [0|3] "" PC
+ SG_ last_error_code : 2|3@1+ (1,0) [0|7] "" PC
+ SG_ clock_not_qualified : 5|1@1+ (1,0) [0|1] "" PC
+ SG_ fault_mode_active : 6|1@1+ (1,0) [0|1] "" PC
+ SG_ silent_mode : 7|1@1+ (1,0) [0|1] "" PC
+ SG_ tec : 8|8@1+ (1,0) [0|255] "" PC
+ SG_ rec : 16|8@1+ (1,0) [0|255] "" PC
+ SG_ current_mode : 24|8@1+ (1,0) [0|255] "" PC
+ SG_ rx_fifo_lost : 32|16@1+ (1,0) [0|65535] "" PC
+ SG_ ring_overflow : 48|16@1+ (1,0) [0|65535] "" PC
+
+BO_ 1924 HEARTBEAT_N4: 8 Vector__XXX
+ SG_ ctrl_state : 0|2@1+ (1,0) [0|3] "" PC
+ SG_ last_error_code : 2|3@1+ (1,0) [0|7] "" PC
+ SG_ clock_not_qualified : 5|1@1+ (1,0) [0|1] "" PC
+ SG_ fault_mode_active : 6|1@1+ (1,0) [0|1] "" PC
+ SG_ silent_mode : 7|1@1+ (1,0) [0|1] "" PC
+ SG_ tec : 8|8@1+ (1,0) [0|255] "" PC
+ SG_ rec : 16|8@1+ (1,0) [0|255] "" PC
+ SG_ current_mode : 24|8@1+ (1,0) [0|255] "" PC
+ SG_ rx_fifo_lost : 32|16@1+ (1,0) [0|65535] "" PC
+ SG_ ring_overflow : 48|16@1+ (1,0) [0|65535] "" PC
+
+BO_ 256 ENERGY_COMMAND: 8 N1
+ SG_ torque_setpoint : 0|16@1- (0.1,0) [-3276.8|3276.7] "N.m" PC,N2,N3,N4
+ SG_ speed_setpoint : 16|16@1- (0.5,0) [-16384|16383.5] "rpm" PC,N2,N3,N4
+ SG_ current_limit : 32|12@1+ (0.05,0) [0|204.75] "A" PC,N2,N3,N4
+ SG_ enable : 44|1@1+ (1,0) [0|1] "" PC,N2,N3,N4
+ SG_ direction : 45|1@1+ (1,0) [0|1] "" PC,N2,N3,N4
+ SG_ command_counter : 48|8@1+ (1,0) [0|255] "" PC,N2,N3,N4
+ SG_ checksum : 56|8@1+ (1,0) [0|255] "" PC,N2,N3,N4
+
+BO_ 512 IMU_SPEED: 8 N2
+ SG_ accel_x : 0|16@1- (0.001,0) [-32.768|32.767] "g" PC,N1,N3,N4
+ SG_ accel_y : 16|16@1- (0.001,0) [-32.768|32.767] "g" PC,N1,N3,N4
+ SG_ gyro_z : 32|16@1- (0.0625,0) [-2048|2047.94] "deg/s" PC,N1,N3,N4
+ SG_ wheel_speed : 48|12@1+ (0.25,0) [0|1023.75] "km/h" PC,N1,N3,N4
+ SG_ sensor_present : 60|1@1+ (1,0) [0|1] "" PC,N1,N3,N4
+ SG_ frame_counter : 61|3@1+ (1,0) [0|7] "" PC,N1,N3,N4
+
+BO_ 768 TEMP_BATTERY: 8 N3
+ SG_ temperature : 0|16@1- (0.0625,0) [-55|125] "degC" PC,N1,N2,N4
+ SG_ pack_voltage : 16|16@1+ (0.01,0) [0|655.35] "V" PC,N1,N2,N4
+ SG_ pack_current : 32|16@1- (0.01,0) [-327.68|327.67] "A" PC,N1,N2,N4
+ SG_ state_of_charge : 48|7@1+ (1,0) [0|100] "%" PC,N1,N2,N4
+ SG_ sensor_present : 55|1@1+ (1,0) [0|1] "" PC,N1,N2,N4
+ SG_ frame_counter : 56|8@1+ (1,0) [0|255] "" PC,N1,N2,N4
+
+CM_ BO_ 16 "Ordre d'armement. À sa réception, chaque contendant place sa trame de test dans sa boîte d'émission et incrémente son compteur « ARM reçus ». Contenu nul.";
+CM_ BO_ 17 "Trame de 8 octets sans contenu utile : elle occupe le bus (environ 250 µs) le temps que tous les contendants aient armé. Contenu nul.";
+CM_ BO_ 18 "Commande de configuration d'un nœud pendant un test.";
+CM_ SG_ 18 target_node "Numéro du nœud visé ; 0 = tous les nœuds.";
+CM_ SG_ 18 mode "0 normal, 1 babbling idiot, 2 débit erroné (250 kbit/s), 3 DLC incohérent, 4 silencieux (couvre aussi l'arrêt d'acquittement), 5 bus-off maintenu.";
+CM_ SG_ 18 param_u16 "Paramètre du mode ; pour le babbling idiot, identifiant à inonder.";
+CM_ SG_ 18 duration_ms "Durée maximale du mode de faute. Toute faute est bornée dans le temps et révocable ; 0 signifie « révoquer immédiatement ».";
+CM_ SG_ 18 heartbeat_period_ms "0 = ne pas modifier la période courante.";
+CM_ BO_ 19 "Réponse de fin de test émise par le nœud visé.";
+CM_ SG_ 19 status "0 succès, 1 refusé, 2 interrompu, 3 non supporté";
+CM_ BO_ 1921 "État périodique d'un nœud (période par défaut 500 ms, configurable), suspendu pendant un test d'arbitrage. TEC et REC proviennent des registres du contrôleur (FDCAN ECR, bxCAN ESR) : aucun compteur d'erreur n'est réimplémenté en logiciel.";
+CM_ SG_ 1921 ctrl_state "0 error-active, 1 error-warning, 2 error-passive, 3 bus-off.";
+CM_ SG_ 1921 last_error_code "LEC du contrôleur (FDCAN PSR.LEC / bxCAN ESR.LEC).";
+CM_ SG_ 1921 clock_not_qualified "1 si le nœud tourne sur HSI : la référence d'horloge n'est pas conforme et aucun verdict de réussite ne doit être prononcé.";
+CM_ SG_ 1921 tec "Transmit Error Counter, lu dans le matériel";
+CM_ SG_ 1921 rec "Receive Error Counter, lu dans le matériel";
+CM_ SG_ 1921 rx_fifo_lost "Pertes FIFO matérielles (FDCAN RF0L)";
+CM_ SG_ 1921 ring_overflow "Débordements du tampon circulaire logiciel";
+CM_ BO_ 1922 "État périodique d'un nœud (période par défaut 500 ms, configurable), suspendu pendant un test d'arbitrage. TEC et REC proviennent des registres du contrôleur (FDCAN ECR, bxCAN ESR) : aucun compteur d'erreur n'est réimplémenté en logiciel.";
+CM_ SG_ 1922 ctrl_state "0 error-active, 1 error-warning, 2 error-passive, 3 bus-off.";
+CM_ SG_ 1922 last_error_code "LEC du contrôleur (FDCAN PSR.LEC / bxCAN ESR.LEC).";
+CM_ SG_ 1922 clock_not_qualified "1 si le nœud tourne sur HSI : la référence d'horloge n'est pas conforme et aucun verdict de réussite ne doit être prononcé.";
+CM_ SG_ 1922 tec "Transmit Error Counter, lu dans le matériel";
+CM_ SG_ 1922 rec "Receive Error Counter, lu dans le matériel";
+CM_ SG_ 1922 rx_fifo_lost "Pertes FIFO matérielles (FDCAN RF0L)";
+CM_ SG_ 1922 ring_overflow "Débordements du tampon circulaire logiciel";
+CM_ BO_ 1923 "État périodique d'un nœud (période par défaut 500 ms, configurable), suspendu pendant un test d'arbitrage. TEC et REC proviennent des registres du contrôleur (FDCAN ECR, bxCAN ESR) : aucun compteur d'erreur n'est réimplémenté en logiciel.";
+CM_ SG_ 1923 ctrl_state "0 error-active, 1 error-warning, 2 error-passive, 3 bus-off.";
+CM_ SG_ 1923 last_error_code "LEC du contrôleur (FDCAN PSR.LEC / bxCAN ESR.LEC).";
+CM_ SG_ 1923 clock_not_qualified "1 si le nœud tourne sur HSI : la référence d'horloge n'est pas conforme et aucun verdict de réussite ne doit être prononcé.";
+CM_ SG_ 1923 tec "Transmit Error Counter, lu dans le matériel";
+CM_ SG_ 1923 rec "Receive Error Counter, lu dans le matériel";
+CM_ SG_ 1923 rx_fifo_lost "Pertes FIFO matérielles (FDCAN RF0L)";
+CM_ SG_ 1923 ring_overflow "Débordements du tampon circulaire logiciel";
+CM_ BO_ 1924 "État périodique d'un nœud (période par défaut 500 ms, configurable), suspendu pendant un test d'arbitrage. TEC et REC proviennent des registres du contrôleur (FDCAN ECR, bxCAN ESR) : aucun compteur d'erreur n'est réimplémenté en logiciel.";
+CM_ SG_ 1924 ctrl_state "0 error-active, 1 error-warning, 2 error-passive, 3 bus-off.";
+CM_ SG_ 1924 last_error_code "LEC du contrôleur (FDCAN PSR.LEC / bxCAN ESR.LEC).";
+CM_ SG_ 1924 clock_not_qualified "1 si le nœud tourne sur HSI : la référence d'horloge n'est pas conforme et aucun verdict de réussite ne doit être prononcé.";
+CM_ SG_ 1924 tec "Transmit Error Counter, lu dans le matériel";
+CM_ SG_ 1924 rec "Receive Error Counter, lu dans le matériel";
+CM_ SG_ 1924 rx_fifo_lost "Pertes FIFO matérielles (FDCAN RF0L)";
+CM_ SG_ 1924 ring_overflow "Débordements du tampon circulaire logiciel";
+CM_ BO_ 256 "Commande énergie émise périodiquement par N1 ; contendant de rang 1 attendu.";
+CM_ SG_ 256 command_counter "Incrémenté à chaque émission ; sert à détecter une trame manquante.";
+CM_ SG_ 256 checksum "Somme XOR des octets 0 à 6.";
+CM_ BO_ 512 "IMU et vitesse roue émises par N2 ; contendant de rang 2 attendu. Le capteur MPU-6050 (0x68) est utilisé s'il est détecté, sinon la séquence déterministe déclarée en bas de ce fichier prend le relais.";
+CM_ SG_ 512 wheel_speed "Mesurée par capteur à effet Hall.";
+CM_ SG_ 512 sensor_present "1 si le capteur réel répond, 0 si la séquence simulée est utilisée.";
+CM_ BO_ 768 "Température et état batterie émis par N3 ; contendant de rang 3 attendu. Le DS18B20 est utilisé s'il est détecté, sinon la séquence déterministe.";
+CM_ SG_ 768 temperature "Résolution native du DS18B20 (1/16 °C).";
+
+BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
+BA_DEF_DEF_  "GenMsgCycleTime" 0;
+BA_ "GenMsgCycleTime" BO_ 256 20;
+BA_ "GenMsgCycleTime" BO_ 512 20;
+BA_ "GenMsgCycleTime" BO_ 768 20;

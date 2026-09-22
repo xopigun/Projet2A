@@ -1,0 +1,29 @@
+% ===========================================================================
+%  FICHIER GÉNÉRÉ — NE PAS ÉDITER À LA MAIN
+%  Produit par tools/codegen à partir de icd/bench_icd.yaml.
+%  Regénérer :  python -m tools.codegen
+% ===========================================================================
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{llll}
+\toprule
+\textbf{Identifiant} & \textbf{Nom} & \textbf{Sens} & \textbf{Rôle} \\
+\midrule
+\texttt{0x010} & \texttt{ARM} & PC $\rightarrow$ N1, N2, N3, N4 & Ordre d'armement. À sa réception, chaque contendant place sa trame de test dans sa boîte d'émission et incr... \\
+\texttt{0x011} & \texttt{GO} & PC $\rightarrow$ N1, N2, N3, N4 & Trame de 8 octets sans contenu utile : elle occupe le bus (environ 250 µs) le temps que tous les contendant... \\
+\texttt{0x012} & \texttt{BENCH\_CFG} & PC $\rightarrow$ N1, N2, N3, N4 & Commande de configuration d'un nœud pendant un test. \\
+\texttt{0x013} & \texttt{BENCH\_RESULT} & any\_node $\rightarrow$ PC & Réponse de fin de test émise par le nœud visé. \\
+\texttt{0x781} & \texttt{HEARTBEAT\_N1} & self $\rightarrow$ PC & État périodique d'un nœud (période par défaut 500 ms, configurable), suspendu pendant un test d'arbitrage. ... \\
+\texttt{0x782} & \texttt{HEARTBEAT\_N2} & self $\rightarrow$ PC & État périodique d'un nœud (période par défaut 500 ms, configurable), suspendu pendant un test d'arbitrage. ... \\
+\texttt{0x783} & \texttt{HEARTBEAT\_N3} & self $\rightarrow$ PC & État périodique d'un nœud (période par défaut 500 ms, configurable), suspendu pendant un test d'arbitrage. ... \\
+\texttt{0x784} & \texttt{HEARTBEAT\_N4} & self $\rightarrow$ PC & État périodique d'un nœud (période par défaut 500 ms, configurable), suspendu pendant un test d'arbitrage. ... \\
+\midrule
+\multicolumn{4}{l}{\textbf{Plages réservées au banc}} \\
+\multicolumn{2}{l}{\texttt{0x010--0x01F}} & \multicolumn{2}{l}{services du banc} \\
+\multicolumn{2}{l}{\texttt{0x780--0x78F}} & \multicolumn{2}{l}{heartbeat des nœuds} \\
+\bottomrule
+\end{tabular}
+\caption{Identifiants réservés au banc (profil « bench »). Ces identifiants sont à déclarer « réservés banc, reconfigurables » dans les ICD partenaires : ils ne leur sont pas imposés, un profil réseau distinct pouvant les déplacer.}
+\label{tab:icd-reserves}
+\end{table}
