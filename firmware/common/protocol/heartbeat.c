@@ -67,8 +67,14 @@ void bench_heartbeat_pack_frame(const bench_heartbeat_inputs_t *inputs,
     frame.tec = status->tec;
     frame.rec = status->rec;
     frame.current_mode = inputs->current_mode;
-    frame.rx_fifo_lost = status->rx_fifo_lost;
-    frame.ring_overflow = bench_ring_dropped(ring);
+    /* Les quatre compteurs saturent a 255 : ils servent a dire « ce n'est pas
+     * nul », pas a mesurer finement. Toute valeur non nulle invalide la mesure. */
+    frame.rx_fifo_lost = (status->rx_fifo_lost > 255u) ? 255u
+                                                       : (uint8_t)status->rx_fifo_lost;
+    const uint16_t dropped = bench_ring_dropped(ring);
+    frame.ring_overflow = (dropped > 255u) ? 255u : (uint8_t)dropped;
+    frame.non_classic_rx = status->non_classic_rx;
+    frame.ext_id_rx = status->ext_id_rx;
 
     bench_heartbeat_pack(data, &frame);
 }

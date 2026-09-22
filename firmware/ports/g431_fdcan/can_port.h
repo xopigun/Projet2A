@@ -15,7 +15,9 @@
 typedef struct {
     FDCAN_HandleTypeDef   hfdcan;
     bench_ring_t         *rx_ring;      /**< rempli par l'ISR, vide par la boucle */
-    volatile uint16_t     rx_fifo_lost; /**< pertes FIFO materielles */
+    volatile uint16_t     rx_fifo_lost;    /**< pertes FIFO materielles */
+    volatile uint8_t      non_classic_rx;  /**< trames CAN FD, saturant */
+    volatile uint8_t      ext_id_rx;       /**< trames a identifiant 29 bits, saturant */
     bench_busoff_policy_t busoff_policy;
     bool                  silent;
 } bench_g431_can_t;

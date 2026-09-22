@@ -37,9 +37,12 @@
  & \texttt{silent\_mode} & 0 & 7 & 1 & Intel & non & 1 & 0 & -- \\
  & \texttt{tec} & 1 & 0 & 8 & Intel & non & 1 & 0 & -- \\
  & \texttt{rec} & 2 & 0 & 8 & Intel & non & 1 & 0 & -- \\
- & \texttt{current\_mode} & 3 & 0 & 8 & Intel & non & 1 & 0 & -- \\
- & \texttt{rx\_fifo\_lost} & 4 & 0 & 16 & Intel & non & 1 & 0 & -- \\
- & \texttt{ring\_overflow} & 6 & 0 & 16 & Intel & non & 1 & 0 & -- \\
+ & \texttt{current\_mode} & 3 & 0 & 4 & Intel & non & 1 & 0 & -- \\
+ & \texttt{reserved} & 3 & 4 & 4 & Intel & non & 1 & 0 & -- \\
+ & \texttt{rx\_fifo\_lost} & 4 & 0 & 8 & Intel & non & 1 & 0 & -- \\
+ & \texttt{ring\_overflow} & 5 & 0 & 8 & Intel & non & 1 & 0 & -- \\
+ & \texttt{non\_classic\_rx} & 6 & 0 & 8 & Intel & non & 1 & 0 & -- \\
+ & \texttt{ext\_id\_rx} & 7 & 0 & 8 & Intel & non & 1 & 0 & -- \\
 \addlinespace
 \texttt{ENERGY\_COMMAND} & \texttt{torque\_setpoint} & 0 & 0 & 16 & Intel & oui & 0.1 & 0 & N.m \\
  & \texttt{speed\_setpoint} & 2 & 0 & 16 & Intel & oui & 0.5 & 0 & rpm \\

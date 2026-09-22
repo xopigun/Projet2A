@@ -67,20 +67,66 @@ suffisant pour ce banc, dont la charge de calcul est négligeable.
 
 ---
 
-## 2. Mode de fonctionnement
+## 2. Protocole : CAN 2.0A classic
+
+> **« FDCAN » désigne le périphérique, pas le protocole.** Le contrôleur du STM32G431
+> s'appelle FDCAN parce qu'il *sait* faire du CAN FD. Le protocole effectivement utilisé par
+> le banc, et par le standard commun aux groupes partenaires, est **CAN 2.0A classic** :
+> identifiants 11 bits, charge utile de 8 octets au plus, pas de commutation de débit.
+> Cette distinction doit apparaître telle quelle dans le dossier, sans quoi un lecteur peut
+> croire que le bus est en CAN FD.
+
+### 2.1 Configuration
 
 | Paramètre | Valeur | Justification |
 |---|---|---|
-| Format | `FDCAN_FRAME_CLASSIC` | CAN 2.0A, conforme au standard commun |
-| Identifiants | 11 bits (standard) | |
+| `Init.FrameFormat` | `FDCAN_FRAME_CLASSIC` | CAN 2.0A |
+| En-tête TX : `FDFormat` | `FDCAN_CLASSIC_CAN` | aucune trame FD émise |
+| En-tête TX : `BitRateSwitch` | `FDCAN_BRS_OFF` | pas de commutation de débit |
+| En-tête TX : `IdType` | `FDCAN_STANDARD_ID` | identifiants 11 bits |
+| DLC | ≤ 8 | limite du CAN 2.0 |
 | Débit | 500 kbit/s | |
-| Commutation de débit (BRS) | désactivée | sans objet en Classic |
-| Mode d'émission | `FDCAN_TX_QUEUE_OPERATION` | la file trie par priorité d'identifiant |
-| `TransmitPause` | désactivée | insérerait deux temps de bit entre trames et fausserait le test d'arbitrage |
 | `ProtocolException` | désactivée | comportement CAN 2.0 strict |
+| `TransmitPause` | désactivée | insérerait deux temps de bit entre trames et fausserait le test d'arbitrage |
+| Mode d'émission | `FDCAN_TX_QUEUE_OPERATION` | la file trie par priorité d'identifiant |
 
-La capacité CAN FD du périphérique reste disponible sans changement matériel, si le standard
-commun devait évoluer.
+### 2.2 Verrouillage, à trois niveaux
+
+Une dérive vers du CAN FD ou des identifiants 29 bits ne doit pas pouvoir se découvrir sur
+le banc. Trois garde-fous interviennent à trois moments différents :
+
+| Niveau | Quand | Mécanisme |
+|---|---|---|
+| **1** | à la génération | Le validateur de l'ICD refuse un identifiant hors 11 bits ou un DLC supérieur à 8 |
+| **2** | à la compilation | `icd_gen.h` émet un `_Static_assert` par trame : le build casse si une constante générée s'en écarte |
+| **3** | à l'exécution | `tx_common()` refuse d'émettre une trame non conforme ; `port_open()` refuse d'ouvrir si `FrameFormat` a dérivé |
+
+Le niveau 2 couvre les constantes de l'ICD, le niveau 3 les trames construites
+dynamiquement — notamment celles issues d'une commande `BENCH_CFG`.
+
+### 2.3 Détection en réception
+
+Deux compteurs, remontés dans le heartbeat et saturant à 255 :
+
+| Compteur | Ce qu'il compte |
+|---|---|
+| `non_classic_rx` | Trames que le contrôleur signale au format CAN FD |
+| `ext_id_rx` | Trames reçues avec un identifiant 29 bits |
+
+Les trames à identifiant étendu sont **comptées mais non transmises** à la couche
+applicative : ce sont des trames CAN 2.0B parfaitement valides électriquement, mais elles
+n'appartiennent pas à l'ICD.
+
+> **Nuance sur `non_classic_rx`.** Une trame CAN FD circulant sur un bus configuré en
+> classic est le plus souvent rejetée au niveau protocole — le bit FDF, réservé dominant en
+> CAN 2.0, provoque une erreur de forme — et n'atteint jamais la couche de réception. Elle
+> se manifeste alors par un `LEC` en erreur de forme et un `REC` qui grimpe, pas par ce
+> compteur. `non_classic_rx` ne capte que ce que le contrôleur accepte de présenter ; il est
+> conservé par précaution, mais **le signal principal d'une trame FD sur le bus reste
+> l'erreur de forme**. À retenir pour le dépouillement de T6.
+
+Côté PC, `canbench` ouvre l'interface en classic (`fd=False`) et signale toute trame FD ou
+étendue reçue.
 
 ---
 
@@ -246,9 +292,36 @@ La broche `S` reste pilotable si `board.h` la définit, en complément.
 reçoit lui-même sans rien émettre sur les broches : **ni transceiver ni bus câblé ne sont
 nécessaires**.
 
-C'est la base de la phase 1 de l'autotest de mise en route ([bringup.md](bringup.md) §3),
-qui valide d'un coup l'horloge, le temps de bit, la chaîne ISR → tampon circulaire et
-l'encodage de l'ICD, avant tout câblage.
+C'est la base de la phase 1 de l'autotest de mise en route ([bringup.md](bringup.md) §3).
+
+### Ce que le bouclage valide, et ce qu'il ne valide pas
+
+| Validé | Non validé |
+|---|---|
+| Le PLL verrouille | **Le débit réel** |
+| Les valeurs de temps de bit sont acceptées par le contrôleur | La fréquence absolue de l'horloge |
+| L'interruption de réception et le tampon circulaire | |
+| L'encodage de l'ICD, octet par octet | |
+
+**Le bouclage interne ne peut pas établir le débit**, et c'est structurel : l'émetteur et le
+récepteur sont le même périphérique, cadencés par la même horloge noyau. Une PLL mal
+configurée se boucle sur elle-même sans la moindre erreur. Un nœud réglé à 400 kbit/s au
+lieu de 500 passe le bouclage sans broncher.
+
+Le même raisonnement s'applique à un échange entre **deux nœuds de configuration
+identique** : s'ils sont faux, ils le sont de la même façon et se comprennent parfaitement.
+Une erreur d'horloge commune est invisible entre pairs identiques.
+
+Établir le débit demande donc une **référence indépendante** :
+
+1. le **CANable**, dont le quartz n'a aucun rapport avec celui des Nucleo — s'il échange
+   sans erreur, les deux débits coïncident réellement ;
+2. une **mesure à l'oscilloscope** du temps de bit sur CAN_H − CAN_L : 2,000 µs attendus,
+   bande d'acceptation 1,990 à 2,010 µs (± 0,485 %, cf. §3.3), mais **2,000 µs à quelques
+   ppm près** avec une configuration correcte, puisque le quartz est à 20 ppm.
+
+C'est l'objet de l'étape 6 bis de la mise en route et du test **T2** du protocole de
+validation.
 
 ---
 

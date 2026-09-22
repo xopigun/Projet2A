@@ -48,6 +48,13 @@ typedef struct {
     uint8_t           rec;             /**< Receive Error Counter */
     uint8_t           last_error_code; /**< LEC du contrôleur */
     uint16_t          rx_fifo_lost;
+    /**
+     * Trames signalées par le contrôleur comme étant au format CAN FD. Le bus
+     * est en CAN 2.0A classic : toute valeur non nulle est une anomalie.
+     */
+    uint8_t non_classic_rx;
+    /** Trames reçues avec un identifiant 29 bits ; l'ICD n'utilise que 11 bits. */
+    uint8_t ext_id_rx;
 } bench_can_status_t;
 
 /** Politique de reprise après passage en bus-off. */
@@ -73,8 +80,12 @@ typedef struct {
     bool                 silent;  /**< mode moniteur : écoute sans acquitter */
     /**
      * Bouclage interne : le contrôleur se reçoit lui-même sans rien émettre sur
-     * les broches. Permet de valider l'encodage, le temps de bit et la chaîne
-     * ISR -> tampon **sans transceiver ni bus câblé** (voir docs/bringup.md).
+     * les broches. Permet de valider l'encodage et la chaîne ISR -> tampon
+     * **sans transceiver ni bus câblé** (voir docs/bringup.md).
+     *
+     * @warning Ne valide **ni l'horloge ni le débit** : émetteur et récepteur
+     * partagent la même horloge noyau, donc une PLL fausse se boucle sur
+     * elle-même sans erreur. Seule une référence indépendante le prouve.
      */
     bool loopback;
     /**

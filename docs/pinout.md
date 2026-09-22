@@ -145,8 +145,16 @@ placée en bout de stub ne termine pas la ligne principale et introduit des réf
 lieu de les supprimer.
 
 Avec les quatre modules terminés et les deux résistances discrètes, le bus verrait
-6 × 120 Ω en parallèle, soit **20 Ω** : les transceivers ne peuvent pas établir un niveau
-dominant et le bus ne fonctionne pas du tout.
+6 × 120 Ω en parallèle, soit **20 Ω**. Le TJA1051 spécifie sa tension différentielle de
+sortie `VO(dif)bus` (1,5 à 3 V) **pour une charge RL de 45 à 65 Ω** ; à 20 Ω on est très
+au-delà, et le comportement n'est plus garanti. En pratique la tension différentielle
+s'effondre et peut approcher le seuil de détection du récepteur, spécifié entre 0,5 et
+0,9 V : on obtient alors des **erreurs intermittentes** — trames perdues, `REC` qui grimpe,
+comportement dépendant de la température et de la longueur du câble — plutôt qu'un bus
+franchement muet. C'est un mode de défaillance bien plus coûteux à diagnostiquer.
+
+*Source : TJA1051, tableau des caractéristiques statiques — `VO(dif)bus` pour
+RL = 45 Ω à 65 Ω, et `Vth(RX)dif` de 0,5 à 0,9 V.*
 
 ### Contrôle avant mise sous tension
 

@@ -39,9 +39,12 @@ BO_ 1921 HEARTBEAT_N1: 8 Vector__XXX
  SG_ silent_mode : 7|1@1+ (1,0) [0|1] "" PC
  SG_ tec : 8|8@1+ (1,0) [0|255] "" PC
  SG_ rec : 16|8@1+ (1,0) [0|255] "" PC
- SG_ current_mode : 24|8@1+ (1,0) [0|255] "" PC
- SG_ rx_fifo_lost : 32|16@1+ (1,0) [0|65535] "" PC
- SG_ ring_overflow : 48|16@1+ (1,0) [0|65535] "" PC
+ SG_ current_mode : 24|4@1+ (1,0) [0|15] "" PC
+ SG_ reserved : 28|4@1+ (1,0) [0|15] "" PC
+ SG_ rx_fifo_lost : 32|8@1+ (1,0) [0|255] "" PC
+ SG_ ring_overflow : 40|8@1+ (1,0) [0|255] "" PC
+ SG_ non_classic_rx : 48|8@1+ (1,0) [0|255] "" PC
+ SG_ ext_id_rx : 56|8@1+ (1,0) [0|255] "" PC
 
 BO_ 1922 HEARTBEAT_N2: 8 Vector__XXX
  SG_ ctrl_state : 0|2@1+ (1,0) [0|3] "" PC
@@ -51,9 +54,12 @@ BO_ 1922 HEARTBEAT_N2: 8 Vector__XXX
  SG_ silent_mode : 7|1@1+ (1,0) [0|1] "" PC
  SG_ tec : 8|8@1+ (1,0) [0|255] "" PC
  SG_ rec : 16|8@1+ (1,0) [0|255] "" PC
- SG_ current_mode : 24|8@1+ (1,0) [0|255] "" PC
- SG_ rx_fifo_lost : 32|16@1+ (1,0) [0|65535] "" PC
- SG_ ring_overflow : 48|16@1+ (1,0) [0|65535] "" PC
+ SG_ current_mode : 24|4@1+ (1,0) [0|15] "" PC
+ SG_ reserved : 28|4@1+ (1,0) [0|15] "" PC
+ SG_ rx_fifo_lost : 32|8@1+ (1,0) [0|255] "" PC
+ SG_ ring_overflow : 40|8@1+ (1,0) [0|255] "" PC
+ SG_ non_classic_rx : 48|8@1+ (1,0) [0|255] "" PC
+ SG_ ext_id_rx : 56|8@1+ (1,0) [0|255] "" PC
 
 BO_ 1923 HEARTBEAT_N3: 8 Vector__XXX
  SG_ ctrl_state : 0|2@1+ (1,0) [0|3] "" PC
@@ -63,9 +69,12 @@ BO_ 1923 HEARTBEAT_N3: 8 Vector__XXX
  SG_ silent_mode : 7|1@1+ (1,0) [0|1] "" PC
  SG_ tec : 8|8@1+ (1,0) [0|255] "" PC
  SG_ rec : 16|8@1+ (1,0) [0|255] "" PC
- SG_ current_mode : 24|8@1+ (1,0) [0|255] "" PC
- SG_ rx_fifo_lost : 32|16@1+ (1,0) [0|65535] "" PC
- SG_ ring_overflow : 48|16@1+ (1,0) [0|65535] "" PC
+ SG_ current_mode : 24|4@1+ (1,0) [0|15] "" PC
+ SG_ reserved : 28|4@1+ (1,0) [0|15] "" PC
+ SG_ rx_fifo_lost : 32|8@1+ (1,0) [0|255] "" PC
+ SG_ ring_overflow : 40|8@1+ (1,0) [0|255] "" PC
+ SG_ non_classic_rx : 48|8@1+ (1,0) [0|255] "" PC
+ SG_ ext_id_rx : 56|8@1+ (1,0) [0|255] "" PC
 
 BO_ 1924 HEARTBEAT_N4: 8 Vector__XXX
  SG_ ctrl_state : 0|2@1+ (1,0) [0|3] "" PC
@@ -75,9 +84,12 @@ BO_ 1924 HEARTBEAT_N4: 8 Vector__XXX
  SG_ silent_mode : 7|1@1+ (1,0) [0|1] "" PC
  SG_ tec : 8|8@1+ (1,0) [0|255] "" PC
  SG_ rec : 16|8@1+ (1,0) [0|255] "" PC
- SG_ current_mode : 24|8@1+ (1,0) [0|255] "" PC
- SG_ rx_fifo_lost : 32|16@1+ (1,0) [0|65535] "" PC
- SG_ ring_overflow : 48|16@1+ (1,0) [0|65535] "" PC
+ SG_ current_mode : 24|4@1+ (1,0) [0|15] "" PC
+ SG_ reserved : 28|4@1+ (1,0) [0|15] "" PC
+ SG_ rx_fifo_lost : 32|8@1+ (1,0) [0|255] "" PC
+ SG_ ring_overflow : 40|8@1+ (1,0) [0|255] "" PC
+ SG_ non_classic_rx : 48|8@1+ (1,0) [0|255] "" PC
+ SG_ ext_id_rx : 56|8@1+ (1,0) [0|255] "" PC
 
 BO_ 256 ENERGY_COMMAND: 8 N1
  SG_ torque_setpoint : 0|16@1- (0.1,0) [-3276.8|3276.7] "N.m" PC,N2,N3,N4
@@ -120,32 +132,48 @@ CM_ SG_ 1921 last_error_code "LEC du contrôleur (FDCAN PSR.LEC / bxCAN ESR.LEC)
 CM_ SG_ 1921 clock_not_qualified "1 si le nœud tourne sur HSI : la référence d'horloge n'est pas conforme et aucun verdict de réussite ne doit être prononcé.";
 CM_ SG_ 1921 tec "Transmit Error Counter, lu dans le matériel";
 CM_ SG_ 1921 rec "Receive Error Counter, lu dans le matériel";
-CM_ SG_ 1921 rx_fifo_lost "Pertes FIFO matérielles (FDCAN RF0L)";
-CM_ SG_ 1921 ring_overflow "Débordements du tampon circulaire logiciel";
+CM_ SG_ 1921 current_mode "Mode de test courant ; les modes vont de 0 à 5.";
+CM_ SG_ 1921 reserved "Réservé, doit valoir 0.";
+CM_ SG_ 1921 rx_fifo_lost "Pertes FIFO matérielles (FDCAN RF0L), saturant";
+CM_ SG_ 1921 ring_overflow "Débordements du tampon circulaire logiciel, saturant";
+CM_ SG_ 1921 non_classic_rx "Trames CAN FD signalées par le contrôleur, saturant. Le bus est en CAN 2.0A classic : toute valeur non nulle est une anomalie.";
+CM_ SG_ 1921 ext_id_rx "Trames à identifiant 29 bits reçues, saturant. L'ICD n'utilise que des identifiants 11 bits.";
 CM_ BO_ 1922 "État périodique d'un nœud (période par défaut 500 ms, configurable), suspendu pendant un test d'arbitrage. TEC et REC proviennent des registres du contrôleur (FDCAN ECR, bxCAN ESR) : aucun compteur d'erreur n'est réimplémenté en logiciel.";
 CM_ SG_ 1922 ctrl_state "0 error-active, 1 error-warning, 2 error-passive, 3 bus-off.";
 CM_ SG_ 1922 last_error_code "LEC du contrôleur (FDCAN PSR.LEC / bxCAN ESR.LEC).";
 CM_ SG_ 1922 clock_not_qualified "1 si le nœud tourne sur HSI : la référence d'horloge n'est pas conforme et aucun verdict de réussite ne doit être prononcé.";
 CM_ SG_ 1922 tec "Transmit Error Counter, lu dans le matériel";
 CM_ SG_ 1922 rec "Receive Error Counter, lu dans le matériel";
-CM_ SG_ 1922 rx_fifo_lost "Pertes FIFO matérielles (FDCAN RF0L)";
-CM_ SG_ 1922 ring_overflow "Débordements du tampon circulaire logiciel";
+CM_ SG_ 1922 current_mode "Mode de test courant ; les modes vont de 0 à 5.";
+CM_ SG_ 1922 reserved "Réservé, doit valoir 0.";
+CM_ SG_ 1922 rx_fifo_lost "Pertes FIFO matérielles (FDCAN RF0L), saturant";
+CM_ SG_ 1922 ring_overflow "Débordements du tampon circulaire logiciel, saturant";
+CM_ SG_ 1922 non_classic_rx "Trames CAN FD signalées par le contrôleur, saturant. Le bus est en CAN 2.0A classic : toute valeur non nulle est une anomalie.";
+CM_ SG_ 1922 ext_id_rx "Trames à identifiant 29 bits reçues, saturant. L'ICD n'utilise que des identifiants 11 bits.";
 CM_ BO_ 1923 "État périodique d'un nœud (période par défaut 500 ms, configurable), suspendu pendant un test d'arbitrage. TEC et REC proviennent des registres du contrôleur (FDCAN ECR, bxCAN ESR) : aucun compteur d'erreur n'est réimplémenté en logiciel.";
 CM_ SG_ 1923 ctrl_state "0 error-active, 1 error-warning, 2 error-passive, 3 bus-off.";
 CM_ SG_ 1923 last_error_code "LEC du contrôleur (FDCAN PSR.LEC / bxCAN ESR.LEC).";
 CM_ SG_ 1923 clock_not_qualified "1 si le nœud tourne sur HSI : la référence d'horloge n'est pas conforme et aucun verdict de réussite ne doit être prononcé.";
 CM_ SG_ 1923 tec "Transmit Error Counter, lu dans le matériel";
 CM_ SG_ 1923 rec "Receive Error Counter, lu dans le matériel";
-CM_ SG_ 1923 rx_fifo_lost "Pertes FIFO matérielles (FDCAN RF0L)";
-CM_ SG_ 1923 ring_overflow "Débordements du tampon circulaire logiciel";
+CM_ SG_ 1923 current_mode "Mode de test courant ; les modes vont de 0 à 5.";
+CM_ SG_ 1923 reserved "Réservé, doit valoir 0.";
+CM_ SG_ 1923 rx_fifo_lost "Pertes FIFO matérielles (FDCAN RF0L), saturant";
+CM_ SG_ 1923 ring_overflow "Débordements du tampon circulaire logiciel, saturant";
+CM_ SG_ 1923 non_classic_rx "Trames CAN FD signalées par le contrôleur, saturant. Le bus est en CAN 2.0A classic : toute valeur non nulle est une anomalie.";
+CM_ SG_ 1923 ext_id_rx "Trames à identifiant 29 bits reçues, saturant. L'ICD n'utilise que des identifiants 11 bits.";
 CM_ BO_ 1924 "État périodique d'un nœud (période par défaut 500 ms, configurable), suspendu pendant un test d'arbitrage. TEC et REC proviennent des registres du contrôleur (FDCAN ECR, bxCAN ESR) : aucun compteur d'erreur n'est réimplémenté en logiciel.";
 CM_ SG_ 1924 ctrl_state "0 error-active, 1 error-warning, 2 error-passive, 3 bus-off.";
 CM_ SG_ 1924 last_error_code "LEC du contrôleur (FDCAN PSR.LEC / bxCAN ESR.LEC).";
 CM_ SG_ 1924 clock_not_qualified "1 si le nœud tourne sur HSI : la référence d'horloge n'est pas conforme et aucun verdict de réussite ne doit être prononcé.";
 CM_ SG_ 1924 tec "Transmit Error Counter, lu dans le matériel";
 CM_ SG_ 1924 rec "Receive Error Counter, lu dans le matériel";
-CM_ SG_ 1924 rx_fifo_lost "Pertes FIFO matérielles (FDCAN RF0L)";
-CM_ SG_ 1924 ring_overflow "Débordements du tampon circulaire logiciel";
+CM_ SG_ 1924 current_mode "Mode de test courant ; les modes vont de 0 à 5.";
+CM_ SG_ 1924 reserved "Réservé, doit valoir 0.";
+CM_ SG_ 1924 rx_fifo_lost "Pertes FIFO matérielles (FDCAN RF0L), saturant";
+CM_ SG_ 1924 ring_overflow "Débordements du tampon circulaire logiciel, saturant";
+CM_ SG_ 1924 non_classic_rx "Trames CAN FD signalées par le contrôleur, saturant. Le bus est en CAN 2.0A classic : toute valeur non nulle est une anomalie.";
+CM_ SG_ 1924 ext_id_rx "Trames à identifiant 29 bits reçues, saturant. L'ICD n'utilise que des identifiants 11 bits.";
 CM_ BO_ 256 "Commande énergie émise périodiquement par N1 ; contendant de rang 1 attendu.";
 CM_ SG_ 256 command_counter "Incrémenté à chaque émission ; sert à détecter une trame manquante.";
 CM_ SG_ 256 checksum "Somme XOR des octets 0 à 6.";

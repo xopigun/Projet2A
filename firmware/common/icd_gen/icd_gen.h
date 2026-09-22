@@ -208,11 +208,17 @@ typedef struct {
     uint8_t rec;
     /**< octet 2, bit 0, 8 bit(s), Intel, non signé. Receive Error Counter, lu dans le matériel */
     uint8_t current_mode;
-    /**< octet 3, bit 0, 8 bit(s), Intel, non signé. */
-    uint16_t rx_fifo_lost;
-    /**< octet 4, bit 0, 16 bit(s), Intel, non signé. Pertes FIFO matérielles (FDCAN RF0L) */
-    uint16_t ring_overflow;
-    /**< octet 6, bit 0, 16 bit(s), Intel, non signé. Débordements du tampon circulaire logiciel */
+    /**< octet 3, bit 0, 4 bit(s), Intel, non signé. Mode de test courant ; les modes vont de 0 à 5. */
+    uint8_t reserved;
+    /**< octet 3, bit 4, 4 bit(s), Intel, non signé. Réservé, doit valoir 0. */
+    uint8_t rx_fifo_lost;
+    /**< octet 4, bit 0, 8 bit(s), Intel, non signé. Pertes FIFO matérielles (FDCAN RF0L), saturant */
+    uint8_t ring_overflow;
+    /**< octet 5, bit 0, 8 bit(s), Intel, non signé. Débordements du tampon circulaire logiciel, saturant */
+    uint8_t non_classic_rx;
+    /**< octet 6, bit 0, 8 bit(s), Intel, non signé. Trames CAN FD signalées par le contrôleur, saturant. Le bus est en CAN 2.0A classic : toute valeur non nulle est une anomalie. */
+    uint8_t ext_id_rx;
+    /**< octet 7, bit 0, 8 bit(s), Intel, non signé. Trames à identifiant 29 bits reçues, saturant. L'ICD n'utilise que des identifiants 11 bits. */
 } bench_heartbeat_t;
 
 #define BENCH_HEARTBEAT_DLC 8u
@@ -308,6 +314,41 @@ void bench_temp_battery_pack(uint8_t *data, const bench_temp_battery_t *src);
 
 /** @brief Décode TEMP_BATTERY depuis @p data (8 octets). */
 void bench_temp_battery_unpack(bench_temp_battery_t *dst, const uint8_t *data);
+
+/* ---------------------------------------------------------------------
+ *  Verrouillage CAN 2.0A classic
+ *
+ *  Le peripherique du G431 s'appelle FDCAN, mais le protocole utilise par
+ *  le banc est CAN 2.0A classic : identifiants 11 bits, 8 octets au plus,
+ *  pas de commutation de debit. Ces assertions echouent a la compilation
+ *  si l'ICD s'en ecarte.
+ * ------------------------------------------------------------------- */
+
+/** Charge utile maximale d'une trame CAN 2.0 classic, en octets. */
+#define BENCH_CLASSIC_MAX_DLC 8u
+
+/** Plus grand identifiant representable sur 11 bits. */
+#define BENCH_CLASSIC_MAX_ID 0x7FFu
+
+_Static_assert(BENCH_ID_ARM <= BENCH_CLASSIC_MAX_ID, "ARM : identifiant hors des 11 bits du CAN 2.0A");
+_Static_assert(BENCH_ARM_DLC <= BENCH_CLASSIC_MAX_DLC, "ARM : DLC superieur a 8, impossible en CAN 2.0 classic");
+_Static_assert(BENCH_ID_GO <= BENCH_CLASSIC_MAX_ID, "GO : identifiant hors des 11 bits du CAN 2.0A");
+_Static_assert(BENCH_GO_DLC <= BENCH_CLASSIC_MAX_DLC, "GO : DLC superieur a 8, impossible en CAN 2.0 classic");
+_Static_assert(BENCH_ID_BENCH_CFG <= BENCH_CLASSIC_MAX_ID, "BENCH_CFG : identifiant hors des 11 bits du CAN 2.0A");
+_Static_assert(BENCH_BENCH_CFG_DLC <= BENCH_CLASSIC_MAX_DLC, "BENCH_CFG : DLC superieur a 8, impossible en CAN 2.0 classic");
+_Static_assert(BENCH_ID_BENCH_RESULT <= BENCH_CLASSIC_MAX_ID, "BENCH_RESULT : identifiant hors des 11 bits du CAN 2.0A");
+_Static_assert(BENCH_BENCH_RESULT_DLC <= BENCH_CLASSIC_MAX_DLC, "BENCH_RESULT : DLC superieur a 8, impossible en CAN 2.0 classic");
+_Static_assert(BENCH_ID_HEARTBEAT_N1 <= BENCH_CLASSIC_MAX_ID, "HEARTBEAT_N1 : identifiant hors des 11 bits du CAN 2.0A");
+_Static_assert(BENCH_HEARTBEAT_DLC <= BENCH_CLASSIC_MAX_DLC, "HEARTBEAT : DLC superieur a 8, impossible en CAN 2.0 classic");
+_Static_assert(BENCH_ID_HEARTBEAT_N2 <= BENCH_CLASSIC_MAX_ID, "HEARTBEAT_N2 : identifiant hors des 11 bits du CAN 2.0A");
+_Static_assert(BENCH_ID_HEARTBEAT_N3 <= BENCH_CLASSIC_MAX_ID, "HEARTBEAT_N3 : identifiant hors des 11 bits du CAN 2.0A");
+_Static_assert(BENCH_ID_HEARTBEAT_N4 <= BENCH_CLASSIC_MAX_ID, "HEARTBEAT_N4 : identifiant hors des 11 bits du CAN 2.0A");
+_Static_assert(BENCH_ID_ENERGY_COMMAND <= BENCH_CLASSIC_MAX_ID, "ENERGY_COMMAND : identifiant hors des 11 bits du CAN 2.0A");
+_Static_assert(BENCH_ENERGY_COMMAND_DLC <= BENCH_CLASSIC_MAX_DLC, "ENERGY_COMMAND : DLC superieur a 8, impossible en CAN 2.0 classic");
+_Static_assert(BENCH_ID_IMU_SPEED <= BENCH_CLASSIC_MAX_ID, "IMU_SPEED : identifiant hors des 11 bits du CAN 2.0A");
+_Static_assert(BENCH_IMU_SPEED_DLC <= BENCH_CLASSIC_MAX_DLC, "IMU_SPEED : DLC superieur a 8, impossible en CAN 2.0 classic");
+_Static_assert(BENCH_ID_TEMP_BATTERY <= BENCH_CLASSIC_MAX_ID, "TEMP_BATTERY : identifiant hors des 11 bits du CAN 2.0A");
+_Static_assert(BENCH_TEMP_BATTERY_DLC <= BENCH_CLASSIC_MAX_DLC, "TEMP_BATTERY : DLC superieur a 8, impossible en CAN 2.0 classic");
 
 #ifdef __cplusplus
 }

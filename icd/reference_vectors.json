@@ -1594,8 +1594,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -1622,8 +1625,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -1650,8 +1656,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -1678,8 +1687,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -1706,8 +1718,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -1734,8 +1749,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -1762,8 +1780,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -1790,8 +1811,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -1818,8 +1842,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -1846,8 +1873,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -1874,8 +1904,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -1902,8 +1935,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -1930,8 +1966,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -1958,8 +1997,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -1986,8 +2028,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2014,8 +2059,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2042,8 +2090,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2070,8 +2121,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2098,8 +2152,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2126,8 +2183,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2154,8 +2214,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2182,8 +2245,11 @@
             "tec": 1,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2210,8 +2276,11 @@
             "tec": 254,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2238,8 +2307,11 @@
             "tec": 255,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2266,8 +2338,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2294,8 +2369,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2322,8 +2400,11 @@
             "tec": 0,
             "rec": 1,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2350,8 +2431,11 @@
             "tec": 0,
             "rec": 254,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2378,8 +2462,11 @@
             "tec": 0,
             "rec": 255,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2406,8 +2493,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2434,8 +2524,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2462,20 +2555,23 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 1,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
-          "label": "current_mode = 254",
+          "label": "current_mode = 14",
           "values": {
-            "current_mode": 254.0
+            "current_mode": 14.0
           },
           "data": [
             0,
             0,
             0,
-            254,
+            14,
             0,
             0,
             0,
@@ -2489,21 +2585,24 @@
             "silent_mode": 0,
             "tec": 0,
             "rec": 0,
-            "current_mode": 254,
+            "current_mode": 14,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
-          "label": "current_mode = 255",
+          "label": "current_mode = 15",
           "values": {
-            "current_mode": 255.0
+            "current_mode": 15.0
           },
           "data": [
             0,
             0,
             0,
-            255,
+            15,
             0,
             0,
             0,
@@ -2517,9 +2616,12 @@
             "silent_mode": 0,
             "tec": 0,
             "rec": 0,
-            "current_mode": 255,
+            "current_mode": 15,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2546,8 +2648,166 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "reserved = 0",
+          "values": {
+            "reserved": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "reserved = 1",
+          "values": {
+            "reserved": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            16,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 1,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "reserved = 14",
+          "values": {
+            "reserved": 14.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            224,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 14,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "reserved = 15",
+          "values": {
+            "reserved": 15.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            240,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 15,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "reserved = 0",
+          "values": {
+            "reserved": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2574,8 +2834,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2602,14 +2865,17 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 1,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
-          "label": "rx_fifo_lost = 65534",
+          "label": "rx_fifo_lost = 254",
           "values": {
-            "rx_fifo_lost": 65534.0
+            "rx_fifo_lost": 254.0
           },
           "data": [
             0,
@@ -2617,7 +2883,7 @@
             0,
             0,
             254,
-            255,
+            0,
             0,
             0
           ],
@@ -2630,14 +2896,17 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
-            "rx_fifo_lost": 65534,
-            "ring_overflow": 0
+            "reserved": 0,
+            "rx_fifo_lost": 254,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
-          "label": "rx_fifo_lost = 65535",
+          "label": "rx_fifo_lost = 255",
           "values": {
-            "rx_fifo_lost": 65535.0
+            "rx_fifo_lost": 255.0
           },
           "data": [
             0,
@@ -2645,7 +2914,7 @@
             0,
             0,
             255,
-            255,
+            0,
             0,
             0
           ],
@@ -2658,8 +2927,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
-            "rx_fifo_lost": 65535,
-            "ring_overflow": 0
+            "reserved": 0,
+            "rx_fifo_lost": 255,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2686,8 +2958,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2714,14 +2989,172 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
           "label": "ring_overflow = 1",
           "values": {
             "ring_overflow": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 1,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "ring_overflow = 254",
+          "values": {
+            "ring_overflow": 254.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            254,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 254,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "ring_overflow = 255",
+          "values": {
+            "ring_overflow": 255.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            255,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 255,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "ring_overflow = 0",
+          "values": {
+            "ring_overflow": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "non_classic_rx = 0",
+          "values": {
+            "non_classic_rx": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "non_classic_rx = 1",
+          "values": {
+            "non_classic_rx": 1.0
           },
           "data": [
             0,
@@ -2742,14 +3175,17 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 1
+            "ring_overflow": 0,
+            "non_classic_rx": 1,
+            "ext_id_rx": 0
           }
         },
         {
-          "label": "ring_overflow = 65534",
+          "label": "non_classic_rx = 254",
           "values": {
-            "ring_overflow": 65534.0
+            "non_classic_rx": 254.0
           },
           "data": [
             0,
@@ -2759,7 +3195,7 @@
             0,
             0,
             254,
-            255
+            0
           ],
           "raw": {
             "ctrl_state": 0,
@@ -2770,14 +3206,17 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 65534
+            "ring_overflow": 0,
+            "non_classic_rx": 254,
+            "ext_id_rx": 0
           }
         },
         {
-          "label": "ring_overflow = 65535",
+          "label": "non_classic_rx = 255",
           "values": {
-            "ring_overflow": 65535.0
+            "non_classic_rx": 255.0
           },
           "data": [
             0,
@@ -2787,7 +3226,7 @@
             0,
             0,
             255,
-            255
+            0
           ],
           "raw": {
             "ctrl_state": 0,
@@ -2798,14 +3237,17 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 65535
+            "ring_overflow": 0,
+            "non_classic_rx": 255,
+            "ext_id_rx": 0
           }
         },
         {
-          "label": "ring_overflow = 0",
+          "label": "non_classic_rx = 0",
           "values": {
-            "ring_overflow": 0.0
+            "non_classic_rx": 0.0
           },
           "data": [
             0,
@@ -2826,8 +3268,166 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "ext_id_rx = 0",
+          "values": {
+            "ext_id_rx": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "ext_id_rx = 1",
+          "values": {
+            "ext_id_rx": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 1
+          }
+        },
+        {
+          "label": "ext_id_rx = 254",
+          "values": {
+            "ext_id_rx": 254.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            254
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 254
+          }
+        },
+        {
+          "label": "ext_id_rx = 255",
+          "values": {
+            "ext_id_rx": 255.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            255
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 255
+          }
+        },
+        {
+          "label": "ext_id_rx = 0",
+          "values": {
+            "ext_id_rx": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2840,9 +3440,12 @@
             "silent_mode": 1.0,
             "tec": 255.0,
             "rec": 255.0,
-            "current_mode": 255.0,
-            "rx_fifo_lost": 65535.0,
-            "ring_overflow": 65535.0
+            "current_mode": 15.0,
+            "reserved": 15.0,
+            "rx_fifo_lost": 255.0,
+            "ring_overflow": 255.0,
+            "non_classic_rx": 255.0,
+            "ext_id_rx": 255.0
           },
           "data": [
             255,
@@ -2862,9 +3465,12 @@
             "silent_mode": 1,
             "tec": 255,
             "rec": 255,
-            "current_mode": 255,
-            "rx_fifo_lost": 65535,
-            "ring_overflow": 65535
+            "current_mode": 15,
+            "reserved": 15,
+            "rx_fifo_lost": 255,
+            "ring_overflow": 255,
+            "non_classic_rx": 255,
+            "ext_id_rx": 255
           }
         },
         {
@@ -2878,8 +3484,11 @@
             "tec": 0.0,
             "rec": 0.0,
             "current_mode": 0.0,
+            "reserved": 0.0,
             "rx_fifo_lost": 0.0,
-            "ring_overflow": 0.0
+            "ring_overflow": 0.0,
+            "non_classic_rx": 0.0,
+            "ext_id_rx": 0.0
           },
           "data": [
             0,
@@ -2900,8 +3509,11 @@
             "tec": 0,
             "rec": 0,
             "current_mode": 0,
+            "reserved": 0,
             "rx_fifo_lost": 0,
-            "ring_overflow": 0
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
           }
         },
         {
@@ -2915,18 +3527,21 @@
             "tec": 0.0,
             "rec": 255.0,
             "current_mode": 0.0,
-            "rx_fifo_lost": 65535.0,
-            "ring_overflow": 0.0
+            "reserved": 15.0,
+            "rx_fifo_lost": 0.0,
+            "ring_overflow": 255.0,
+            "non_classic_rx": 0.0,
+            "ext_id_rx": 255.0
           },
           "data": [
             163,
             0,
             255,
+            240,
             0,
             255,
-            255,
             0,
-            0
+            255
           ],
           "raw": {
             "ctrl_state": 3,
@@ -2937,8 +3552,11 @@
             "tec": 0,
             "rec": 255,
             "current_mode": 0,
-            "rx_fifo_lost": 65535,
-            "ring_overflow": 0
+            "reserved": 15,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 255,
+            "non_classic_rx": 0,
+            "ext_id_rx": 255
           }
         }
       ]
@@ -5928,5 +6546,5 @@
       ]
     }
   ],
-  "case_count": 233
+  "case_count": 248
 }

@@ -298,18 +298,33 @@ void bench_heartbeat_pack(uint8_t *data, const bench_heartbeat_t *src) {
     }
     /* current_mode */
     {
-        int64_t raw = bench_clamp((int64_t)src->current_mode, INT64_C(0), INT64_C(255));
-        frame_le |= ((uint64_t)raw & UINT64_C(0xFF)) << 24u;
+        int64_t raw = bench_clamp((int64_t)src->current_mode, INT64_C(0), INT64_C(15));
+        frame_le |= ((uint64_t)raw & UINT64_C(0xF)) << 24u;
+    }
+    /* reserved */
+    {
+        int64_t raw = bench_clamp((int64_t)src->reserved, INT64_C(0), INT64_C(15));
+        frame_le |= ((uint64_t)raw & UINT64_C(0xF)) << 28u;
     }
     /* rx_fifo_lost */
     {
-        int64_t raw = bench_clamp((int64_t)src->rx_fifo_lost, INT64_C(0), INT64_C(65535));
-        frame_le |= ((uint64_t)raw & UINT64_C(0xFFFF)) << 32u;
+        int64_t raw = bench_clamp((int64_t)src->rx_fifo_lost, INT64_C(0), INT64_C(255));
+        frame_le |= ((uint64_t)raw & UINT64_C(0xFF)) << 32u;
     }
     /* ring_overflow */
     {
-        int64_t raw = bench_clamp((int64_t)src->ring_overflow, INT64_C(0), INT64_C(65535));
-        frame_le |= ((uint64_t)raw & UINT64_C(0xFFFF)) << 48u;
+        int64_t raw = bench_clamp((int64_t)src->ring_overflow, INT64_C(0), INT64_C(255));
+        frame_le |= ((uint64_t)raw & UINT64_C(0xFF)) << 40u;
+    }
+    /* non_classic_rx */
+    {
+        int64_t raw = bench_clamp((int64_t)src->non_classic_rx, INT64_C(0), INT64_C(255));
+        frame_le |= ((uint64_t)raw & UINT64_C(0xFF)) << 48u;
+    }
+    /* ext_id_rx */
+    {
+        int64_t raw = bench_clamp((int64_t)src->ext_id_rx, INT64_C(0), INT64_C(255));
+        frame_le |= ((uint64_t)raw & UINT64_C(0xFF)) << 56u;
     }
 
     bench_store_le(data, 8u, frame_le);
@@ -356,18 +371,33 @@ void bench_heartbeat_unpack(bench_heartbeat_t *dst, const uint8_t *data) {
     }
     /* current_mode */
     {
-        uint64_t raw = (frame_le >> 24u) & UINT64_C(0xFF);
+        uint64_t raw = (frame_le >> 24u) & UINT64_C(0xF);
         dst->current_mode = (uint8_t)((int64_t)raw);
+    }
+    /* reserved */
+    {
+        uint64_t raw = (frame_le >> 28u) & UINT64_C(0xF);
+        dst->reserved = (uint8_t)((int64_t)raw);
     }
     /* rx_fifo_lost */
     {
-        uint64_t raw = (frame_le >> 32u) & UINT64_C(0xFFFF);
-        dst->rx_fifo_lost = (uint16_t)((int64_t)raw);
+        uint64_t raw = (frame_le >> 32u) & UINT64_C(0xFF);
+        dst->rx_fifo_lost = (uint8_t)((int64_t)raw);
     }
     /* ring_overflow */
     {
-        uint64_t raw = (frame_le >> 48u) & UINT64_C(0xFFFF);
-        dst->ring_overflow = (uint16_t)((int64_t)raw);
+        uint64_t raw = (frame_le >> 40u) & UINT64_C(0xFF);
+        dst->ring_overflow = (uint8_t)((int64_t)raw);
+    }
+    /* non_classic_rx */
+    {
+        uint64_t raw = (frame_le >> 48u) & UINT64_C(0xFF);
+        dst->non_classic_rx = (uint8_t)((int64_t)raw);
+    }
+    /* ext_id_rx */
+    {
+        uint64_t raw = (frame_le >> 56u) & UINT64_C(0xFF);
+        dst->ext_id_rx = (uint8_t)((int64_t)raw);
     }
 }
 

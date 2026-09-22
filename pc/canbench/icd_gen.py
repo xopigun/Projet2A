@@ -170,9 +170,12 @@ FRAMES = {
         {'name': 'silent_mode', 'start_byte': 0, 'start_bit': 7, 'length': 1, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 1.0, 'default': 0.0},
         {'name': 'tec', 'start_byte': 1, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
         {'name': 'rec', 'start_byte': 2, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
-        {'name': 'current_mode', 'start_byte': 3, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
-        {'name': 'rx_fifo_lost', 'start_byte': 4, 'start_bit': 0, 'length': 16, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 65535.0, 'default': 0.0},
-        {'name': 'ring_overflow', 'start_byte': 6, 'start_bit': 0, 'length': 16, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 65535.0, 'default': 0.0},
+        {'name': 'current_mode', 'start_byte': 3, 'start_bit': 0, 'length': 4, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 15.0, 'default': 0.0},
+        {'name': 'reserved', 'start_byte': 3, 'start_bit': 4, 'length': 4, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 15.0, 'default': 0.0},
+        {'name': 'rx_fifo_lost', 'start_byte': 4, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'ring_overflow', 'start_byte': 5, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'non_classic_rx', 'start_byte': 6, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'ext_id_rx', 'start_byte': 7, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
         ],
     },
     0x782: {
@@ -191,9 +194,12 @@ FRAMES = {
         {'name': 'silent_mode', 'start_byte': 0, 'start_bit': 7, 'length': 1, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 1.0, 'default': 0.0},
         {'name': 'tec', 'start_byte': 1, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
         {'name': 'rec', 'start_byte': 2, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
-        {'name': 'current_mode', 'start_byte': 3, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
-        {'name': 'rx_fifo_lost', 'start_byte': 4, 'start_bit': 0, 'length': 16, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 65535.0, 'default': 0.0},
-        {'name': 'ring_overflow', 'start_byte': 6, 'start_bit': 0, 'length': 16, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 65535.0, 'default': 0.0},
+        {'name': 'current_mode', 'start_byte': 3, 'start_bit': 0, 'length': 4, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 15.0, 'default': 0.0},
+        {'name': 'reserved', 'start_byte': 3, 'start_bit': 4, 'length': 4, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 15.0, 'default': 0.0},
+        {'name': 'rx_fifo_lost', 'start_byte': 4, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'ring_overflow', 'start_byte': 5, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'non_classic_rx', 'start_byte': 6, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'ext_id_rx', 'start_byte': 7, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
         ],
     },
     0x783: {
@@ -212,9 +218,12 @@ FRAMES = {
         {'name': 'silent_mode', 'start_byte': 0, 'start_bit': 7, 'length': 1, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 1.0, 'default': 0.0},
         {'name': 'tec', 'start_byte': 1, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
         {'name': 'rec', 'start_byte': 2, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
-        {'name': 'current_mode', 'start_byte': 3, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
-        {'name': 'rx_fifo_lost', 'start_byte': 4, 'start_bit': 0, 'length': 16, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 65535.0, 'default': 0.0},
-        {'name': 'ring_overflow', 'start_byte': 6, 'start_bit': 0, 'length': 16, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 65535.0, 'default': 0.0},
+        {'name': 'current_mode', 'start_byte': 3, 'start_bit': 0, 'length': 4, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 15.0, 'default': 0.0},
+        {'name': 'reserved', 'start_byte': 3, 'start_bit': 4, 'length': 4, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 15.0, 'default': 0.0},
+        {'name': 'rx_fifo_lost', 'start_byte': 4, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'ring_overflow', 'start_byte': 5, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'non_classic_rx', 'start_byte': 6, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'ext_id_rx', 'start_byte': 7, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
         ],
     },
     0x784: {
@@ -233,9 +242,12 @@ FRAMES = {
         {'name': 'silent_mode', 'start_byte': 0, 'start_bit': 7, 'length': 1, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 1.0, 'default': 0.0},
         {'name': 'tec', 'start_byte': 1, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
         {'name': 'rec', 'start_byte': 2, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
-        {'name': 'current_mode', 'start_byte': 3, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
-        {'name': 'rx_fifo_lost', 'start_byte': 4, 'start_bit': 0, 'length': 16, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 65535.0, 'default': 0.0},
-        {'name': 'ring_overflow', 'start_byte': 6, 'start_bit': 0, 'length': 16, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 65535.0, 'default': 0.0},
+        {'name': 'current_mode', 'start_byte': 3, 'start_bit': 0, 'length': 4, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 15.0, 'default': 0.0},
+        {'name': 'reserved', 'start_byte': 3, 'start_bit': 4, 'length': 4, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 15.0, 'default': 0.0},
+        {'name': 'rx_fifo_lost', 'start_byte': 4, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'ring_overflow', 'start_byte': 5, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'non_classic_rx', 'start_byte': 6, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'ext_id_rx', 'start_byte': 7, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
         ],
     },
     0x100: {
@@ -436,8 +448,11 @@ class Heartbeat:
     tec: int = 0.0
     rec: int = 0.0
     current_mode: int = 0.0
+    reserved: int = 0.0
     rx_fifo_lost: int = 0.0
     ring_overflow: int = 0.0
+    non_classic_rx: int = 0.0
+    ext_id_rx: int = 0.0
 
     def pack(self) -> bytes:
         frame_le = 0
@@ -456,12 +471,18 @@ class Heartbeat:
         frame_le |= (raw & 0xFF) << 8
         raw = _clamp(int(self.rec), 0, 255)
         frame_le |= (raw & 0xFF) << 16
-        raw = _clamp(int(self.current_mode), 0, 255)
-        frame_le |= (raw & 0xFF) << 24
-        raw = _clamp(int(self.rx_fifo_lost), 0, 65535)
-        frame_le |= (raw & 0xFFFF) << 32
-        raw = _clamp(int(self.ring_overflow), 0, 65535)
-        frame_le |= (raw & 0xFFFF) << 48
+        raw = _clamp(int(self.current_mode), 0, 15)
+        frame_le |= (raw & 0xF) << 24
+        raw = _clamp(int(self.reserved), 0, 15)
+        frame_le |= (raw & 0xF) << 28
+        raw = _clamp(int(self.rx_fifo_lost), 0, 255)
+        frame_le |= (raw & 0xFF) << 32
+        raw = _clamp(int(self.ring_overflow), 0, 255)
+        frame_le |= (raw & 0xFF) << 40
+        raw = _clamp(int(self.non_classic_rx), 0, 255)
+        frame_le |= (raw & 0xFF) << 48
+        raw = _clamp(int(self.ext_id_rx), 0, 255)
+        frame_le |= (raw & 0xFF) << 56
         data = bytearray(frame_le.to_bytes(8, 'little'))
         if frame_be:
             be = frame_be.to_bytes(8, 'big')
@@ -482,9 +503,12 @@ class Heartbeat:
             silent_mode=(frame_le >> 7) & 0x1,
             tec=(frame_le >> 8) & 0xFF,
             rec=(frame_le >> 16) & 0xFF,
-            current_mode=(frame_le >> 24) & 0xFF,
-            rx_fifo_lost=(frame_le >> 32) & 0xFFFF,
-            ring_overflow=(frame_le >> 48) & 0xFFFF,
+            current_mode=(frame_le >> 24) & 0xF,
+            reserved=(frame_le >> 28) & 0xF,
+            rx_fifo_lost=(frame_le >> 32) & 0xFF,
+            ring_overflow=(frame_le >> 40) & 0xFF,
+            non_classic_rx=(frame_le >> 48) & 0xFF,
+            ext_id_rx=(frame_le >> 56) & 0xFF,
         )
 
 @dataclass

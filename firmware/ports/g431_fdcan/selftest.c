@@ -9,20 +9,29 @@
  * **Phase 1 — bouclage interne.** Le FDCAN est ouvert en
  * `FDCAN_MODE_INTERNAL_LOOPBACK` : rien n'est émis sur PA12, et **ni transceiver
  * ni bus câblé ne sont nécessaires**. Une trame de chaque type de l'ICD est
- * émise, reçue, décodée et comparée octet par octet. Cette phase valide d'un
- * coup l'horloge, le temps de bit, la chaîne ISR → tampon circulaire et
- * l'encodage, avant même d'avoir soudé quoi que ce soit.
+ * émise, reçue, décodée et comparée octet par octet.
  *
- * Si la phase 1 échoue, inutile de chercher du côté du câblage : le problème est
- * dans la carte ou sa configuration.
+ * Ce qu'elle valide : que le PLL verrouille, que les valeurs de temps de bit
+ * sont acceptées par le contrôleur, que l'interruption de réception fonctionne,
+ * que le tampon circulaire transporte les trames sans perte, et que l'encodage
+ * est correct octet par octet.
+ *
+ * Ce qu'elle **ne** valide **pas** : le débit réel. Émetteur et récepteur
+ * partagent la même horloge noyau, donc une PLL mal configurée se boucle sur
+ * elle-même sans la moindre erreur. Un nœud tournant à 400 kbit/s au lieu de
+ * 500 passerait cette phase sans broncher.
  *
  * **Phase 2 — ping/pong sur le bus réel.** Le nœud repasse en mode normal. N1
- * émet périodiquement, N2 et N3 répondent à chaque trame de N1. Chaque nœud
- * affiche ses compteurs et l'état lu dans `PSR`/`ECR`. C'est ici que se
- * détectent un HW1 oublié, une terminaison manquante ou un transceiver mal
- * alimenté.
+ * émet périodiquement, N2 et N3 répondent. C'est ici que se détectent un HW1
+ * oublié, une terminaison manquante ou un transceiver mal alimenté.
  *
- * Procédure pas à pas : docs/bringup.md.
+ * Cette phase **ne prouve toujours pas le débit** : les trois Nucleo partagent
+ * la même configuration d'horloge, donc une erreur commune est invisible entre
+ * elles. Il faut une **phase 3** avec une référence indépendante — le CANable,
+ * dont l'oscillateur n'a rien à voir avec le nôtre, ou une mesure à
+ * l'oscilloscope.
+ *
+ * Procédure pas à pas, phase 3 comprise : docs/bringup.md.
  */
 
 #include <stdio.h>
@@ -111,6 +120,9 @@ static unsigned phase1_loopback(void) {
     unsigned failures = 0u;
 
     printf("\r\n=== Phase 1 : bouclage interne (aucun transceiver requis) ===\r\n");
+    printf("  Valide : PLL, acceptation du temps de bit, ISR, tampon, encodage.\r\n");
+    printf("  NE valide PAS le debit : emetteur et recepteur partagent la meme\r\n");
+    printf("  horloge, donc une PLL fausse se boucle sur elle-meme sans erreur.\r\n");
 
     if (!open_can(true)) {
         printf("  ECHEC : ouverture du FDCAN impossible.\r\n");
@@ -200,7 +212,8 @@ static void phase2_ping_pong(void) {
     printf("  Role : repondeur. Repond a chaque trame de N1 (0x%03X).\r\n",
            (unsigned)BENCH_ID_ENERGY_COMMAND);
 #endif
-    printf("  Ctrl-C pour arreter la lecture ; le noeud continue de tourner.\r\n\r\n");
+    printf("  Ctrl-C pour arreter la lecture ; le noeud continue de tourner.\r\n");
+    printf("  ATTENTION : cette phase ne prouve pas le debit (cf. phase 3).\r\n\r\n");
 
     if (!open_can(false)) {
         printf("  ECHEC : reouverture du FDCAN en mode normal impossible.\r\n");
@@ -299,6 +312,9 @@ int main(void) {
     printf("    - cavalier HW1 (CN4 4-5) RETIRE sur chaque carte ;\r\n");
     printf("    - transceiver alimente en 5 V, VIO en 3,3 V ;\r\n");
     printf("    - environ 60 ohms entre CAN_H et CAN_L, hors tension.\r\n");
+    printf("\r\n  Rappel : la phase 2 met en jeu trois cartes de meme configuration.\r\n");
+    printf("  Une erreur d'horloge commune y serait invisible. Le debit n'est\r\n");
+    printf("  etabli qu'en phase 3, contre une reference independante.\r\n");
 
     phase2_ping_pong();
     return 0;

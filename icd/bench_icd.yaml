@@ -252,11 +252,17 @@ messages:
         min: 0
         max: 1
         default: 0
-      - { name: tec,           start_byte: 1, start_bit: 0, length: 8,  byte_order: little_endian, signed: false, unit: "", min: 0, max: 255,   default: 0, comment: "Transmit Error Counter, lu dans le matériel" }
-      - { name: rec,           start_byte: 2, start_bit: 0, length: 8,  byte_order: little_endian, signed: false, unit: "", min: 0, max: 255,   default: 0, comment: "Receive Error Counter, lu dans le matériel" }
-      - { name: current_mode,  start_byte: 3, start_bit: 0, length: 8,  byte_order: little_endian, signed: false, unit: "", min: 0, max: 255,   default: 0 }
-      - { name: rx_fifo_lost,  start_byte: 4, start_bit: 0, length: 16, byte_order: little_endian, signed: false, unit: "", min: 0, max: 65535, default: 0, comment: "Pertes FIFO matérielles (FDCAN RF0L)" }
-      - { name: ring_overflow, start_byte: 6, start_bit: 0, length: 16, byte_order: little_endian, signed: false, unit: "", min: 0, max: 65535, default: 0, comment: "Débordements du tampon circulaire logiciel" }
+      - { name: tec,           start_byte: 1, start_bit: 0, length: 8, byte_order: little_endian, signed: false, unit: "", min: 0, max: 255, default: 0, comment: "Transmit Error Counter, lu dans le matériel" }
+      - { name: rec,           start_byte: 2, start_bit: 0, length: 8, byte_order: little_endian, signed: false, unit: "", min: 0, max: 255, default: 0, comment: "Receive Error Counter, lu dans le matériel" }
+      - { name: current_mode,  start_byte: 3, start_bit: 0, length: 4, byte_order: little_endian, signed: false, unit: "", min: 0, max: 15,  default: 0, comment: "Mode de test courant ; les modes vont de 0 à 5." }
+      - { name: reserved,      start_byte: 3, start_bit: 4, length: 4, byte_order: little_endian, signed: false, unit: "", min: 0, max: 15,  default: 0, comment: "Réservé, doit valoir 0." }
+      # Les quatre compteurs ci-dessous saturent à 255 et doivent rester nuls en
+      # fonctionnement nominal : toute valeur non nulle invalide la mesure en cours.
+      # Huit bits suffisent donc, ce qui libère la place des deux derniers.
+      - { name: rx_fifo_lost,  start_byte: 4, start_bit: 0, length: 8, byte_order: little_endian, signed: false, unit: "", min: 0, max: 255, default: 0, comment: "Pertes FIFO matérielles (FDCAN RF0L), saturant" }
+      - { name: ring_overflow, start_byte: 5, start_bit: 0, length: 8, byte_order: little_endian, signed: false, unit: "", min: 0, max: 255, default: 0, comment: "Débordements du tampon circulaire logiciel, saturant" }
+      - { name: non_classic_rx, start_byte: 6, start_bit: 0, length: 8, byte_order: little_endian, signed: false, unit: "", min: 0, max: 255, default: 0, comment: "Trames CAN FD signalées par le contrôleur, saturant. Le bus est en CAN 2.0A classic : toute valeur non nulle est une anomalie." }
+      - { name: ext_id_rx,      start_byte: 7, start_bit: 0, length: 8, byte_order: little_endian, signed: false, unit: "", min: 0, max: 255, default: 0, comment: "Trames à identifiant 29 bits reçues, saturant. L'ICD n'utilise que des identifiants 11 bits." }
 
   # ----------------------------------------------- trames applicatives d'exemple
   #

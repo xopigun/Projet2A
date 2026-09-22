@@ -17,6 +17,9 @@ du dépôt correspond au dossier `v0.1`.
   LaTeX, et parité d'encodage vérifiée entre quatre implémentations.
 - Code commun testable nativement : tampon circulaire, protocole ARM/GO, heartbeat.
 - Firmware des nœuds N1 à N3 (port FDCAN, horloges HSE/HSI sélectionnables).
+- **Verrouillage CAN 2.0A classic** à trois niveaux : validateur de l'ICD, `_Static_assert`
+  générés, contrôle à l'émission et à l'ouverture. Les trames CAN FD ou à identifiant
+  29 bits reçues sont comptées et remontées dans le heartbeat.
 - **Autotest de mise en route** (`presets n1-selftest` à `n3-selftest`) : bouclage interne
   FDCAN sans transceiver, puis ping/pong sur le bus réel, avec état `PSR`/`ECR` sur le VCP.
 - Documentation : `docs/bringup.md` (mise en route pas à pas), `docs/pinout.md`,
@@ -36,3 +39,13 @@ du dépôt correspond au dossier `v0.1`.
   toute mise sous tension du bus.
 - **Métrique « Perdus »** du tableau 7 : définie sans ambiguïté comme le nombre de cycles où
   le nœud a perdu au moins un arbitrage, complétée par la métrique de rang.
+
+### Corrigé (dans nos propres documents)
+
+- **Portée du bouclage interne** : il ne valide ni l'horloge ni le débit, émetteur et
+  récepteur partageant la même horloge noyau. Un échange entre deux nœuds de configuration
+  identique ne le prouve pas davantage. Le débit n'est établi qu'à la phase 3 de la mise en
+  route, contre une référence indépendante (CANable ou oscilloscope).
+- **Effet d'un excès de terminaisons** : à 20 Ω on sort de la plage de charge
+  `RL = 45 à 65 Ω` du TJA1051 ; le symptôme attendu est une dégradation de la tension
+  différentielle et des erreurs intermittentes, non un bus muet.

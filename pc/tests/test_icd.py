@@ -323,3 +323,51 @@ def test_schema_rejette_un_identifiant_hors_11_bits(raw_spec: dict) -> None:
     spec["messages"][-1]["id"] = 0x800  # au-delà de 11 bits
     with pytest.raises(jsonschema.ValidationError):
         jsonschema.validate(spec, schema)
+
+
+# ---------------------------------------------------------------------------
+#  Verrouillage CAN 2.0A classic
+# ---------------------------------------------------------------------------
+
+
+def test_tout_l_icd_tient_en_can_20a(icd: model.Icd) -> None:
+    """Identifiants sur 11 bits et DLC d'au plus 8 octets, dans tous les profils."""
+    for profile in icd.profiles.values():
+        for message in profile.messages:
+            assert message.can_id <= 0x7FF, f"{profile.name}/{message.name}"
+            assert message.dlc <= 8, f"{profile.name}/{message.name}"
+
+
+def test_detecte_un_dlc_hors_can_20(raw_spec: dict, tmp_path: Path) -> None:
+    spec = copy.deepcopy(raw_spec)
+    spec["messages"][-1]["dlc"] = 12  # possible en CAN FD, pas en CAN 2.0
+    with pytest.raises(model.IcdError, match="DLC"):
+        _load(spec, tmp_path)
+
+
+def test_detecte_un_identifiant_hors_11_bits(raw_spec: dict, tmp_path: Path) -> None:
+    spec = copy.deepcopy(raw_spec)
+    spec["messages"][-1]["id"] = 0x1FFFF  # identifiant 29 bits
+    with pytest.raises(model.IcdError, match="hors de la plage 11 bits"):
+        _load(spec, tmp_path)
+
+
+def test_assertions_statiques_generees(icd: model.Icd) -> None:
+    """Le code C généré doit verrouiller le protocole à la compilation."""
+    header = (REPO_ROOT / "firmware" / "common" / "icd_gen" / "icd_gen.h").read_text(
+        encoding="utf-8"
+    )
+    assert "BENCH_CLASSIC_MAX_DLC 8u" in header
+    assert "BENCH_CLASSIC_MAX_ID 0x7FFu" in header
+
+    # Une assertion d'identifiant par trame, une de DLC par disposition.
+    assert header.count("_Static_assert") >= len(icd.default.messages)
+    for message in icd.default.messages:
+        assert f"_Static_assert(BENCH_ID_{message.name.upper()} <= BENCH_CLASSIC_MAX_ID" in header
+
+
+def test_heartbeat_remonte_les_trames_non_conformes(icd: model.Icd) -> None:
+    """Une trame FD ou 29 bits doit se voir dans le heartbeat."""
+    message = icd.default.by_name("HEARTBEAT_N1")
+    noms = {s.name for s in message.signals}
+    assert {"non_classic_rx", "ext_id_rx"} <= noms

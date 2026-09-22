@@ -144,6 +144,7 @@ def generate_header(icd: Icd) -> str:
     for message in _unique_layouts(default):
         out += _struct_for(message)
 
+    out += _classic_assertions(icd)
     out += [
         "#ifdef __cplusplus",
         "}",
@@ -153,6 +154,49 @@ def generate_header(icd: Icd) -> str:
         "",
     ]
     return "\n".join(out)
+
+
+def _classic_assertions(icd: Icd) -> list[str]:
+    """Assertions statiques verrouillant le protocole en CAN 2.0A classic.
+
+    Le périphérique du G431 s'appelle FDCAN, mais le protocole utilisé par le
+    banc est **CAN 2.0A classic** : identifiants 11 bits, charge utile de 8
+    octets au plus, pas de commutation de débit. Une dérive de l'ICD doit casser
+    la compilation, pas se découvrir sur le banc.
+    """
+    out = [
+        "/* ---------------------------------------------------------------------",
+        " *  Verrouillage CAN 2.0A classic",
+        " *",
+        " *  Le peripherique du G431 s'appelle FDCAN, mais le protocole utilise par",
+        " *  le banc est CAN 2.0A classic : identifiants 11 bits, 8 octets au plus,",
+        " *  pas de commutation de debit. Ces assertions echouent a la compilation",
+        " *  si l'ICD s'en ecarte.",
+        " * ------------------------------------------------------------------- */",
+        "",
+        "/** Charge utile maximale d'une trame CAN 2.0 classic, en octets. */",
+        "#define BENCH_CLASSIC_MAX_DLC 8u",
+        "",
+        "/** Plus grand identifiant representable sur 11 bits. */",
+        "#define BENCH_CLASSIC_MAX_ID 0x7FFu",
+        "",
+    ]
+    seen: set[str] = set()
+    for message in icd.default.messages:
+        base = message.name if message.node_id is None else message.name.rsplit("_", 1)[0]
+        out.append(
+            f"_Static_assert(BENCH_ID_{message.name.upper()} <= BENCH_CLASSIC_MAX_ID,"
+            f' "{message.name} : identifiant hors des 11 bits du CAN 2.0A");'
+        )
+        if base in seen:
+            continue
+        seen.add(base)
+        out.append(
+            f"_Static_assert(BENCH_{base.upper()}_DLC <= BENCH_CLASSIC_MAX_DLC,"
+            f' "{base} : DLC superieur a 8, impossible en CAN 2.0 classic");'
+        )
+    out.append("")
+    return out
 
 
 def _unique_layouts(profile: Profile) -> list[Message]:

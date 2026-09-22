@@ -22,6 +22,7 @@
 
 #include "board.h"
 #include "clock.h"
+#include "icd_gen.h"  /* BENCH_CLASSIC_MAX_DLC / _MAX_ID */
 
 /** Contexte unique du port ; le G431KB n'a qu'un seul FDCAN. */
 static bench_g431_can_t *s_port;
@@ -124,6 +125,12 @@ static bool port_open(void *ctx, const bench_can_config_t *config) {
     port->hfdcan.Init.ExtFiltersNbr = 0u;
     port->hfdcan.Init.TxFifoQueueMode = FDCAN_TX_QUEUE_OPERATION;
 
+    /* Le peripherique s'appelle FDCAN mais le protocole retenu est CAN 2.0A
+     * classic : on refuse d'ouvrir si la configuration a derive. */
+    if (port->hfdcan.Init.FrameFormat != FDCAN_FRAME_CLASSIC) {
+        return false;
+    }
+
     if (HAL_FDCAN_Init(&port->hfdcan) != HAL_OK) {
         return false;
     }
@@ -161,6 +168,16 @@ static bool port_open(void *ctx, const bench_can_config_t *config) {
 
 static bool tx_common(bench_g431_can_t *port, const bench_can_frame_t *frame) {
     FDCAN_TxHeaderTypeDef header = {0};
+
+    /* Verrouillage CAN 2.0A classic, cote emission. Une trame hors specification
+     * est refusee ici plutot que d'etre emise et de perturber le bus : le banc
+     * doit mesurer le comportement des autres, pas introduire ses propres
+     * anomalies. Les constantes de l'ICD sont deja verifiees a la compilation
+     * par les _Static_assert de icd_gen.h ; ce controle couvre les trames
+     * construites dynamiquement, notamment par BENCH_CFG. */
+    if (frame->dlc > BENCH_CLASSIC_MAX_DLC || frame->id > BENCH_CLASSIC_MAX_ID) {
+        return false;
+    }
 
     header.Identifier = frame->id;
     header.IdType = FDCAN_STANDARD_ID;
@@ -215,6 +232,8 @@ static void port_status(void *ctx, bench_can_status_t *status) {
     }
 
     status->rx_fifo_lost = port->rx_fifo_lost;
+    status->non_classic_rx = port->non_classic_rx;
+    status->ext_id_rx = port->ext_id_rx;
 }
 
 static bool port_recover(void *ctx) {
@@ -258,6 +277,8 @@ static const bench_can_ops_t s_ops = {
 void bench_g431_can_bind(bench_g431_can_t *port, bench_ring_t *rx_ring, bench_can_t *out) {
     port->rx_ring = rx_ring;
     port->rx_fifo_lost = 0u;
+    port->non_classic_rx = 0u;
+    port->ext_id_rx = 0u;
     s_port = port;
 
     out->ops = &s_ops;
@@ -295,8 +316,27 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t interrupts)
         return;
     }
 
-    /* Tout ce que fait l'ISR : dater, recopier, sortir. */
+    /* Tout ce que fait l'ISR : dater, recopier, compter, sortir. */
     while (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &header, frame.data) == HAL_OK) {
+        /* Le bus est en CAN 2.0A classic : ces deux compteurs doivent rester
+         * nuls. Ils sont remontes dans le heartbeat pour qu'une trame etrangere
+         * au standard commun se voie, au lieu d'etre silencieusement ignoree.
+         *
+         * Une trame CAN FD sur un bus classic est le plus souvent rejetee au
+         * niveau protocole et apparait comme une erreur de forme dans LEC, sans
+         * jamais remonter jusqu'ici ; ce compteur ne capte donc que celles que
+         * le controleur accepte de presenter. Les identifiants 29 bits, eux,
+         * sont des trames CAN 2.0B parfaitement valides et sont bien comptes. */
+        if (header.FDFormat != FDCAN_CLASSIC_CAN && s_port->non_classic_rx != UINT8_MAX) {
+            s_port->non_classic_rx++;
+        }
+        if (header.IdType != FDCAN_STANDARD_ID) {
+            if (s_port->ext_id_rx != UINT8_MAX) {
+                s_port->ext_id_rx++;
+            }
+            continue;  /* identifiant hors ICD : compte, mais non transmis */
+        }
+
         frame.timestamp_us = now_us(NULL);
         frame.id = (uint16_t)header.Identifier;
         frame.dlc = (uint8_t)(header.DataLength >> 16);

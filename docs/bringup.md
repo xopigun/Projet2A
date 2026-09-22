@@ -5,8 +5,13 @@ Elle est conçue pour être exécutée **dans l'ordre**, chaque étape ne dépen
 précédentes, et pour que chaque échec désigne une cause unique.
 
 Le principe est de repousser le plus tard possible ce qui peut faire douter : l'étape 3
-valide l'horloge, le temps de bit, la chaîne de réception et l'encodage **sans transceiver
-ni fil de bus**. Si elle passe, tout défaut ultérieur vient du câblage.
+valide la logique du nœud et l'encodage **sans transceiver ni fil de bus**. Si elle passe,
+tout défaut ultérieur vient du câblage.
+
+> **Le débit n'est établi qu'à l'étape 6 bis.** Ni le bouclage interne ni l'échange entre
+> deux Nucleo identiques ne le prouvent : dans les deux cas, émetteur et récepteur partagent
+> la même horloge ou la même configuration d'horloge, donc une erreur commune est invisible.
+> Il faut une référence indépendante — le CANable ou l'oscilloscope.
 
 Prévoir environ 1 h pour trois cartes, fer à souder compris.
 
@@ -23,7 +28,8 @@ Prévoir environ 1 h pour trois cartes, fer à souder compris.
 | Condensateurs 100 nF | 6 | découplage `VCC` et `VIO` de chaque transceiver |
 | Multimètre | 1 | mesure de continuité et de résistance |
 | Fer à souder à panne fine | 1 | ponts SB9/SB10 |
-| Oscilloscope (facultatif ici) | — | nécessaire pour T1 et T2, pas pour cette mise en route |
+| **Oscilloscope** + sonde différentielle | 1 | **nécessaire à l'étape 6 bis** : c'est lui qui établit le débit |
+| CANable 2.0 | 1 | référence d'oscillateur indépendante, étape 6 bis |
 
 Côté logiciel : voir les prérequis du [README](../README.md). Un terminal série est
 nécessaire (PuTTY, TeraTerm, `screen`, l'onglet série de VS Code…) réglé sur
@@ -127,9 +133,14 @@ n'est émis sur PA12.
   Resultat : 8/8 trames correctes.
 ```
 
-Ce que cette phase démontre, d'un coup : l'horloge démarre et le PLL verrouille ; le temps
-de bit est accepté par le contrôleur ; l'interruption de réception fonctionne ; le tampon
-circulaire transporte les trames sans perte ; l'encodage est correct octet par octet.
+**Ce que cette phase démontre :** le PLL verrouille ; les valeurs de temps de bit sont
+acceptées par le contrôleur ; l'interruption de réception fonctionne ; le tampon circulaire
+transporte les trames sans perte ; l'encodage est correct octet par octet.
+
+**Ce qu'elle ne démontre pas : le débit réel.** En bouclage interne, l'émetteur et le
+récepteur sont le même périphérique et partagent l'horloge noyau. Une PLL mal configurée se
+boucle sur elle-même sans erreur, et un nœud tournant à 400 kbit/s passerait cette phase
+sans broncher. Le débit relève de l'étape 6 bis.
 
 ### Diagnostic
 
@@ -232,6 +243,10 @@ Les trois critères d'un bus sain :
 2. `etat=error-active`, avec **TEC = 0 et REC = 0** qui ne bougent pas ;
 3. `pertes_fifo=0` et `tampon=0`.
 
+> **Cette phase ne prouve toujours pas le débit.** Les trois Nucleo partagent la même
+> configuration d'horloge : si elle est fausse, elles le sont identiquement et communiquent
+> parfaitement entre elles. Passer à l'étape 6 bis.
+
 Sur N2 et N3, `emises` doit suivre `recues` à une unité près.
 
 ### Diagnostic
@@ -249,6 +264,106 @@ Sur N2 et N3, `emises` doit suivre `recues` à une unité près.
 > Un `LEC` non nul juste après le démarrage est normal : le premier nœud allumé émet dans le
 > vide et compte une erreur d'acquittement tant que les autres ne sont pas prêts. C'est la
 > **progression** de `TEC` en régime établi qui compte, pas sa valeur ponctuelle.
+
+---
+
+---
+
+## Étape 6 bis — Phase 3 : le débit, contre une référence indépendante
+
+> **C'est l'étape qui établit le débit.** Les phases 1 et 2 ne le font pas, et
+> c'est le piège de cette mise en route.
+>
+> En **bouclage interne**, l'émetteur et le récepteur d'un même contrôleur partagent
+> l'horloge noyau : une PLL mal configurée se boucle sur elle-même sans la moindre
+> erreur. Un nœud tournant à 400 kbit/s au lieu de 500 passe la phase 1 sans broncher.
+>
+> En **phase 2**, les trois Nucleo portent la **même** configuration d'horloge. Si
+> elle est fausse, elles le sont toutes de la même façon et se comprennent
+> parfaitement entre elles. Une erreur commune est structurellement invisible.
+>
+> Il faut donc une source dont l'oscillateur n'a **rien à voir** avec le nôtre.
+
+### 6 bis.1 — Échange avec le CANable
+
+Le CANable 2.0 possède son propre quartz, indépendant de celui des Nucleo. S'il
+communique sans erreur avec le banc, c'est que les deux débits coïncident
+réellement.
+
+Raccorder le CANable sur le connecteur libre (J5), puis :
+
+```bash
+canbench --interface gs_usb --bitrate 500000 monitor
+```
+
+**Critères, à vérifier des deux côtés :**
+
+| Côté | Attendu |
+|---|---|
+| PC | Les trames de N1, N2 et N3 apparaissent, décodées, sans trame erronée |
+| Nœuds (VCP) | `TEC` et `REC` restent à 0, `etat=error-active` |
+
+Un débit divergent se manifeste par des erreurs de *stuff* ou de *form*, un `REC`
+qui grimpe, et des trames tronquées côté PC — pas par un silence.
+
+> Si le CANable est configuré à un débit différent du banc, **aucun des deux ne
+> peut acquitter l'autre** : `TEC` monte jusqu'au passage en *error-passive* puis
+> en *bus-off*. C'est un résultat exploitable, pas une panne.
+
+### 6 bis.2 — Mesure du temps de bit à l'oscilloscope
+
+Sonde différentielle entre **CAN_H et CAN_L**, ou deux voies en mode
+mathématique A−B. Déclencher sur un front descendant du début de trame.
+
+**Valeur attendue : 2,000 µs par bit** (1 / 500 000).
+
+| Bande | Valeur | Origine |
+|---|---|---|
+| **Tolérance d'acceptation** | **1,990 à 2,010 µs** (± 0,485 %) | Écart maximal admissible par nœud, calculé en [bit_timing.md](bit_timing.md) |
+| **Valeur attendue en pratique** | **2,000 µs à quelques ppm près** | Le quartz est à 20 ppm, soit ± 0,04 ns |
+
+Cet écart entre les deux lignes est le cœur du diagnostic. La bande d'acceptation
+est large parce qu'elle doit couvrir le pire cas normatif ; mais avec une
+configuration **correcte**, on doit mesurer 2,000 µs à la précision de
+l'oscilloscope près. Toute valeur qui s'en écarte visiblement signale une erreur
+de configuration, même si elle reste dans la bande.
+
+| Mesure | Interprétation |
+|---|---|
+| 2,000 µs ± quelques ppm | Correct |
+| 2,000 µs ± jusqu'à 1 % | Le nœud tourne probablement sur **HSI** (± 1 %) |
+| Écart d'un rapport simple (2,5 µs, 1,6 µs…) | `PLLM`/`PLLN`/`PLLQ` ou `BENCH_CAN_PRESCALER` erronés |
+| 4,000 µs | 250 kbit/s : mode de faute « débit erroné » resté actif |
+
+**Méthode.** Mesurer un seul bit donne une résolution médiocre. Préférer la
+mesure automatique de période de l'oscilloscope avec moyennage, ou mesurer la
+durée d'une suite de bits de même niveau, puis diviser. Le champ le plus commode
+est le **délimiteur de CRC suivi de l'ACK**, ou une zone de bits identiques
+consécutifs repérée à l'œil.
+
+**Précision de l'instrument.** La base de temps d'un oscilloscope numérique
+courant est spécifiée autour de ± 50 ppm, soit 0,005 % — cent fois plus fin que
+la bande d'acceptation de 0,485 %. L'instrument n'est donc pas le facteur
+limitant, à condition de moyenner.
+
+### 6 bis.3 — Cas du repli HSI
+
+Si les cartes tournent encore sur HSI (SB9/SB10 non soudés), le firmware l'affiche
+et lève `clock_not_qualified` dans son heartbeat.
+
+Dans cet état, **les phases 1 et 2 gardent tout leur intérêt** : elles valident le
+câblage, le transceiver, les terminaisons et toute la logique applicative. Mais
+**le débit n'est pas établi** et aucun verdict de réussite ne peut être prononcé
+pour T2 ni pour les tests qui en dépendent. `canbench` refuse d'ailleurs de le
+faire tant que le bit est levé.
+
+### 6 bis.4 — Lien avec le protocole de validation
+
+Cette étape est la version « mise en route » du test **T2** de
+[protocole_validation.md](protocole_validation.md). T2 reprend la même mesure avec
+un relevé formel, une photo d'écran d'oscilloscope et un verdict daté. Réussir
+6 bis ne dispense pas d'exécuter T2 ; cela garantit seulement que T2 a des chances
+de passer.
 
 ---
 
@@ -274,8 +389,9 @@ l'oscilloscope.
 |---|---|---|
 | 1 | — | Fer à souder, multimètre |
 | 2 | Chaîne de compilation et programmation | Carte + USB |
-| 3 | Horloge, temps de bit, ISR, tampon, encodage | Carte + USB **seulement** |
+| 3 | PLL, ISR, tampon, encodage — **pas le débit** | Carte + USB **seulement** |
 | 4 | Câblage d'un nœud | + transceiver |
 | 5 | Topologie et terminaisons | + bus, multimètre |
-| 6 | Communication réelle entre trois nœuds | Banc complet |
+| 6 | Communication réelle entre trois nœuds — **pas le débit** | Banc complet |
+| 6 bis | **Le débit**, contre une référence indépendante | + CANable et oscilloscope |
 | 7 | — | Banc complet |
