@@ -519,6 +519,129 @@ la mise en forme du rapport.
 
 ---
 
+## 9 bis. Corrections à reporter dans le dossier v0.2
+
+Ces écarts ont été relevés en travaillant sur le logiciel. **Le dossier n'est pas modifié
+depuis ce dépôt** : il a son propre cycle de vie et sa source LaTeX fait foi. Cette section
+est la liste de travail destinée à son rédacteur.
+
+Chaque ligne donne la section concernée, l'erreur constatée, la correction proposée et la
+source qui l'établit. Les points 1 à 5 sont **bloquants** : en l'état, le montage décrit ne
+peut pas fonctionner.
+
+### Points bloquants
+
+**1 — §4.4, figure « IHM locale » : la broche `PB9` n'existe pas.**
+Le schéma l'utilise comme `SDA`. Or UM2397 **Table 12** énumère les 32 broches du boîtier
+UFQFPN32 : PA0–PA15, PB0, PB3, PB4, PB5, PB6, PB7, PB8, PF0, PF1, PG10. Il n'y a pas de PB9.
+*Correction :* porter I2C1 sur **`PA15` (SCL)** et **`PB7` (SDA)**, accessibles sur CN4-8 et
+CN4-7 (D5 et D4) sans aucun pont à souder.
+
+**2 — §4.4 : `PB8` utilisée comme `SCL` alors que c'est BOOT0.**
+Une résistance de tirage I2C vers 3,3 V force BOOT0 à 1 au reset, et le microcontrôleur
+démarre sur le bootloader système. PB8 porte en outre déjà la LED LD2 de la carte.
+*Sources :* UM2397 **Table 12** (« 31 PB8-BOOT0 / BOOT ») et **§6.6.1** (LD2 sur PB8, SB7
+fermé par défaut). Mécanisme des option bytes `nSWBOOT0`/`nBOOT0` à confirmer sur RM0440.
+*Correction :* idem point 1. PB8 reste utilisable **en sortie** pour une LED, le danger
+tenant à la résistance de tirage et BOOT0 n'étant échantillonnée qu'au reset.
+
+**3 — §4.4 : une LED est placée sur `PA2`, qui est le TX du port COM virtuel.**
+Cela supprime le journal série et met en conflit la sortie du ST-LINK et la sortie GPIO.
+PA2 est aussi ARD_A7, ce qui explique probablement la confusion.
+*Sources :* UM2397 **Table 8** (« SB1, SB12 : ON — USART2 (PA2/PA3) connecté au VCP »),
+**Table 9** (SB1 fermé par défaut), **Table 12** (« 7 PA2 T_VCP_TX USART2_Tx »).
+*Correction :* déplacer cette LED sur **`PB8`** ; conserver PA0 et PA1 pour les deux autres ;
+réserver PA2/PA3 à USART2.
+
+**4 — §4.1 et procédure de montage : le cavalier HW1 n'est pas mentionné.**
+La carte est livrée avec HW1 fermé entre CN4-5 (`D2` = **PA12**) et CN4-4 (`GND`). PA12
+étant `FDCAN1_TX`, le bus est placé en **dominant permanent** et ne fonctionne pas du tout.
+Le symptôme ressemble à une panne matérielle et non à une erreur de montage.
+*Sources :* UM2397 **§5.1 étape 5** et **§6.1** (« HW1 (cavalier 2,54 mm) sur CN4 [4-5] »).
+*Correction :* ajouter en tête de la procédure de montage « retirer HW1 avant toute mise
+sous tension ».
+
+**5 — §6 : aucune HSE n'est active par défaut sur la Nucleo-G431KB.**
+La carte démarre sur le HSI ; le quartz 24 MHz est monté mais déconnecté. Or le HSI est
+spécifié à ±1 %, soit plus du double de la tolérance admissible de 0,485 % à 500 kbit/s :
+aucune mesure n'a de valeur de preuve dans cet état.
+*Sources :* UM2397 **§6.5** (« HSI configuration (default) ») et **Table 9** (SB8, SB9, SB10,
+SB11 et SB13 ouverts par défaut — gras vérifié par extraction des polices du PDF).
+*Correction :* ajouter à la procédure de montage « souder SB9 et SB10 », en précisant que
+c'est une modification matérielle obligatoire, à faire sur les trois cartes G431.
+
+### Points non bloquants
+
+**6 — §4.4 : SB2 et SB3 sont fermés par défaut.**
+Ils reportent PA15 et PB7 sur A5 et A4. Ce n'est pas gênant en soi, mais UM2397 **Table 9**
+précise alors « PA6 must be configured as floating input » (SB3) et « PA5 must be configured
+as floating input » (SB2).
+*Correction :* documenter que **PA5 et PA6 doivent être en entrée flottante**, sans quoi
+elles entrent en conflit électrique avec PB7 et PA15 via CN3-8 et CN3-7. Ne pas ouvrir
+SB2/SB3 : ce serait utile seulement pour retrouver A4/A5 en entrées analogiques.
+
+**7 — §4.4, « Contrainte de temps d'exécution » : « environ 10 ms […] une vingtaine de trames ».**
+Les deux chiffres sont faux, et le second ne découle même pas du premier.
+*Calcul :* 1024 octets de GDDRAM × 9 bits par octet en I2C (8 + ACK) / 400 kHz = **23,04 ms**,
+soit ≈ 24 ms avec l'adressage des 8 pages. Une trame standard de 8 octets à 500 kbit/s
+occupe le bus ≈ 220 µs, donc 24 ms correspondent à **≈ 105 trames** et non à une vingtaine.
+*Correction :* remplacer les deux valeurs. La conclusion du dossier — ne jamais rafraîchir
+dans l'ISR — reste juste et s'en trouve renforcée : à 10 Hz en trame complète, le bus I2C
+serait occupé 24 % du temps, en concurrence directe avec le MPU-6050 qui le partage.
+
+**8 — §4.6, tableau 7 : la colonne « Perdus » est ambiguë.**
+Elle annonce **1000** pour N3 sur 1000 cycles. Or N3 perd **deux** arbitrages par cycle :
+après GO, N1 gagne ; N2 et N3 retransmettent ; N2 gagne et N3 perd une seconde fois. N3
+subit donc 2000 pertes d'arbitrage, et la colonne compte en réalité des **cycles**.
+*Correction :* préciser « nombre de cycles où le nœud a perdu au moins un arbitrage », et
+ajouter la métrique de **rang** — 1 + nombre de trames contendantes reçues entre la fin de
+GO et sa propre émission — qui est sans ambiguïté et porte le critère chiffré.
+
+**9 — §4.2 et §4.3 : les terminaisons des modules transceiver ne sont pas évoquées.**
+Les modules du commerce portent fréquemment un 120 Ω soudé à demeure, alors que le dossier
+prévoit deux terminaisons discrètes (`R_T1`, `R_T2`) et place les nœuds sur des dérivations.
+*Correction :* ajouter une vérification. Si les modules sont terminés, **retirer le 120 Ω
+sur les quatre nœuds — N1 compris**, puisqu'il n'est pas en bout de ligne : une terminaison
+en bout de stub ne termine pas la ligne principale. Avec 4 modules terminés plus les deux
+résistances discrètes, le bus verrait 20 Ω et aucun niveau dominant ne pourrait s'établir.
+Ajouter le contrôle à l'ohmmètre : **≈ 60 Ω** entre CAN_H et CAN_L, hors tension, SW1 fermé.
+*Statut :* `TODO(verif) V9`, question Q5b ouverte.
+
+**10 — §4.6 : la durée de GO (« ≈ 250 µs ») est donnée sans justification.**
+Le chiffre est **correct**, il mérite d'être étayé.
+*Décompte :* SOF 1 + ID 11 + RTR 1 + IDE 1 + r0 1 + DLC 4 + données 64 + CRC 15 + délimiteur 1
++ ACK 2 + EOF 7 = 108 bits, soit **216 µs** à 500 kbit/s, et jusqu'à **≈ 246 µs** avec le bit
+stuffing au pire cas.
+
+**11 — §4.6 : l'argument du départ simultané est incomplet.**
+Il ne repose que sur la durée de GO, ce qui couvre l'armement tardif mais pas le cas d'un
+nœud armé **avant** le début de GO.
+*Correction :* ajouter l'argument complémentaire — GO ayant un identifiant inférieur à celui
+de tous les contendants, un nœud armé trop tôt perd l'arbitrage contre GO et attend sa fin.
+Les deux arguments réunis ferment la démonstration. La contrainte
+`ID(GO) < min(ID des contendants)` est désormais vérifiée automatiquement à la génération de
+l'ICD, et non seulement documentée.
+
+**12 — §2.3 : la raison du choix du TJA1051T/3 n'est pas explicitée.**
+*Correction :* préciser que la variante importe — seuls les `TJA1051T/3` et `TJA1051TK/3`
+possèdent la broche **VIO** permettant l'interface directe avec un microcontrôleur 3,3 V ; le
+`TJA1051T` simple a des niveaux logiques 5 V, incompatibles sans adaptation.
+*Source :* TJA1051 **Table 2** et **§6**.
+
+**13 — §7 : prévoir la temporisation *TXD dominant time-out* du TJA1051.**
+Une faute « dominant collé » sera **corrigée d'elle-même** par le transceiver après quelques
+centaines de µs, ce qui borne ce que les tests de fautes peuvent démontrer. Le mode
+*babbling idiot* n'est pas concerné, TXD y basculant normalement.
+*Source :* TJA1051 **§6.2.1** (« définit également le débit minimal possible de 40 kbit/s »).
+
+**14 — §7 : « mode silencieux » et « arrêt d'acquittement » sont le même mode.**
+Ni bxCAN ni FDCAN n'offrent de « ne pas acquitter » indépendant : le seul moyen est le mode
+moniteur, qui n'acquitte pas.
+*Correction :* fusionner les deux modes de faute sous un seul intitulé.
+*Sources :* FDCAN `CCCR.MON`, bxCAN `BTR.SILM`.
+
+---
+
 ## 10. Récapitulatif des `TODO(verif)`
 
 | # | Élément | Source à consulter | Bloque |

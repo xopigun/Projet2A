@@ -28,8 +28,11 @@ donne des symptômes qui ressemblent à une panne et non à une erreur de montag
    compilation, affiche `HSI - NON VALIDE` sur l'écran et signale le défaut dans son
    heartbeat, et `canbench` refuse alors de prononcer un verdict de réussite.
 
-Voir [docs/montage.md](docs/montage.md) pour la procédure complète (terminaisons, câblage
-DB9, interrupteurs de faute).
+**Procédure de mise en route pas à pas : [docs/bringup.md](docs/bringup.md).** Elle amène
+trois cartes neuves à un bus qui communique, en validant l'horloge, le temps de bit et
+l'encodage **avant** tout câblage grâce au bouclage interne du FDCAN.
+
+Brochage, terminaisons et injection de fautes : [docs/pinout.md](docs/pinout.md).
 
 ---
 
@@ -164,5 +167,5 @@ Le projet lui-même est sous licence MIT — voir [LICENSE](LICENSE).
 - [docs/bit_timing.md](docs/bit_timing.md) — calcul et justification du bit timing
 - [docs/config_logicielle.md](docs/config_logicielle.md) — paramètres FDCAN/bxCAN
 - [docs/protocole_validation.md](docs/protocole_validation.md) — les sept tests T1 à T7
-- [docs/montage.md](docs/montage.md) — procédure de montage du banc
+- [docs/bringup.md](docs/bringup.md) — procédure de mise en route pas à pas
 - [docs/references/README.md](docs/references/README.md) — où trouver les documents de référence

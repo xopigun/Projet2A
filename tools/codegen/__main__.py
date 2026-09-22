@@ -10,7 +10,8 @@ import argparse
 import sys
 from pathlib import Path
 
-from . import gen_c, gen_dbc, gen_latex, gen_python, gen_vectors_c, vectors
+from . import (gen_c, gen_config_latex, gen_dbc, gen_latex, gen_python,
+               gen_vectors_c, vectors)
 from .model import ICD_PATH, REPO_ROOT, Icd, IcdError, load
 
 
@@ -29,6 +30,8 @@ def _outputs(icd: Icd) -> dict[Path, str]:
             gen_latex.generate_encoding_table(icd),
         REPO_ROOT / "docs" / "latex" / "icd_reserved_ids.tex":
             gen_latex.generate_reserved_table(icd),
+        REPO_ROOT / "docs" / "latex" / "config_logicielle.tex":
+            gen_config_latex.generate(icd),
     }
 
 

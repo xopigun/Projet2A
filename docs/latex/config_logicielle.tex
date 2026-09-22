@@ -1,0 +1,33 @@
+% ===========================================================================
+%  FICHIER GÉNÉRÉ — NE PAS ÉDITER À LA MAIN
+%  Produit par tools/codegen à partir des firmware/boards/*/board.h.
+%  Regénérer :  python -m tools.codegen
+% ===========================================================================
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{lcc}
+\toprule
+\textbf{Paramètre} & \textbf{N1--N3 (STM32G431)} & \textbf{N4 (STM32F103)} \\
+\midrule
+Périphérique & FDCAN1, mode \emph{Classic} & bxCAN \\
+Référence d'horloge & HSE \SI{24}{MHz} (quartz, \SI{20}{ppm}) & HSE \SI{8}{MHz} \\
+Horloge noyau CAN & \SI{80}{MHz} & \itshape non porté \\
+Prescaler & 10 & \itshape non porté \\
+Durée du bit & 16 tq & \itshape non porté \\
+Segments (sync + 1 + 2) & 1 + 13 + 2 & \itshape non porté \\
+SJW & 2 & \itshape non porté \\
+Point d'échantillonnage & \SI{87.50}{\percent} & \itshape non porté \\
+Tolérance d'oscillateur & \SI{0.485}{\percent} & \itshape non porté \\
+Débit & \SI{500}{kbit/s} & \SI{500}{kbit/s} \\
+\midrule
+Filtres d'acceptation & aucun & aucun \\
+Retransmission automatique & activée & activée \\
+Reprise après \emph{bus-off} & logicielle (\texttt{CCCR.INIT}) & matérielle (\texttt{ABOM}) \\
+Mode silencieux & \texttt{CCCR.MON} & \texttt{BTR.SILM} \\
+Bouclage interne & \texttt{FDCAN\_MODE\_INTERNAL\_LOOPBACK} & \texttt{BTR.LBKM} \\
+\bottomrule
+\end{tabular}
+\caption{Configuration retenue du contrôleur CAN. Le point d'échantillonnage est identique sur les deux familles, ce dont dépend la tolérance d'écart d'horloge commune. Valeurs relues dans les \texttt{board.h} et vérifiées par \texttt{scripts/bit\_timing.py}. La colonne N4 est calculée mais le port n'est pas encore écrit : il attend RM0008, DS5319 et le schéma de la carte.}
+\label{tab:config-logicielle}
+\end{table}

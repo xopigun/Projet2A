@@ -14,8 +14,14 @@ travail. Aucun outil du dépôt n'en dépend à la compilation.
 |---|---|---|---|
 | Dossier de définition — Banc de test CAN | G69-BANC-001 | v0.1, 22/09/2026 | interne au groupe 69 |
 
-Nom attendu ici : `Dossier_Banc_Test_CAN_v0_1.pdf`. La source LaTeX est hors dépôt
-(`Projet 2A/Banc de Test/Dossier_Banc_Test_CAN_v0.1.tex`) et **fait foi** pour les tableaux.
+Nom attendu ici : `Dossier_Banc_Test_CAN_v0_1.pdf`.
+
+> **Le dossier a son propre cycle de vie.** Il n'est ni versionné ici, ni modifié depuis ce
+> dépôt : sa source LaTeX vit en dehors (`Projet 2A/Banc de Test/`) et c'est elle qui fait
+> foi pour les tableaux. Le dépôt ne fait que **référencer une version**, ici la **v0.1**.
+> Les écarts relevés par rapport à cette version sont consignés dans
+> [PLAN.md](../PLAN.md), section « Corrections à reporter dans le dossier v0.2 », à charge
+> pour le rédacteur du dossier de les y intégrer.
 
 Sections utilisées : §1 (les six fonctions), §2 (architecture, choix du TJA1051T/3),
 §4.1 (schéma d'un nœud), §4.2 (bus, brochage DB9 CiA 303-1), §4.3 (SW1/SW2/SW3),

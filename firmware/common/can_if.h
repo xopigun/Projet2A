@@ -72,6 +72,12 @@ typedef struct {
     bench_busoff_policy_t busoff_policy;
     bool                 silent;  /**< mode moniteur : écoute sans acquitter */
     /**
+     * Bouclage interne : le contrôleur se reçoit lui-même sans rien émettre sur
+     * les broches. Permet de valider l'encodage, le temps de bit et la chaîne
+     * ISR -> tampon **sans transceiver ni bus câblé** (voir docs/bringup.md).
+     */
+    bool loopback;
+    /**
      * Retransmission automatique. Toujours vraie en fonctionnement normal :
      * sans elle, un nœud qui perd l'arbitrage abandonne sa trame et le test
      * d'arbitrage n'a plus de sens.

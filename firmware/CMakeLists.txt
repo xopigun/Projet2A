@@ -89,8 +89,19 @@ target_link_libraries(bench_app PUBLIC bench_hal)
 # ---------------------------------------------------------------------------
 #  Exécutable
 # ---------------------------------------------------------------------------
+# Le mode autotest remplace main.c par selftest.c : meme port, meme code commun,
+# seul le programme principal change (voir docs/bringup.md).
+option(BENCH_SELFTEST "Compiler l'autotest de mise en route au lieu du firmware" OFF)
+if(BENCH_SELFTEST)
+    set(BENCH_MAIN ${BENCH_PORT_DIR}/selftest.c)
+    message(STATUS "Mode autotest : bouclage interne puis ping/pong")
+else()
+    set(BENCH_MAIN ${BENCH_PORT_DIR}/main.c)
+endif()
+
 add_executable(${BENCH_ELF}
-    ${BENCH_PORT_DIR}/main.c
+    ${BENCH_MAIN}
+    ${BENCH_PORT_DIR}/serial.c
     ${BENCH_PORT_DIR}/clock.c
     ${BENCH_PORT_DIR}/can_port.c
     ${BENCH_PORT_DIR}/syscalls.c

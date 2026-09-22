@@ -13,6 +13,14 @@ du dépôt correspond au dossier `v0.1`.
 - Socle du dépôt : configuration git, style de code, licence MIT, index des références.
 - Sous-modules ST épinglés (`firmware/vendor/`) : CMSIS core, CMSIS device G4 et F1,
   pilotes HAL G4 et F1.
+- ICD unique (`icd/bench_icd.yaml`) avec profils réseau, générateur vers C, Python, DBC et
+  LaTeX, et parité d'encodage vérifiée entre quatre implémentations.
+- Code commun testable nativement : tampon circulaire, protocole ARM/GO, heartbeat.
+- Firmware des nœuds N1 à N3 (port FDCAN, horloges HSE/HSI sélectionnables).
+- **Autotest de mise en route** (`presets n1-selftest` à `n3-selftest`) : bouclage interne
+  FDCAN sans transceiver, puis ping/pong sur le bus réel, avec état `PSR`/`ECR` sur le VCP.
+- Documentation : `docs/bringup.md` (mise en route pas à pas), `docs/pinout.md`,
+  `docs/config_logicielle.md` et son extrait LaTeX généré depuis les `board.h`.
 
 ### Corrigé (écarts relevés par rapport au dossier v0.1)
 

@@ -92,7 +92,14 @@ static bool port_open(void *ctx, const bench_can_config_t *config) {
     port->hfdcan.Instance = FDCAN1;
     port->hfdcan.Init.ClockDivider = FDCAN_CLOCK_DIV1;
     port->hfdcan.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
-    port->hfdcan.Init.Mode = config->silent ? FDCAN_MODE_BUS_MONITORING : FDCAN_MODE_NORMAL;
+    if (config->loopback) {
+        /* Bouclage interne : rien n'est emis sur PA12, aucun transceiver requis. */
+        port->hfdcan.Init.Mode = FDCAN_MODE_INTERNAL_LOOPBACK;
+    } else if (config->silent) {
+        port->hfdcan.Init.Mode = FDCAN_MODE_BUS_MONITORING;
+    } else {
+        port->hfdcan.Init.Mode = FDCAN_MODE_NORMAL;
+    }
 
     /* La retransmission automatique est indispensable : sans elle, un nœud qui
      * perd l'arbitrage abandonne sa trame et le test d'arbitrage perd son sens.
