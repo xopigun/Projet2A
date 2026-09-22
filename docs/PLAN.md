@@ -1,237 +1,260 @@
 # Plan de travail — Dépôt logiciel du banc de test CAN (G69-BANC-001)
 
-**Phase 0 — lecture des références et plan.** Aucun code écrit à ce stade.
+**Phase 0 — validée.** Ce document est tenu à jour au fil des lots.
 Auteurs (ordre alphabétique) : Samuel GOMRI, Dylan KIATI, Hugo MATHOUX.
+
+Révisions de ce plan :
+
+| Rév. | Objet |
+|---|---|
+| r1 | Phase 0 initiale, dossier de définition absent |
+| r2 | Dossier de définition lu ; réponses Q1–Q7 intégrées ; vérification SB2/SB3 |
 
 ---
 
 ## 1. État des documents de référence
 
-| Fichier attendu | Présent | Contenu réel | Exploitable |
+| Document | Présent | Contenu réel | Exploitable |
 |---|---|---|---|
-| `Dossier_Banc_Test_CAN_v0_1.pdf` | **NON** | — | **Bloquant partiel** |
-| `NucleoG431KB Datasheet.pdf` | oui | **UM2397 Rev 2** (manuel utilisateur Nucleo-32 MB1430), 30 p. | **oui, excellent** |
-| `BluePill STM32F103.pdf` | oui | Support marketing ST « STM32 development boards portfolio Q1'2022 », 26 p. | **non — hors sujet** |
-| `TJA1051.PDF` | oui | NXP TJA1051 Rev 02, 1 juillet 2009, 18 p. | oui |
-| `SN65HVD230.PDF` | oui | TI SLOS346G, juin 2002 (HVD230/231/232), 29 p. | oui |
-| UM2397 | **fourni sous un autre nom** (voir ci-dessus) | — | oui |
-| RM0440 (STM32G4) | NON | — | à récupérer |
-| RM0008 (STM32F1) | NON | — | à récupérer |
-| DS12589 (datasheet STM32G431) | NON | — | à récupérer |
+| `Dossier_Banc_Test_CAN_v0_1.pdf` | **oui** (r2) | G69-BANC-001 v0.1, 22/09/2026 | **oui** — source LaTeX également disponible |
+| `NucleoG431KB Datasheet.pdf` | oui | **UM2397 Rev 2** (manuel Nucleo-32 MB1430) | **oui** |
+| `BluePill STM32F103.pdf` | oui | Support marketing ST « portfolio cartes Q1'2022 » | **non — hors sujet** |
+| `TJA1051.PDF` | oui | NXP TJA1051 Rev 02 | oui |
+| `SN65HVD230.PDF` | oui | TI SLOS346G | oui (hors BOM nominale, voir §3.3) |
+| RM0440, RM0008, DS12589, DS5319, ES G431, schéma Blue Pill | **en cours** (Q4) | — | Lot 5 en attente |
 
-### 1.1 Point bloquant : le dossier de définition est absent
+Le fichier PDF du dossier a été recopié depuis `Downloads` vers `docs/references/` sous le
+nom `Dossier_Banc_Test_CAN_v0_1.pdf`. La source LaTeX se trouve hors dépôt, dans
+`Projet 2A/Banc de Test/` : c'est elle qui fait foi pour les tableaux.
 
-`docs/references/Dossier_Banc_Test_CAN_v0_1.pdf` n'est pas dans le dépôt. Or c'est la
-spécification principale. Tout ce qui en dépend est donc repris **uniquement** depuis
-l'énoncé de la mission, sans possibilité de recoupement :
-
-- section 1 — les six fonctions à valider (nommées, jamais énumérées ailleurs) ;
-- section 4.6 — protocole ARM/GO (l'énoncé en donne la substance) ;
-- tableau 7 — métrique « Perdus » (point §9.6 : **non vérifiable** en l'état) ;
-- sections 6 et 7 — dont `config_logicielle.md` et `protocole_validation.md` doivent
-  reprendre le contenu ;
-- définition de **SW1 / SW2 / SW3** : l'énoncé mentionne que SW2 ne doit être fermé que
-  brièvement, ce qui suggère un court-circuit CANH/CANL, mais les trois interrupteurs ne
-  sont nulle part définis.
-
-→ **Question 1 (voir §9)** : me fournir le PDF, ou valider les hypothèses que je propose.
-
-### 1.2 Le document « Blue Pill » ne contient aucune information sur la Blue Pill
-
-Le PDF est une présentation commerciale du portfolio cartes ST. Il ne contient ni
-brochage STM32F103C8T6, ni schéma de la carte tierce « Blue Pill », ni rien sur bxCAN.
-Tout ce qui concerne le nœud N4 devra s'appuyer sur RM0008 + la datasheet F103C8 +
-le schéma communautaire de la carte. **Aucun brochage F103 ne sera écrit sans source.**
+> Le PDF « BluePill STM32F103 » ne documente pas la carte (voir §2.5). Il est conservé
+> pour mémoire mais n'est pas une source.
 
 ---
 
-## 2. Vérification des 7 points relevés dans le dossier v0.1 (§9 de la mission)
+## 2. Vérification des 7 points relevés dans le dossier v0.1
 
-### 9.1 — PB8 = BOOT0 utilisé en SCL I2C → **CONFIRMÉ (risque réel), et évitable**
+### 2.1 — PB8 = BOOT0 utilisé en SCL I2C → **CONFIRMÉ**, et le problème est plus grave
 
-Sources : UM2397 Table 12 (« 31 PB8-BOOT0 / BOOT »), §6.6.1 (« LD2 … PB8, si SB7 ON et
-SB6 OFF, configuration par défaut »), Table 9.
+Le dossier (§4.4, figure « IHM locale ») affecte `PB8 -- SCL` et **`PB9 -- SDA`**.
 
-Deux problèmes cumulés, pas un seul :
+1. **PB9 n'existe pas.** UM2397 Table 12 énumère les 32 broches du boîtier UFQFPN32 :
+   PA0–PA15, PB0, PB3, PB4, PB5, PB6, PB7, PB8, PF0, PF1, PG10. **Il n'y a pas de PB9.**
+   Le schéma IHM du dossier n'est donc pas réalisable tel quel.
+2. **PB8 est BOOT0** (UM2397 Table 12 : « 31 PB8-BOOT0 / BOOT »). Une pull-up I2C vers
+   3,3 V force BOOT0 à 1 au reset ⇒ démarrage sur le bootloader système. Mécanisme à
+   confirmer dans RM0440 — `TODO(verif) V2`.
+3. **PB8 porte déjà LD2** (UM2397 §6.6.1 et Table 9, SB7 **ON** par défaut — gras vérifié).
 
-1. PB8 est la broche BOOT0 (option byte `nSWBOOT0 = 1` par défaut ⇒ BOOT0 lu sur la
-   broche au reset). Une pull-up I2C vers 3,3 V force BOOT0 à 1 au reset ⇒ démarrage
-   sur le bootloader système. **Mécanisme à confirmer dans RM0440** — `TODO(verif)`.
-2. PB8 porte déjà la LED utilisateur LD2 de la carte (SB7 ON par défaut).
+**Solution retenue :** I2C1 sur **PA15 = SCL** et **PB7 = SDA** (voir §2.8 pour la
+vérification SB2/SB3 demandée). PB8 redevient utilisable **en sortie** pour la LED TX :
+le danger tenait à la pull-up, pas à l'usage en sortie, BOOT0 n'étant échantillonné qu'au
+reset.
 
-**Solution retenue, entièrement sourcée, sans modification matérielle :**
-I2C1 sur **PA15 = SCL** et **PB7 = SDA**, accessibles directement sur **CN4 pin 8
-(ARD_D5)** et **CN4 pin 7 (ARD_D4)** — UM2397 Table 11 et Table 12. Aucun pont à souder
-n'est requis pour cet usage (SB2/SB3 ne concernent que le report de ces mêmes signaux
-vers A4/A5 sur CN3).
+### 2.2 — PA2 en LED alors que c'est le TX du VCP → **CONFIRMÉ**
 
-Conséquence : PB8 reste libre et **redevient utilisable en LED** (c'est LD2, déjà câblée),
-puisque le danger tenait à la pull-up, pas à l'usage en sortie — BOOT0 n'est échantillonné
-qu'au reset.
+Le dossier affecte les LEDs à `PA0`, `PA1`, `PA2`.
 
-### 9.2 — PA2 en LED alors que c'est le TX du VCP ST-LINK → **CONFIRMÉ**
+UM2397 Table 9, état par défaut **en gras vérifié par extraction de police** :
+**SB1 = ON** (« T_VCP_TX is connected to STM32G4 I/O PA2 ») et **SB12 = ON**. Table 8 et
+Table 12 (« 7 PA2 T_VCP_TX USART2_Tx ») concordent.
 
-Sources : UM2397 Table 8 (« SB1, SB12 : ON — USART2 (PA2/PA3) connecté au Virtual COM
-port du STLINK-V3E », configuration **par défaut**), Table 9 (SB1 : « T_VCP_TX est
-connecté à l'E/S PA2 »), Table 12 (« 7 PA2 T_VCP_TX USART2_Tx »).
+PA0 et PA1 sont libres et conservés. Seule la LED sur PA2 est déplacée.
 
-PA2 est bien le TX du VCP, câblé par défaut. L'utiliser en LED :
+### 2.3 — Rafraîchissement OLED ≈ 23 ms et non ≈ 10 ms → **CONFIRMÉ**
 
-- supprime le journal série (objectif §5.1 de la mission) ;
-- met en conflit la sortie du STLINK-V3E et la sortie GPIO.
+Le dossier (§4.4, « Contrainte de temps d'exécution ») annonce « environ 10 ms, soit
+l'équivalent d'une vingtaine de trames ».
 
-À noter : PA2 est **aussi** ARD_A7 (CN3 pin 5), donc physiquement accessible — d'où
-probablement l'erreur.
+Calcul : 1024 octets de GDDRAM, 9 bits par octet en I2C (8 + ACK) :
+1024 × 9 / 400 000 = **23,04 ms**, plus ≈ 1,1 ms d'adressage des 8 pages ⇒ **≈ 24 ms**.
 
-**Solution retenue :** PA2/PA3 réservés au VCP (USART2, journal série). Les trois LEDs
-passent sur des broches libres (proposition en §4.3).
+À 500 kbit/s une trame standard de 8 octets occupe le bus ≈ 220 µs, donc 24 ms
+correspondent à **≈ 105 trames** et non à une vingtaine. Les deux chiffres du dossier sont
+à corriger (le second ne découle d'ailleurs pas du premier : 10 ms feraient déjà ≈ 45 trames).
 
-### 9.3 — Rafraîchissement OLED ≈ 23 ms et non ≈ 10 ms → **CONFIRMÉ**
+La conclusion du dossier — ne jamais rafraîchir dans l'ISR — reste **juste et même
+renforcée**. S'y ajoutent les deux choix d'architecture : DMA non bloquant, et mise à jour
+par pages modifiées uniquement (à 10 Hz en trame complète le bus I2C serait occupé 24 % du
+temps, en concurrence directe avec le MPU-6050 qui le partage).
 
-Calcul : 128×64 / 8 = 1024 octets de GDDRAM. En I2C chaque octet coûte 9 bits (8 + ACK).
-1024 × 9 / 400 000 = **23,04 ms**. En ajoutant, pour chacune des 8 pages, START + adresse
-+ octet de contrôle + commandes de positionnement colonne/page (≈ 6 octets), soit
-8 × 6 × 9 / 400 000 ≈ 1,1 ms, on obtient **≈ 24 ms par trame complète**.
+### 2.4 — Repères PA11/PA12 sur le connecteur Arduino Nano → **CONFIRMÉ**
 
-La valeur de ≈ 10 ms du dossier est donc fausse d'un facteur ≈ 2,3 (elle correspondrait à
-un comptage de 8 bits/octet **et** à ≈ 800 kHz, hors spécification SSD1306).
+UM2397 Table 11 : CN4 pin 13 = ARD_D10 = **PA11** ; CN4 pin 5 = ARD_D2 = **PA12**.
+Confirmé par Table 12. Le dossier demandait précisément cette vérification.
 
-Conséquences, qui justifient les deux choix d'architecture :
+**Réserve :** UM2397 ne mentionne pas FDCAN (il liste « SPI1_CS / TIM1_CH4 » pour PA11 et
+« IO » pour PA12). L'affectation **FDCAN1_RX = PA11 / FDCAN1_TX = PA12 en AF9** reste à
+confirmer sur DS12589 — `TODO(verif) V1`. Le `board.h` la porte derrière une constante
+unique, signalée.
 
-- à 10 Hz en trame complète, le bus I2C est occupé **24 % du temps**, ce qui entre en
-  concurrence directe avec le MPU-6050 sur le même bus → **mise à jour par pages modifiées
-  uniquement** ;
-- 24 ms de transfert bloquant par rafraîchissement est incompatible avec la boucle
-  temps réel → **DMA obligatoire**, l'ISR CAN restant prioritaire.
+### 2.5 — Blue Pill : PA11/PA12 partagés avec l'USB → **NON VÉRIFIABLE**
 
-### 9.4 — Repères PA11/PA12 sur le connecteur Arduino Nano → **CONFIRMÉ**
+Le PDF fourni est un support marketing sans aucune information sur la carte, le F103 ou
+bxCAN. En attente de RM0008 + DS5319 + schéma (Q4). Piste à évaluer alors : remapper bxCAN
+sur PB8/PB9 (`AFIO_MAPR.CAN_REMAP = 10`) pour éviter le partage avec l'USB —
+`TODO(verif) V5`. **Lot 5 bloqué.**
 
-Source : UM2397 Table 11 — CN4 pin 13 = ARD_D10 = **PA11** ; CN4 pin 5 = ARD_D2 = **PA12**.
-Confirmé par Table 12 (« 21 PA11 ARD_D10 », « 22 PA12 ARD_D2 »).
+### 2.6 — Métrique « Perdus » du tableau 7 → **AMBIGUÏTÉ CONFIRMÉE**
 
-**Réserve importante :** ni Table 11 ni Table 12 ne mentionnent FDCAN. UM2397 liste pour
-PA11 « SPI1_CS / TIM1_CH4 » et pour PA12 « IO ». L'affectation **FDCAN1_RX = PA11 /
-FDCAN1_TX = PA12 (AF9)** doit être confirmée dans la **datasheet DS12589**, table des
-fonctions alternées — `TODO(verif)`. C'est l'affectation usuelle sur G431, mais elle ne
-sera pas écrite dans `board.h` sans cette source.
+Tableau 7 du dossier, lu dans la source :
 
-### 9.5 — Blue Pill : PA11/PA12 partagés avec l'USB → **NON VÉRIFIABLE ICI**
+| Nœud | Identifiant | Gagnés | Perdus | ARM reçus |
+|---|---|---|---|---|
+| N1 | 0x100 | 1000 | 0 | 1000 |
+| N2 | 0x200 | 0 | 1000 | 1000 |
+| N3 | 0x300 | 0 | 1000 | 1000 |
 
-Le PDF fourni ne documente pas la carte (voir §1.2). Les points cités dans la mission
-(partage USB/bxCAN, pull-up USB sur PA12, clones F103) sont plausibles et connus, mais
-**je ne les déclarerai confirmés qu'après lecture de RM0008 + datasheet F103C8 + schéma
-de la carte**.
+L'ambiguïté est réelle et démontrée : sur un cycle, après la fin de GO les trois nœuds
+émettent ensemble ; N1 gagne, N2 et N3 perdent ; puis N2 et N3 retransmettent et **N3 perd
+une seconde fois**. N3 subit donc **2000 pertes d'arbitrage** sur 1000 cycles, alors que le
+tableau affiche 1000. La colonne compte donc des **cycles**, pas des arbitrages.
 
-Piste à évaluer alors, qui supprimerait le problème à la racine : **remapper bxCAN sur
-PB8/PB9** (`AFIO_MAPR.CAN_REMAP = 10`), broches libres sur la Blue Pill, au lieu de
-PA11/PA12 partagées avec l'USB. À trancher au Lot 5 — `TODO(verif)`.
+**Décision :** on conserve les colonnes du tableau 7 pour la compatibilité avec le dossier,
+en définissant explicitement `perdus` = *nombre de cycles où le nœud a perdu au moins un
+arbitrage*, et on ajoute la métrique non ambiguë du §4.4 (rang), qui est celle sur laquelle
+porte le critère de réussite chiffré.
 
-### 9.6 — Métrique « Perdus » du tableau 7 → **NON VÉRIFIABLE** (dossier absent)
+### 2.7 — Plage d'identifiants réservés → **résolu par Q3**, voir §4.5
 
-Je ne peux pas lire le tableau 7. Sur le principe, l'ambiguïté décrite est réelle :
-N3 (0x300) perd l'arbitrage **deux fois par cycle** (contre N1 puis contre N2). « Perdus
-1000 » sur 1000 cycles peut donc signifier « 1000 cycles où N3 a perdu » ou « 2000
-arbitrages perdus ». Je tranche en **définissant la métrique sans ambiguïté** plutôt qu'en
-comptant les pertes (voir §4.4).
+### 2.8 — Vérification demandée : D4/D5 (PB7/PA15) reliés à A4/A5 ?
 
-### 9.7 — Plage d'identifiants réservés → **À ARRÊTER AVEC TOI** (Question 3)
+**Réponse : oui, SB2 et SB3 sont fermés (ON) par défaut.** Vérifié par extraction des
+polices de UM2397 Table 9 : dans les deux cas, c'est la ligne `ON` qui est en gras, et la
+note 1 du tableau précise « The default SB state is in bold ».
+
+| Pont | Défaut | Effet |
+|---|---|---|
+| **SB3** | **ON** | PA15 relié à CN3 pin 7 (A5) — « PA15 does not support ARDUINO Nano D5 **and PA6 must be configured as floating input** » |
+| **SB2** | **ON** | PB7 relié à CN3 pin 8 (A4) — « PB7 does not support ARDUINO Nano D4 **and PA5 must be configured as floating input** » |
+
+**Mais il ne faut pas les ouvrir.** PA15 et PB7 sont câblés en dur sur CN4 pin 8 et CN4
+pin 7 (Table 11/12) ; SB2/SB3 les reportent **en plus** sur A4/A5, qui est l'emplacement
+I2C standard d'un Arduino Nano. Notre câblage (OLED + MPU-6050 sur D4/D5, ou
+indifféremment sur A4/A5 — c'est le même net) fonctionne donc **sans aucune modification
+matérielle**.
+
+La contrainte réelle est **logicielle** et sera portée par `board.h` :
+**PA5 et PA6 doivent être configurées en entrée flottante**, faute de quoi elles entrent en
+conflit avec PB7 et PA15 via CN3 pins 7 et 8. C'est le seul point à respecter.
+
+Si une séparation stricte D4/D5 ↔ A4/A5 devenait nécessaire (ce n'est pas le cas ici), il
+faudrait ouvrir **SB2** et **SB3** — et alors A4/A5 redeviendraient des entrées analogiques
+sur PA5/PA6.
 
 ---
 
-## 3. Points nouveaux relevés pendant la lecture (non listés dans la mission)
+## 3. Points relevés pendant la lecture, non listés dans le dossier
 
 ### 3.1 — CRITIQUE : cavalier HW1 court-circuite PA12 (FDCAN1_TX) à la masse
 
-UM2397 §6.1 (vue de dessous) : « **HW1 (cavalier 2,54 mm) sur CN4 [4-5]** ».
-CN4 pin 4 = GND, CN4 pin 5 = ARD_D2 = **PA12**.
-UM2397 §5.1 étape 5 : « Retirer le cavalier placé entre D2 (CN4 pin 5) et GND (CN4 pin 4) ».
+UM2397 §6.1 : « **HW1 (cavalier 2,54 mm) sur CN4 [4-5]** ». CN4 pin 4 = GND,
+CN4 pin 5 = ARD_D2 = **PA12**. UM2397 §5.1 étape 5 : « Retirer le cavalier placé entre D2
+(CN4 pin 5) et GND (CN4 pin 4) ».
 
-**La carte est livrée avec PA12 relié à la masse.** Si PA12 est bien FDCAN1_TX (§9.4),
-ne pas retirer HW1 met l'entrée TX du transceiver à 0 ⇒ **état dominant permanent** ⇒ le
-bus entier est bloqué, et le symptôme ressemblera à une panne de bus, pas à une erreur de
-montage. À écrire en tête de la procédure de montage et du `README.md`.
+**La carte est livrée avec PA12 relié à la masse.** PA12 étant FDCAN1_TX, ne pas retirer
+HW1 met TXD du transceiver à 0 ⇒ **dominant permanent** ⇒ bus entier bloqué, avec un
+symptôme qui ressemble à une panne matérielle et non à une erreur de montage.
+→ En tête de `README.md` et de `docs/montage.md` (Q2).
 
-### 3.2 — CRITIQUE : aucune HSE n'est active par défaut sur la Nucleo-G431KB
+### 3.2 — CRITIQUE : aucune HSE active par défaut sur la Nucleo-G431KB
 
-UM2397 §6.5 : « **Configuration HSI (par défaut)** : SB9 et SB10 OFF, SB11 et SB8 OFF,
-SB13 OFF ». Le quartz X2 **24 MHz / 20 ppm / 6 pF** est bien monté sur la carte (§6.1,
-Features p. 2) mais il est **déconnecté**.
-
-Or la mission interdit le HSI comme référence CAN. Trois options :
+UM2397 §6.5 : « **HSI configuration (default)** ». Vérifié sur Table 9 : **SB9, SB10, SB8,
+SB11 et SB13 sont tous OFF en gras**. Le quartz X2 (24 MHz, 20 ppm, 6 pF) est monté mais
+**déconnecté**.
 
 | Option | Modification | Fréquence | Tolérance |
 |---|---|---|---|
-| **A (retenue)** | souder **SB9 + SB10** | 24 MHz quartz X2 | 20 ppm = 0,002 % |
-| B | souder **SB13** | 25 MHz, MCO du ST-LINK (bypass) | non spécifiée dans UM2397 |
-| C | HSI 16 MHz | aucune | ±1 % ⇒ **hors spec** (voir §4.1) |
+| **A (cible)** | souder **SB9 + SB10** | 24 MHz quartz X2 | 20 ppm = 0,002 % |
+| B | souder **SB13** | 25 MHz, MCO ST-LINK | non spécifiée — `TODO(verif) V8` |
+| C (repli) | HSI 16 MHz | aucune | ±1 % ⇒ **hors spec** (§4.1) |
 
-→ **Une modification matérielle (2 ponts à souder par carte G431) est nécessaire.**
-C'est une contrainte de montage à intégrer au dossier. **Question 2.**
+**Décision (Q2, accord encadrants en attente) :** la source d'horloge est **sélectionnable
+dans `board.h`**, HSE par défaut. Le repli HSI est explicite et bruyant :
 
-### 3.3 — Variante de transceiver : le TJA1051T simple est incompatible 3,3 V
+- `#warning` à la compilation ;
+- bandeau **« HSI - NON VALIDE »** en zone Identité de l'OLED ;
+- bit `clock_not_qualified` dans le heartbeat, remonté par `canbench monitor` ;
+- `canbench report` refuse d'émettre un verdict de réussite pour T2/T3 si un nœud le signale.
 
-TJA1051 §6, Table 2 : seuls **TJA1051T/3** et **TJA1051TK/3** possèdent la broche VIO
-(pin 5) permettant l'interface directe avec un microcontrôleur 3,0–3,6 V. Sur le
-**TJA1051T**, pin 5 est n.c. et VIO est relié en interne à VCC, donc **niveaux logiques
-5 V** ⇒ incompatible avec les GPIO 3,3 V du STM32 sans adaptation.
-Par ailleurs VCC = **4,5 à 5,5 V** dans tous les cas : le TJA1051 doit être alimenté en
-5 V (disponible sur CN3 pin 4), avec VIO = 3,3 V.
+### 3.3 — Transceivers : le dossier tranche pour le TJA1051T/3
 
-Le SN65HVD230 est lui intégralement 3,3 V (VCC 3,0–3,6 V). Mixer les deux sur le bus est
-acceptable (les niveaux différentiels ISO 11898-2 sont respectés), mais doit être noté.
+Le dossier (§2.3 et §4.1) retient **TJA1051T/3** pour les quatre nœuds, avec
+VCC = 5 V et VIO = 3,3 V. C'est le bon choix : seuls les TJA1051**T/3** et **TK/3** ont la
+broche VIO (TJA1051 Table 2) ; le TJA1051T simple a des niveaux logiques 5 V, incompatibles
+avec le STM32 sans adaptation.
 
-### 3.4 — Broche S / RS : les deux transceivers n'ont pas la même sémantique
+⇒ **Q5 première question répondue par le document.** Le SN65HVD230 (3,3 V intégral) n'est
+donc pas dans la BOM nominale ; le support reste possible via `board.h` mais n'est pas
+implémenté.
 
-| | TJA1051 (pin 8 « S ») | SN65HVD230 (pin 8 « RS ») |
-|---|---|---|
-| Niveau bas | Normal | Haute vitesse (pas de contrôle de pente) |
-| Niveau haut | **Silent** : émetteur coupé, **récepteur pleinement actif** | **Standby** : émetteur coupé, récepteur actif mais dégradé (temps de réveil) |
-| Au repos | pull-down interne ⇒ Normal | à câbler (pull-down externe requis) |
+**Q5 deuxième question — toujours ouverte :** la présence d'une résistance de 120 Ω soudée
+sur les modules transceiver n'est pas renseignée (champ resté entre crochets). Voir §3.7.
 
-Sources : TJA1051 §6.1.1/6.1.2 et Table 3 ; SN65HVD230 §« pin 8 provides three different
-modes » et table « Transceiver modes » (V(Rs) > 0,75 VCC ⇒ Standby).
+### 3.4 — Broche S : sémantique et choix du mode silencieux
 
-**Conséquence de conception :** pour le « mode silencieux logiciel » du nœud témoin, il
-est préférable d'utiliser le **mode moniteur du contrôleur** (FDCAN bit `CCCR.MON`,
-bxCAN bit `BTR.SILM`) plutôt que la broche du transceiver : sémantique identique sur les
-deux MCU, pas de dégradation du récepteur, pas de dépendance au modèle de transceiver.
-La broche S/RS reste pilotable si `board.h` la définit, en complément.
+Le dossier câble S à la masse (mode normal) et note qu'une GPIO permettrait le mode
+silencieux. TJA1051 §6.1.2 : niveau haut sur S ⇒ émetteur coupé, **récepteur pleinement
+actif**, avec pull-down interne (donc mode normal si la broche flotte).
+
+**Décision :** le mode silencieux logiciel utilise le **mode moniteur du contrôleur**
+(FDCAN `CCCR.MON`, bxCAN `BTR.SILM`) : sémantique identique sur les deux MCU, aucune
+dépendance au modèle de transceiver, et pas de broche supplémentaire. La broche S reste
+pilotable si `board.h` la définit.
 
 ### 3.5 — Le TJA1051 limite l'injection de faute « dominant permanent »
 
-TJA1051 §6.2.1 : fonction *TXD dominant time-out*. Si TXD reste bas trop longtemps, le
-driver est désactivé ; cette temporisation « définit également le débit minimal possible
-de 40 kbit/s ». Une faute « dominant collé » sera donc **automatiquement corrigée par le
-transceiver** au bout de quelques centaines de µs. Le SN65HVD230 n'a pas cette protection.
-À prendre en compte dans la conception de T6 (le mode « babbling idiot » n'est pas affecté,
-puisque TXD y bascule normalement).
+TJA1051 §6.2.1 : *TXD dominant time-out*, qui « définit également le débit minimal possible
+de 40 kbit/s ». Une faute « dominant collé » sera **automatiquement corrigée par le
+transceiver** après quelques centaines de µs. Sans effet sur le mode *babbling idiot*
+(TXD y bascule normalement), mais à documenter dans T6.
 
-### 3.6 — Le mode « arrêt d'acquittement » de N4 n'existe pas en tant que tel
+### 3.6 — Le mode « arrêt d'acquittement » de N4 n'existe pas séparément
 
-Ni bxCAN ni FDCAN n'offrent de « ne pas acquitter » indépendant. Le seul moyen est le
-mode moniteur/silencieux, qui n'acquitte pas. Les deux modes de faute demandés
-(« passage en mode silencieux » et « arrêt d'acquittement ») sont donc **le même mode**.
-Je n'en implémenterai qu'un, nommé `FAULT_SILENT`, documenté comme couvrant les deux.
+Ni bxCAN ni FDCAN n'offrent de « ne pas acquitter » indépendant : le seul moyen est le mode
+moniteur, qui n'acquitte pas. Les deux modes demandés (« mode silencieux » et « arrêt
+d'acquittement ») sont **le même mode**, implémenté une seule fois sous le nom
+`FAULT_SILENT` et documenté comme couvrant les deux.
 
-### 3.7 — Terminaisons : les modules transceiver du commerce embarquent 120 Ω
+### 3.7 — Terminaisons : conflit potentiel entre le dossier et les modules du commerce
 
-Les cartes filles SN65HVD230 (« CJMCU-230 ») et TJA1051 courantes ont une résistance de
-120 Ω montée à demeure. Avec 4 nœuds : 4 × 120 Ω en parallèle = **30 Ω**, le bus ne
-fonctionne pas. Exactement deux terminaisons doivent subsister, aux extrémités.
-C'est probablement l'objet de SW1 — à confirmer avec le dossier (Question 1).
+Le dossier (§4.2, §4.3) définit **deux terminaisons discrètes** : R_T1 fixe à une extrémité,
+R_T2 commutée par SW1 à l'autre. Les nœuds sont sur des dérivations courtes, **pas** aux
+extrémités de la ligne.
+
+Or les modules transceiver du commerce portent fréquemment un 120 Ω soudé à demeure. Si
+c'est le cas ici, il faut le retirer sur **les quatre nœuds** — et non sur N2/N3/N4
+seulement comme l'indiquait la réponse Q5 : d'après le dossier, N1 n'est pas en bout de
+ligne et ne tient pas lieu de R_T1.
+
+⇒ **À trancher (Q5 bis)** : soit on retire le 120 Ω des quatre modules et on garde R_T1/R_T2
+discrètes conformément au dossier, soit on assume une topologie différente, qu'il faudra
+alors corriger dans le dossier. En attendant, `docs/pinout.md` documentera l'option
+« quatre modules dépeuplés », conforme au dossier.
 
 ### 3.8 — Limite de mesure côté PC pour le critère temporel de l'arbitrage
 
-Le critère « écart temporel entre trames successives mesuré côté PC » (§5.3 de la mission)
-se heurte à la latence USB non déterministe du CANable. À 500 kbit/s une trame standard de
-8 octets dure ≈ 220 µs ; l'horodatage logiciel côté hôte a une gigue du même ordre, voire
-supérieure. Deux parades, à combiner :
+À 500 kbit/s une trame standard de 8 octets dure ≈ 220 µs, du même ordre que la gigue USB
+du CANable. Parades combinées : horodatage matériel candleLight s'il est disponible
+(`TODO(verif) V7`) ; critère chiffré strict porté par T2 (oscilloscope) et par les compteurs
+embarqués ; côté PC, un critère large de non-régression seulement.
 
-1. utiliser l'horodatage **matériel** du firmware candleLight s'il est disponible
-   (`TODO(verif)` : dépend de la version de firmware du CANable) ;
-2. faire porter le critère chiffré strict par **T2 (mesure oscilloscope)** et par les
-   compteurs embarqués des nœuds, et ne garder côté PC qu'un critère large de
-   non-régression.
+### 3.9 — Le protocole ARM/GO du dossier et celui de l'énoncé sont complémentaires
+
+Le dossier (§4.6) justifie le départ simultané par la **durée de GO** : 8 octets ≈ 250 µs,
+« deux ordres de grandeur » au-dessus de la latence d'interruption, donc tous les contendants
+sont armés avant la libération du bus. Vérification : trame standard 8 octets = 108 bits,
+soit 216 µs, jusqu'à ≈ 246 µs avec bit stuffing au pire cas. **Le chiffre du dossier est
+correct.**
+
+L'énoncé avance un second argument : GO (0x011) ayant un identifiant inférieur à tous les
+contendants, un nœud armé **avant même le début de GO** perd l'arbitrage contre GO et
+attend sa fin.
+
+Les deux arguments couvrent des cas différents et sont donc **complémentaires** — le
+premier traite l'armement pendant GO, le second l'armement trop précoce. Ensemble, ils
+ferment la démonstration. `docs/architecture.md` les présentera comme tels. La contrainte
+d'ordre qui en découle (`ID(GO) < min(ID contendants)`) est vérifiée par le générateur (§4.5).
 
 ---
 
@@ -239,8 +262,8 @@ supérieure. Deux parades, à combiner :
 
 ### 4.1 Bit timing — valeurs vérifiées par le calcul
 
-Formules (ISO 11898-1 / CiA) :
-`df ≤ SJW / (20·NBT)` et `df ≤ min(PS1,PS2) / (2·(13·NBT − PS2))`, tolérance retenue = min.
+Formules (ISO 11898-1 / CiA) : `df ≤ SJW/(20·NBT)` et
+`df ≤ min(PS1,PS2)/(2·(13·NBT − PS2))`, tolérance retenue = min des deux.
 
 | Nœud | Horloge noyau | BRP | NBT | SYNC+TSEG1+TSEG2 | SJW | Point d'éch. | df max |
 |---|---|---|---|---|---|---|---|
@@ -248,92 +271,133 @@ Formules (ISO 11898-1 / CiA) :
 | G431 (variante) | 80 MHz | 5 | 32 tq | 1 + 27 + 4 | 4 | 87,50 % | 0,485 % |
 | F103 (retenu) | 36 MHz (APB1) | 9 | 8 tq | 1 + 6 + 1 | 1 | **87,50 %** | **0,485 %** |
 
-**Les trois valeurs proposées dans la mission sont confirmées exactes.** Point
-d'échantillonnage identique et rigoureusement égal à 87,5 % sur les deux familles.
+Les trois configurations proposées sont **confirmées exactes**, avec un point
+d'échantillonnage rigoureusement égal à 87,5 % sur les deux familles.
 
-**Réponse au « compromis SJW limité » du F103 :** il n'y en a pas. À point d'échantillonnage
-égal, la tolérance ne dépend que du **rapport** SJW/NBT, pas de SJW en valeur absolue :
-2/16 = 1/8, les deux configurations donnent **exactement 0,485 %**. Les alternatives F103
-à plus grand NBT sont d'ailleurs moins bonnes, car bxCAN limite TS1 ≤ 16 tq et TS2 ≤ 8 tq :
-le seul autre candidat raisonnable (BRP 4, 18 tq, 1+15+2) donne 88,89 % — donc un point
-d'échantillonnage **différent de celui du G431**, ce qui est rédhibitoire ici — pour une
-tolérance **inférieure** (0,431 %). La vraie limite de la solution 8 tq est la
-**granularité** : un pas de resynchronisation vaut 12,5 % du temps de bit, contre 6,25 %
-sur le G431. Sans incidence sur la tolérance, mais à mentionner.
+**Le « compromis SJW limité » du F103 n'en est pas un.** À point d'échantillonnage égal, la
+tolérance ne dépend que du **rapport** SJW/NBT : 1/8 = 2/16, d'où exactement 0,485 % dans
+les deux cas. Les alternatives à plus grand NBT sont moins bonnes : bxCAN limite TS1 ≤ 16 tq
+et TS2 ≤ 8 tq, et le seul autre candidat raisonnable (BRP 4, 18 tq, 1+15+2) donne 88,89 % —
+donc un point d'échantillonnage **désaligné du G431**, rédhibitoire — pour une tolérance
+**inférieure** (0,431 %). La vraie limite de la solution 8 tq est la **granularité** : un pas
+de resynchronisation vaut 12,5 % du temps de bit contre 6,25 % sur le G431.
 
-**Justification de l'interdiction du HSI** (demandée en §5.1 de la mission) :
-HSI16 est spécifié à **±1 %** sur la plage de température après calibration usine, soit
-**plus du double** de la tolérance admissible de 0,485 %. Le quartz X2 (20 ppm = 0,002 %)
-laisse une marge de facteur 240. `TODO(verif)` : chiffre ±1 % à confirmer sur DS12589.
+**Justification de l'interdiction du HSI :** HSI16 est spécifié à **±1 %**, soit plus du
+double de la tolérance admissible de 0,485 %. Le quartz X2 (20 ppm) laisse une marge de
+facteur 240. `TODO(verif) V4` : ±1 % à confirmer sur DS12589.
 
-### 4.2 Arbre d'horloge G431 proposé
+### 4.2 Arbre d'horloge G431
 
-HSE 24 MHz (X2, SB9+SB10 soudés) → PLL : **M = 3** (⇒ 8 MHz, dans la plage 2,66–16 MHz),
-**N = 40** (⇒ VCO 320 MHz, dans 96–344 MHz), **R = 2** ⇒ **SYSCLK 160 MHz**,
-**Q = 4** ⇒ **horloge noyau FDCAN = 80 MHz**.
+HSE 24 MHz → PLL **M = 3** (⇒ 8 MHz, plage 2,66–16 MHz), **N = 40** (⇒ VCO 320 MHz, plage
+96–344 MHz), **R = 2** ⇒ **SYSCLK 160 MHz**, **Q = 4** ⇒ **horloge noyau FDCAN = 80 MHz**.
 
-Compromis assumé et à documenter : SYSCLK à 160 MHz au lieu du maximum 170 MHz. C'est le
-prix d'un point d'échantillonnage **exactement** à 87,5 % partagé avec le F103 — à 170 MHz
-sur PCLK1, le meilleur candidat est 88,24 %, qui ne s'aligne pas. 160 MHz est très
-largement suffisant pour ce banc. Contraintes PLL à confirmer sur RM0440 — `TODO(verif)`.
+Compromis assumé : SYSCLK à 160 MHz au lieu du maximum 170 MHz, prix d'un point
+d'échantillonnage **exactement** à 87,5 % partagé avec le F103 (à 170 MHz sur PCLK1 le
+meilleur candidat est 88,24 %, désaligné). 160 MHz est très largement suffisant ici.
+Contraintes PLL à confirmer sur RM0440 — `TODO(verif) V3`.
 
 ### 4.3 Brochage proposé (à figer dans `board.h`, nulle part ailleurs)
 
-**Nucleo-G431KB** — toutes les affectations ci-dessous sont sourcées UM2397 Table 11/12,
-sauf la fonction alternée FDCAN, marquée `TODO(verif)` (DS12589) :
+**Nucleo-G431KB** — sources UM2397 Tables 11/12, sauf mention contraire :
 
-| Fonction | Broche | Repère Arduino Nano | Source / remarque |
+| Fonction | Broche | Repère Nano | Source / remarque |
 |---|---|---|---|
-| FDCAN1_RX | PA11 | CN4-13 / D10 | AF9 `TODO(verif)` |
-| FDCAN1_TX | PA12 | CN4-5 / D2 | AF9 `TODO(verif)` — **retirer HW1** (§3.1) |
-| I2C1_SCL | PA15 | CN4-8 / D5 | UM2397 T11 — évite PB8/BOOT0 |
-| I2C1_SDA | PB7 | CN4-7 / D4 | UM2397 T11 |
-| VCP TX / RX | PA2 / PA3 | CN3-5 / CN3-10 | USART2, SB1+SB12 ON par défaut |
-| LED TX | PB8 | (LD2 embarquée) | sortie seule, sans pull-up (§9.1) |
-| LED erreur | PB0 | CN4-6 / D3 | libre |
-| LED bus-off | PB6 | CN4-9 / D6 | libre |
-| Transceiver S | PB5 | CN4-14 / D11 | optionnel (§3.4) |
+| FDCAN1_RX | PA11 | CN4-13 / D10 | AF9 `TODO(verif) V1` |
+| FDCAN1_TX | PA12 | CN4-5 / D2 | AF9 `TODO(verif) V1` — **retirer HW1** (§3.1) |
+| I2C1_SCL | PA15 | CN4-8 / D5 (= CN3-7 / A5) | SB3 ON — **PA6 en entrée flottante** (§2.8) |
+| I2C1_SDA | PB7 | CN4-7 / D4 (= CN3-8 / A4) | SB2 ON — **PA5 en entrée flottante** (§2.8) |
+| VCP TX / RX | PA2 / PA3 | CN3-5 / CN3-10 | USART2, SB1+SB12 ON |
+| LED TX | PB8 | LD2 embarquée | sortie seule, sans pull-up (§2.1) |
+| LED erreur | PA0 | CN3-12 / A0 | conservée du dossier |
+| LED bus-off | PA1 | CN3-11 / A1 | conservée du dossier |
+| Transceiver S | PB6 | CN4-9 / D6 | optionnel (§3.4) |
 | HSE | PF0 / PF1 | — | consommées si SB9+SB10 soudés |
 
-**Blue Pill F103** : **aucun brochage proposé à ce stade** — pas de source (§1.2, §9.5).
+Par rapport au dossier : SCL/SDA déplacés de PB8/PB9 (PB9 inexistant) vers PA15/PB7 ; LED TX
+déplacée de PA2 (VCP) vers PB8 ; PA0 et PA1 conservées.
 
-### 4.4 Métrique d'arbitrage retenue
+**Blue Pill F103** : aucun brochage proposé — pas de source (§2.5). Lot 5.
 
-Je retiens la définition proposée dans la mission, qui lève l'ambiguïté du tableau 7 :
+### 4.4 Métrique d'arbitrage
+
+Métrique principale, non ambiguë :
 
 > **rang** = 1 + nombre de trames contendantes reçues entre la fin de GO et la fin de sa
 > propre émission.
 
-Attendu : N1 → 1, N2 → 2, N3 → 3, à chaque cycle. On rapporte un **histogramme des rangs
-par nœud** plutôt qu'un compteur « perdus », et le verdict est « 1000/1000 cycles au rang
-attendu ». Les compteurs de pertes d'arbitrage matériels restent remontés à titre
-indicatif dans le heartbeat.
+Attendu : N1 → 1, N2 → 2, N3 → 3 à chaque cycle. Le verdict porte sur l'histogramme des
+rangs (« 1000/1000 cycles au rang attendu »).
 
-Le raisonnement sur GO est correct et sera documenté : GO (0x011) ayant un identifiant
-inférieur à tous les contendants (0x100/0x200/0x300), un nœud armé qui tenterait d'émettre
-pendant GO perd l'arbitrage contre GO et retransmet automatiquement à la fin de GO. Le
-départ simultané est donc garanti **par l'arbitrage lui-même**, sans hypothèse sur les
-latences logicielles — à condition que la retransmission automatique soit active.
+Sont également produites, pour rester compatible avec le tableau 7 du dossier : `gagnés`,
+`perdus` (= cycles où le nœud a perdu **au moins un** arbitrage) et `ARM reçus`. Le contrôle
+de validité du dossier est conservé : **un cycle est invalide si les `ARM reçus` diffèrent
+entre contendants**, ou si l'écart temporel dépasse durée de trame + intermission + tolérance.
 
-### 4.5 Plage d'identifiants réservés (proposition, Question 3)
+### 4.5 Identifiants : profils réseau (Q3)
 
-| ID | Nom | Sens | DLC |
+Les identifiants de service **ne sont jamais en dur** : ils sont définis par un *profil
+réseau* dans `icd/bench_icd.yaml`. Les ICD partenaires les déclareront « réservés banc,
+reconfigurables », et non imposés.
+
+Profil `bench` par défaut :
+
+| ID | Nom | Sens |
+|---|---|---|
+| 0x010 | `ARM` | PC → nœuds |
+| 0x011 | `GO` | PC → nœuds |
+| 0x012 | `BENCH_CFG` | PC → nœud |
+| 0x013 | `BENCH_RESULT` | nœud → PC |
+| **0x781–0x784** | `HEARTBEAT_n` (0x780 + node_id) | nœud → PC |
+
+**Justification de 0x780 + node_id**, hors 0x700–0x77F comme demandé. En CiA 301, les
+identifiants prédéfinis occupent 0x000 (NMT), 0x080 (SYNC), 0x081–0x0FF (EMCY),
+0x100 (TIME), 0x181–0x57F (PDO), 0x581–0x67F (SDO), **0x701–0x77F (NMT error control,
+c'est-à-dire le heartbeat CANopen)**, puis 0x7E4/0x7E5 (LSS). La plage **0x780–0x7DF est
+non attribuée**. Elle offre en outre la **priorité la plus basse** du bus, ce qui est
+exactement ce qu'on veut d'un heartbeat : il ne doit jamais retarder une trame applicative.
+Les identifiants de service (0x010–0x013) tombent dans 0x001–0x07F, également non attribuée.
+
+> À signaler aux groupes partenaires : les identifiants d'exemple de l'énoncé — 0x100, 0x200,
+> 0x300 — correspondent respectivement à TIME, PDO1-rx et PDO2-rx en CANopen. Sans incidence
+> ici (ce sont des vecteurs de test, reconfigurables par profil), mais à ne pas reprendre tels
+> quels dans un ICD partenaire qui utiliserait CANopen.
+
+Contrôles effectués par le générateur, pour **chaque** profil :
+
+1. aucune collision d'identifiant, y compris entre trames applicatives et plage de service ;
+2. aucun chevauchement de signaux à l'intérieur d'une trame ;
+3. **contrainte d'ordre ARM/GO** : `ID(GO) < ID(ARM)` est faux ici — la contrainte exacte
+   retenue est `ID(GO) < min(ID des contendants)` **et** `ID(ARM) < min(ID des contendants)`,
+   qui garantit les deux arguments du §3.9 ;
+4. tout identifiant de service hors des plages CANopen libres déclenche un avertissement.
+
+### 4.6 Les six fonctions du dossier (§1) et leur couverture
+
+| # | Fonction (texte du dossier) | Test |
+|---|---|---|
+| 1 | Validation de la couche physique (niveaux différentiels, terminaisons, débit 500 kbit/s) | T1, T2 |
+| 2 | Démonstration de l'arbitrage entre au moins trois nœuds émetteurs simultanés | T3 |
+| 3 | Validation de l'encodage des messages définis dans l'ICD | T4 |
+| 4 | Tests de robustesse par injection de fautes | T5, T6 |
+| 5 | Démonstration pédagogique à destination de l'ensemble des groupes partenaires | T3, T4 (IHM locale) |
+| 6 | Validation de l'isolation galvanique | T7 (squelette) |
+
+### 4.7 Injection de fautes : SW1 / SW2 / SW3 (dossier §4.3)
+
+| Rep. | Faute simulée | Position nominale | Effet attendu |
 |---|---|---|---|
-| 0x010 | `ARM` | PC → nœuds | 8, contenu nul |
-| 0x011 | `GO` | PC → nœuds | 8, contenu nul |
-| 0x012 | `BENCH_CFG` | PC → nœud | 8 |
-| 0x013 | `BENCH_RESULT` | nœud → PC | 8 |
-| 0x701..0x704 | `HEARTBEAT_n` | nœud → PC | 8 |
+| SW1 | Perte d'une terminaison (retire R_T2) | **fermé** | Dégradation du signal, hausse du taux d'erreur |
+| SW2 | Court-circuit CAN_H / CAN_L | **ouvert** | Erreurs de bit, passage en *bus-off* |
+| SW3 | Retrait à chaud du nœud N4 (DPST) | **fermé** | Le reste du bus continue de fonctionner |
 
-Réserve globale proposée : **0x000–0x01F** et **0x700–0x71F**, à reporter dans les quatre
-ICD partenaires. Remarque : 0x000–0x00F reste libre dans la réserve, ce qui laisse une
-marge pour un futur identifiant plus prioritaire que ARM si nécessaire.
+Précaution reprise du dossier et à afficher par `canbench faults` : **SW2 ne doit être fermé
+que brièvement** — le TJA1051T/3 limite le courant mais s'échauffe en court-circuit
+prolongé. Ne jamais actionner SW2 pendant qu'un nœud isolé galvaniquement est sous tension
+côté puissance.
 
 ---
 
 ## 5. Arborescence retenue
-
-Conforme à celle de la mission, avec trois ajustements :
 
 ```
 banc-can/
@@ -341,43 +405,36 @@ banc-can/
 ├── CMakeLists.txt  CMakePresets.json
 ├── .gitignore  .gitattributes  .gitmodules  .clang-format  .editorconfig
 ├── .github/workflows/ci.yml
-├── icd/
-│   ├── bench_icd.yaml
-│   └── schema.json
+├── icd/bench_icd.yaml  icd/schema.json
 ├── tools/codegen/               # YAML -> C, Python, DBC, LaTeX
 ├── firmware/
-│   ├── common/
-│   │   ├── can_if.h
-│   │   ├── protocol/           # ARM/GO, trames de service, heartbeat
-│   │   ├── icd_gen/            # généré — ne pas éditer
-│   │   ├── app/                # rôles N1..N4, modes de test, machine d'états
-│   │   ├── ui/                 # SSD1306 + mise en page 3 zones, LEDs
-│   │   ├── sensors/            # MPU-6050, DS18B20, Hall + simulateurs
-│   │   └── util/               # ring buffer, horodatage, CRC
+│   ├── common/{can_if.h,protocol,icd_gen,app,ui,sensors,util}
 │   ├── ports/{g431_fdcan,f103_bxcan}/
 │   ├── boards/{nucleo_g431kb,bluepill_f103}/board.h
-│   ├── vendor/                 # (+) sous-modules ST, isolés du code du projet
+│   ├── vendor/                  # sous-modules ST, isolés du code du projet
 │   └── tests_host/
 ├── pc/canbench/  pc/tests/
-├── scripts/                    # bit_timing.py, bus_load.py
+├── scripts/                     # bit_timing.py, bus_load.py
 └── docs/
-    ├── references/
+    ├── references/              # PDF hors dépôt + README.md descriptif
     ├── PLAN.md  architecture.md  pinout.md  bit_timing.md
-    ├── config_logicielle.md  protocole_validation.md
-    ├── montage.md              # (+) montage, HW1, ponts à souder, terminaisons
+    ├── config_logicielle.md     # remplit la section 6 du dossier (\todo)
+    ├── protocole_validation.md  # remplit la section 7 du dossier (\todo)
+    ├── montage.md               # HW1, SB9/SB10, terminaisons, PA5/PA6 flottantes
     └── latex/
 ```
 
-Ajustements : (+) `firmware/vendor/` pour cantonner les sous-modules ST ;
-(+) `docs/montage.md`, rendu nécessaire par §3.1/§3.2/§3.7 ; `scripts/` inchangé.
+Les sections 5 (tableau de câblage), 6 (configuration logicielle) et 7 (protocole de
+validation) du dossier sont des `\todo{}` : nos documents ont vocation à les **remplir**,
+via les extraits `\input{}` de `docs/latex/`.
 
 ---
 
 ## 6. Outillage
 
-### 6.1 Sous-modules ST — versions à épingler (dépôts et tags vérifiés ce jour)
+### 6.1 Sous-modules ST — versions épinglées
 
-| Sous-module | Dernier tag publié |
+| Sous-module | Tag |
 |---|---|
 | `STMicroelectronics/stm32g4xx_hal_driver` | `v1.2.7` |
 | `STMicroelectronics/cmsis_device_g4` | `v1.2.6` |
@@ -385,92 +442,80 @@ Ajustements : (+) `firmware/vendor/` pour cantonner les sous-modules ST ;
 | `STMicroelectronics/cmsis_device_f1` | `v4.3.5` |
 | `STMicroelectronics/cmsis_core` | `v5.9.0_20250520` |
 
-Les cinq dépôts existent et sont accessibles (`git ls-remote`). Les tags ci-dessus sont
-les plus récents ; **je propose de les épingler tels quels** sauf objection.
-
 ### 6.2 État de la machine de développement
 
 | Outil | État |
 |---|---|
-| git 2.55.0 / cmake 3.29.2 / ninja 1.12.0 | **OK** |
-| arm-none-eabi-gcc 13.3.1 (ST 13.3.rel1) | **OK** |
-| gcc 13.2.0 (MinGW-w64 UCRT) — tests hôte | **OK** |
-| Python 3.13.12 | **OK** (≥ 3.10 requis) |
-| `openocd` 0.12.0 | présent mais **hors PATH** : `C:\ST\xpack-openocd-0.12.0-7\bin` |
-| `STM32_Programmer_CLI` 2.2.200 | présent mais **hors PATH** (plugin STM32CubeIDE 1.19.0) |
-| `ruff`, `clang-format` | **ABSENTS** — à installer (`pip install ruff`) |
+| git 2.55.0 / cmake 3.29.2 / ninja 1.12.0 | OK |
+| arm-none-eabi-gcc 13.3.1 / gcc 13.2.0 (MinGW-w64) | OK |
+| Python 3.13.12 | OK (≥ 3.10) |
+| `openocd` 0.12.0 | présent, **hors PATH** : `C:\ST\xpack-openocd-0.12.0-7\bin` |
+| `STM32_Programmer_CLI` 2.2.200 | présent, **hors PATH** (plugin STM32CubeIDE 1.19.0) |
+| `ruff`, `clang-format` | **absents** — `pip install ruff` |
 
-⇒ Les cibles `flash_<node>` devront **chercher** les deux exécutables (PATH, puis chemins
-d'installation connus sous `C:\ST\`), et non les supposer dans le PATH. La CI Linux
-utilisera des chemins différents : la détection sera écrite pour les deux.
+Les cibles `flash_<node>` **cherchent** les deux exécutables (PATH puis chemins connus sous
+`C:\ST\`) au lieu de les supposer dans le PATH.
 
 ### 6.3 Décisions d'outillage
 
-- **Tests hôte C** : CMake + CTest, avec Unity vendorisé (fichier unique, pas de
-  sous-module supplémentaire). Le code `common/` ne devra inclure **aucun en-tête HAL**,
-  ce qui est vérifié par un test de compilation native.
-- **Parité C ↔ Python de l'ICD** : le générateur exporte des **vecteurs de référence JSON**,
-  consommés à la fois par le test C et par le test Python. Plus robuste et plus portable
-  que `ctypes` en CI multi-plateforme, et ça teste bien la même chose.
-- **`.ioc` indicatif** : fourni sous `docs/`, jamais référencé par le build.
+- **Tests hôte C** : CMake + CTest, Unity vendorisé. Un test vérifie que `common/` ne tire
+  **aucun en-tête HAL**.
+- **Parité C ↔ Python de l'ICD** : le générateur exporte des **vecteurs de référence JSON**
+  consommés par le test C et par le test Python — plus portable en CI que `ctypes`.
+- **`.ioc` indicatif** sous `docs/`, jamais référencé par le build.
+- **Licence MIT** (Q7), avec mention des licences BSD-3-Clause des sous-modules ST.
+- **PDF hors dépôt** (Q6) : `docs/references/*.pdf` dans `.gitignore`, remplacés par
+  `docs/references/README.md` (référence, révision, lien officiel, sections utilisées).
 
 ---
 
-## 7. Protocole de validation — découpage proposé (T1–T7)
-
-Je retiens le découpage de la mission, avec une réserve sur T1/T2/T7 :
+## 7. Protocole de validation — T1 à T7
 
 | Test | Objet | Automatisé par | Nature |
 |---|---|---|---|
-| T1 | Couche physique : niveaux différentiels, terminaisons | — (oscilloscope + multimètre) | manuel |
-| T2 | Débit et bit timing : temps de bit, point d'échantillonnage | — (oscilloscope) | manuel |
+| T1 | Couche physique : niveaux différentiels, terminaisons | — | manuel (oscillo + multimètre) |
+| T2 | Débit et bit timing : temps de bit, point d'échantillonnage | — | manuel (oscilloscope) |
 | T3 | Arbitrage ARM/GO | `canbench arbitration` | automatique |
 | T4 | Encodage ICD | `canbench encoding` | automatique |
 | T5 | Fautes physiques SW1/SW2/SW3 | `canbench faults` (guidé) | semi-auto |
 | T6 | Fautes logicielles N4 | `canbench faults` | automatique |
-| T7 | Isolation galvanique | — | **squelette seul** |
+| T7 | Isolation galvanique | — | squelette |
 
-Réserves : T1, T2 et T7 ne sont pas automatisables — `canbench` n'y fournira qu'une aide à
-la saisie et la mise en forme du rapport. Le critère « six fonctions de la section 1 du
-dossier » ne peut pas être tracé tant que le dossier manque (**Question 1**).
+T1, T2 et T7 ne sont pas automatisables : `canbench` n'y fournit qu'une aide à la saisie et
+la mise en forme du rapport.
 
 ---
 
 ## 8. Découpage en lots
 
-| Lot | Contenu | Livrable vérifiable |
+| Lot | Contenu | État |
 |---|---|---|
-| 1 | Socle : `git init`, ignore/attributes/clang-format, CMake racine, presets, sous-modules épinglés, CI valide | `cmake --preset` configure les 4 nœuds |
-| 2 | ICD : `bench_icd.yaml`, `schema.json`, générateur, vecteurs de référence, tests de collision/chevauchement | tests ICD verts, code généré à jour |
-| 3 | `firmware/common` + `tests_host` : ring buffer, protocole ARM/GO, heartbeat, machine d'états | CTest vert en natif, zéro include HAL |
-| 4 | `ports/g431_fdcan` + `boards/nucleo_g431kb` + horloges + bit timing | N1/N2/N3 compilent sans warning, tailles affichées |
-| 5 | `ports/f103_bxcan` + `boards/bluepill_f103` (**après** obtention de RM0008 + schéma) | N4 compile |
-| 6 | IHM : SSD1306 DMA + pages partielles, LEDs ; capteurs + simulateurs déterministes | build + test hôte des simulateurs |
-| 7 | `pc/canbench` : CLI, simulateur de nœuds, `monitor`/`arbitration`/`encoding` | bout en bout sur bus `virtual` |
-| 8 | `faults`, `busload`, `record`/`replay`, `report` | bout en bout sur bus `virtual` |
-| 9 | Documentation : `architecture.md`, `pinout.md`, `bit_timing.md`, `config_logicielle.md`, `protocole_validation.md`, `montage.md`, extraits LaTeX, `CHANGELOG.md` | relecture |
-| 10 | CI complète, durcissement, récapitulatif matériel | workflow vert |
-
-Le Lot 5 est le seul à dépendre d'un document encore absent ; les autres peuvent démarrer
-dès validation de ce plan.
+| 1 | Socle : ignore/attributes/clang-format, CMake racine, presets, sous-modules, CI, LICENSE, README, `docs/references/README.md` | **en cours** |
+| 2 | ICD : YAML, schéma, générateur, vecteurs de référence, tests de collision/chevauchement/ordre ARM-GO | à faire |
+| 3 | `firmware/common` + `tests_host` | à faire |
+| 4 | `ports/g431_fdcan` + `boards/nucleo_g431kb` + horloges (HSE/HSI sélectionnable) | à faire |
+| 5 | `ports/f103_bxcan` + `boards/bluepill_f103` | **bloqué** (Q4 : RM0008, DS5319, schéma) |
+| 6 | IHM SSD1306 DMA + pages partielles, LEDs, capteurs + simulateurs | à faire |
+| 7 | `pc/canbench` : CLI, simulateur de nœuds, `monitor`/`arbitration`/`encoding` | à faire |
+| 8 | `faults`, `busload`, `record`/`replay`, `report` | à faire |
+| 9 | Documentation et extraits LaTeX | à faire |
+| 10 | CI complète, durcissement, récapitulatif matériel | à faire |
 
 ---
 
-## 9. Questions ouvertes — réponses attendues avant le Lot 1
+## 9. Questions ouvertes
 
-1. **Dossier de définition** : peux-tu déposer `Dossier_Banc_Test_CAN_v0_1.pdf` dans
-   `docs/references/` ? À défaut, confirme-moi : (a) la liste des six fonctions de la
-   section 1, (b) la définition de SW1/SW2/SW3, (c) le contenu du tableau 7.
-2. **Modification matérielle des cartes G431** : acceptes-tu de souder SB9+SB10 sur chaque
-   Nucleo (§3.2) ? Sinon je bascule sur SB13 (MCO 25 MHz), ce qui change tout le §4.1/4.2.
-3. **Plage d'identifiants réservés** : je valide 0x000–0x01F + 0x700–0x71F (§4.5) ?
-4. **Documents manquants** : peux-tu récupérer RM0440, RM0008 et DS12589 ? Le Lot 5 (N4)
-   est bloqué sans RM0008 + le schéma de la Blue Pill.
-5. **Modèle exact des transceivers achetés** : TJA1051**T/3** ou TJA1051T (§3.3) ?
-   SN65HVD230 ou HVD232 ? Et les modules portent-ils un 120 Ω soudé (§3.7) ?
-6. **Suivi des PDF dans git** : 25 Mo de références. Je les versionne tels quels, je les
-   mets en Git LFS, ou je les laisse hors dépôt (`.gitignore` + note dans le README) ?
-7. **Licence** du dépôt (fichier `LICENSE`) ?
+| # | Question | État |
+|---|---|---|
+| Q1 | Dossier de définition | **résolu** (r2) |
+| Q2 | Soudure SB9/SB10 | **en attente encadrants** — repli HSI implémenté et signalé |
+| Q3 | Identifiants réservés | **résolu** — profils réseau, heartbeat 0x780+n (§4.5) |
+| Q4 | RM0440, RM0008, DS12589, DS5319, ES G431, schéma Blue Pill | **en cours** — bloque le Lot 5 |
+| Q5a | Modèle de transceiver | **résolu par le dossier** : TJA1051T/3 (§3.3) |
+| Q5b | 120 Ω soudé sur les modules ? | **ouvert** — champ resté entre crochets (§3.7) |
+| Q5c | Retrait du 120 Ω : sur 4 nœuds et non 3 ? | **ouvert** — voir §3.7 |
+| Q6 | PDF hors dépôt | **résolu** |
+| Q7 | Licence MIT | **résolu** (sous réserve encadrants) |
 
 ---
 
@@ -478,12 +523,13 @@ dès validation de ce plan.
 
 | # | Élément | Source à consulter | Bloque |
 |---|---|---|---|
-| V1 | FDCAN1_RX/TX = PA11/PA12, AF9 | DS12589 (datasheet G431), table des AF | Lot 4 |
-| V2 | Mécanisme `nSWBOOT0`/`nBOOT0` sur PB8 | RM0440 § option bytes | doc seule |
+| V1 | FDCAN1_RX/TX = PA11/PA12, AF9 | DS12589, table des fonctions alternées | Lot 4 |
+| V2 | Mécanisme `nSWBOOT0`/`nBOOT0` sur PB8 | RM0440 § option bytes | doc |
 | V3 | Contraintes PLL G4 (M, N, Q, R, plages VCO) | RM0440 § RCC | Lot 4 |
-| V4 | Précision HSI16 (±1 %) | DS12589 § caractéristiques d'horloge | doc seule |
-| V5 | Brochage complet Blue Pill + remap bxCAN PB8/PB9 | RM0008 + DS F103C8 + schéma carte | **Lot 5** |
+| V4 | Précision HSI16 (±1 %) | DS12589 § caractéristiques d'horloge | doc |
+| V5 | Brochage Blue Pill + remap bxCAN PB8/PB9 | RM0008 + DS5319 + schéma carte | **Lot 5** |
 | V6 | Pull-up USB sur PA12 de la Blue Pill, clones F103 | schéma carte | Lot 5 |
-| V7 | Horodatage matériel du firmware candleLight du CANable | doc candleLight / gs_usb | Lot 7 |
-| V8 | Tolérance de l'horloge du ST-LINK MCO (option B, §3.2) | UM2448 | si option B |
-| V9 | Présence/valeur des terminaisons sur les modules achetés | inspection visuelle | T1 |
+| V7 | Horodatage matériel du firmware candleLight | doc candleLight / gs_usb | Lot 7 |
+| V8 | Tolérance du MCO ST-LINK (option B, §3.2) | UM2448 | si option B |
+| V9 | Présence/valeur des terminaisons sur les modules | inspection visuelle | T1, Q5b |
+| V10 | Errata G431 (ES) : anomalies FDCAN éventuelles | ES G431 | Lot 4 |

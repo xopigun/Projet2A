@@ -1,0 +1,41 @@
+# Compilation
+/build/
+/build-*/
+**/CMakeUserPresets.json
+*.o
+*.d
+*.elf
+*.bin
+*.hex
+*.map
+*.su
+*.lst
+
+# Documents de reference : hors depot (voir docs/references/README.md)
+docs/references/*.pdf
+docs/references/*.PDF
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+dist/
+
+# LaTeX (sorties de compilation des extraits)
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+
+# Outils et systemes
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

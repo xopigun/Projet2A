@@ -1,0 +1,33 @@
+# Style du code C du banc de test CAN.
+# Base LLVM, adaptee a du code embarque : lignes a 100 colonnes, indentation 4.
+---
+Language: Cpp
+BasedOnStyle: LLVM
+
+ColumnLimit: 100
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+AlignAfterOpenBracket: Align
+AlignConsecutiveMacros: AcrossEmptyLinesAndComments
+AllowShortFunctionsOnASingleLine: InlineOnly
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakAfterReturnType: None
+BreakBeforeBraces: Attach
+IndentCaseLabels: true
+PointerAlignment: Right
+SortIncludes: CaseSensitive
+SpaceAfterCStyleCast: false
+SpacesBeforeTrailingComments: 2
+
+# Les en-tetes du projet passent apres les en-tetes systeme.
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex:    '^<.*\.h>'
+    Priority: 1
+  - Regex:    '^"(bench|icd|can|board)'
+    Priority: 2
+  - Regex:    '.*'
+    Priority: 3

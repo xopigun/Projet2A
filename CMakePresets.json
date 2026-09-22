@@ -1,0 +1,70 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 24, "patch": 0 },
+
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+    },
+    {
+      "name": "arm",
+      "hidden": true,
+      "inherits": "base",
+      "toolchainFile": "${sourceDir}/cmake/toolchain-arm-none-eabi.cmake"
+    },
+
+    {
+      "name": "host",
+      "inherits": "base",
+      "displayName": "Tests hote (natif)",
+      "description": "Compile et execute les tests unitaires du code commun, sans HAL.",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug", "BENCH_NODE_ID": "0" }
+    },
+
+    {
+      "name": "n1",
+      "inherits": "arm",
+      "displayName": "N1 - commande energie (Nucleo-G431KB)",
+      "cacheVariables": { "BENCH_NODE_ID": "1", "BENCH_BOARD": "nucleo_g431kb" }
+    },
+    {
+      "name": "n2",
+      "inherits": "arm",
+      "displayName": "N2 - IMU + vitesse (Nucleo-G431KB)",
+      "cacheVariables": { "BENCH_NODE_ID": "2", "BENCH_BOARD": "nucleo_g431kb" }
+    },
+    {
+      "name": "n3",
+      "inherits": "arm",
+      "displayName": "N3 - temperature + batterie (Nucleo-G431KB)",
+      "cacheVariables": { "BENCH_NODE_ID": "3", "BENCH_BOARD": "nucleo_g431kb" }
+    },
+    {
+      "name": "n4",
+      "inherits": "arm",
+      "displayName": "N4 - noeud fautif (Blue Pill STM32F103)",
+      "cacheVariables": { "BENCH_NODE_ID": "4", "BENCH_BOARD": "bluepill_f103" }
+    }
+  ],
+
+  "buildPresets": [
+    { "name": "host", "configurePreset": "host" },
+    { "name": "n1",   "configurePreset": "n1" },
+    { "name": "n2",   "configurePreset": "n2" },
+    { "name": "n3",   "configurePreset": "n3" },
+    { "name": "n4",   "configurePreset": "n4" }
+  ],
+
+  "testPresets": [
+    {
+      "name": "host",
+      "configurePreset": "host",
+      "output": { "outputOnFailure": true },
+      "execution": { "noTestsAction": "error", "stopOnFailure": false }
+    }
+  ]
+}
