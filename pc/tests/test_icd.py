@@ -24,7 +24,15 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "pc"))
 
-from tools.codegen import encoding, gen_c, gen_dbc, gen_latex, gen_python, model, vectors  # noqa: E402
+from tools.codegen import (  # noqa: E402
+    encoding,
+    gen_c,
+    gen_dbc,
+    gen_latex,
+    gen_python,
+    model,
+    vectors,
+)
 
 
 @pytest.fixture(scope="module")
@@ -122,8 +130,10 @@ def test_saturation_hors_bornes(icd: model.Icd) -> None:
         for signal in message.signals:
             trop_grand = signal.decode(signal.raw_maximum) + abs(signal.factor) * 1000
             trop_petit = signal.decode(signal.raw_minimum) - abs(signal.factor) * 1000
-            for physical, attendu in ((trop_grand, signal.raw_maximum),
-                                      (trop_petit, signal.raw_minimum)):
+            for physical, attendu in (
+                (trop_grand, signal.raw_maximum),
+                (trop_petit, signal.raw_minimum),
+            ):
                 data = encoding.pack(message, {signal.name: physical})
                 decoded = encoding.unpack_raw(message, data)
                 assert decoded[signal.name] == attendu
@@ -230,9 +240,7 @@ def test_parite_python_genere_contre_reference(icd: model.Icd) -> None:
 def test_code_genere_a_jour(icd: model.Icd, chemin: str, rendu) -> None:
     attendu = rendu(icd)
     reel = (REPO_ROOT / chemin).read_text(encoding="utf-8")
-    assert reel == attendu, (
-        f"{chemin} n'est pas à jour — lancer « python -m tools.codegen »"
-    )
+    assert reel == attendu, f"{chemin} n'est pas à jour — lancer « python -m tools.codegen »"
 
 
 # ---------------------------------------------------------------------------

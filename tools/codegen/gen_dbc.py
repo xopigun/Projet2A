@@ -61,9 +61,9 @@ def generate(icd: Icd) -> str:
             order = "1" if signal.byte_order == "little_endian" else "0"
             sign = "-" if signal.signed else "+"
             out.append(
-                f' SG_ {signal.name} : {signal.start_position}|{signal.length}@{order}{sign}'
-                f' ({signal.factor:g},{signal.offset:g})'
-                f' [{signal.minimum:g}|{signal.maximum:g}]'
+                f" SG_ {signal.name} : {signal.start_position}|{signal.length}@{order}{sign}"
+                f" ({signal.factor:g},{signal.offset:g})"
+                f" [{signal.minimum:g}|{signal.maximum:g}]"
                 f' "{signal.unit}" {_receivers_of(message, known)}'
             )
         out.append("")
@@ -86,7 +86,9 @@ def generate(icd: Icd) -> str:
     ]
     for message in profile.messages:
         if message.period_ms:
-            out.append(f'BA_ "GenMsgCycleTime" BO_ {message.can_id} {message.period_ms};')
+            out.append(
+                f'BA_ "GenMsgCycleTime" BO_ {message.can_id} {message.period_ms};'
+            )
 
     out.append("")
     return "\n".join(out)

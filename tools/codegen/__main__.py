@@ -1,7 +1,7 @@
 """Point d'entrée du générateur : YAML -> C, Python, DBC, LaTeX, vecteurs.
 
-    python -m tools.codegen            regénère tous les fichiers
-    python -m tools.codegen --check    vérifie qu'ils sont à jour, sans rien écrire
+python -m tools.codegen            regénère tous les fichiers
+python -m tools.codegen --check    vérifie qu'ils sont à jour, sans rien écrire
 """
 
 from __future__ import annotations
@@ -10,28 +10,55 @@ import argparse
 import sys
 from pathlib import Path
 
-from . import (gen_c, gen_config_latex, gen_dbc, gen_latex, gen_python,
-               gen_vectors_c, vectors)
+from . import (
+    gen_c,
+    gen_config_latex,
+    gen_dbc,
+    gen_latex,
+    gen_python,
+    gen_vectors_c,
+    vectors,
+)
 from .model import ICD_PATH, REPO_ROOT, Icd, IcdError, load
 
 
 def _outputs(icd: Icd) -> dict[Path, str]:
     return {
-        REPO_ROOT / "firmware" / "common" / "icd_gen" / "icd_gen.h": gen_c.generate_header(icd),
-        REPO_ROOT / "firmware" / "common" / "icd_gen" / "icd_gen.c": gen_c.generate_source(icd),
+        REPO_ROOT
+        / "firmware"
+        / "common"
+        / "icd_gen"
+        / "icd_gen.h": gen_c.generate_header(icd),
+        REPO_ROOT
+        / "firmware"
+        / "common"
+        / "icd_gen"
+        / "icd_gen.c": gen_c.generate_source(icd),
         REPO_ROOT / "pc" / "canbench" / "icd_gen.py": gen_python.generate(icd),
         REPO_ROOT / "icd" / "bench.dbc": gen_dbc.generate(icd),
         REPO_ROOT / "icd" / "reference_vectors.json": vectors.render(icd),
-        REPO_ROOT / "firmware" / "tests_host" / "generated" / "icd_vectors.h":
-            gen_vectors_c.generate_header(),
-        REPO_ROOT / "firmware" / "tests_host" / "generated" / "icd_vectors.c":
-            gen_vectors_c.generate_source(icd),
-        REPO_ROOT / "docs" / "latex" / "icd_encoding_table.tex":
-            gen_latex.generate_encoding_table(icd),
-        REPO_ROOT / "docs" / "latex" / "icd_reserved_ids.tex":
-            gen_latex.generate_reserved_table(icd),
-        REPO_ROOT / "docs" / "latex" / "config_logicielle.tex":
-            gen_config_latex.generate(icd),
+        REPO_ROOT
+        / "firmware"
+        / "tests_host"
+        / "generated"
+        / "icd_vectors.h": gen_vectors_c.generate_header(),
+        REPO_ROOT
+        / "firmware"
+        / "tests_host"
+        / "generated"
+        / "icd_vectors.c": gen_vectors_c.generate_source(icd),
+        REPO_ROOT
+        / "docs"
+        / "latex"
+        / "icd_encoding_table.tex": gen_latex.generate_encoding_table(icd),
+        REPO_ROOT
+        / "docs"
+        / "latex"
+        / "icd_reserved_ids.tex": gen_latex.generate_reserved_table(icd),
+        REPO_ROOT
+        / "docs"
+        / "latex"
+        / "config_logicielle.tex": gen_config_latex.generate(icd),
     }
 
 
@@ -46,7 +73,9 @@ def main(argv: list[str] | None = None) -> int:
         help="vérifie que les fichiers générés sont à jour, sans rien écrire",
     )
     parser.add_argument("--icd", type=Path, default=ICD_PATH, help="chemin de l'ICD")
-    parser.add_argument("--quiet", action="store_true", help="n'affiche que les erreurs")
+    parser.add_argument(
+        "--quiet", action="store_true", help="n'affiche que les erreurs"
+    )
     args = parser.parse_args(argv)
 
     try:

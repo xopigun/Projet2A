@@ -22,7 +22,7 @@ PREAMBLE = '''
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 def bench_round(value: float) -> int:
@@ -44,12 +44,19 @@ def _clamp(value: int, low: int, high: int) -> int:
 
 
 def _pack_body(message: Message) -> list[str]:
-    lines = [f"        frame_le = 0", f"        frame_be = 0"]
+    # frame_be n'est émis que si un signal est en big-endian : une variable
+    # inutilisée ferait échouer le lint sur le fichier généré.
+    uses_be = any(s.byte_order == "big_endian" for s in message.signals)
+    lines = ["        frame_le = 0"]
+    if uses_be:
+        lines.append("        frame_be = 0")
     for signal in message.signals:
         mask = (1 << signal.length) - 1
         if signal.factor != 1.0 or signal.offset != 0.0:
-            raw = (f"bench_round((float(self.{signal.name}) - "
-                   f"({signal.offset!r})) / ({signal.factor!r}))")
+            raw = (
+                f"bench_round((float(self.{signal.name}) - "
+                f"({signal.offset!r})) / ({signal.factor!r}))"
+            )
         else:
             raw = f"int(self.{signal.name})"
         if signal.byte_order == "little_endian":
@@ -63,25 +70,34 @@ def _pack_body(message: Message) -> list[str]:
             f"        raw = _clamp({raw}, {signal.raw_minimum}, {signal.raw_maximum})",
             f"        {target} |= (raw & 0x{mask:X}) << {shift}",
         ]
-    lines += [
-        f"        data = bytearray(frame_le.to_bytes({message.dlc}, 'little'))",
-        f"        if frame_be:",
-        f"            be = frame_be.to_bytes({message.dlc}, 'big')",
-        f"            data = bytearray(a | b for a, b in zip(data, be))",
-        "        return bytes(data)",
-    ]
+    lines.append(
+        f"        data = bytearray(frame_le.to_bytes({message.dlc}, 'little'))"
+    )
+    if uses_be:
+        lines += [
+            "        if frame_be:",
+            f"            be = frame_be.to_bytes({message.dlc}, 'big')",
+            (
+                "            data = bytearray("
+                "a | b for a, b in zip(data, be, strict=True))"
+            ),
+        ]
+    lines.append("        return bytes(data)")
     return lines
 
 
 def _unpack_body(message: Message) -> list[str]:
     lines = [
         f"        if len(data) != {message.dlc}:",
-        f"            raise ValueError("
-        f"f'{message.name} : {{len(data)}} octets reçus, {message.dlc} attendus')",
+        (
+            f"            raise ValueError("
+            f"f'{message.name} : {{len(data)}} octets reçus, {message.dlc} attendus')"
+        ),
         "        frame_le = int.from_bytes(data, 'little')",
-        "        frame_be = int.from_bytes(data, 'big')",
-        "        return cls(",
     ]
+    if any(s.byte_order == "big_endian" for s in message.signals):
+        lines.append("        frame_be = int.from_bytes(data, 'big')")
+    lines.append("        return cls(")
     for signal in message.signals:
         mask = (1 << signal.length) - 1
         if signal.byte_order == "little_endian":
@@ -139,7 +155,11 @@ def generate(icd: Icd) -> str:
     out += ["}", ""]
 
     default = icd.default
-    out += ["#: Raccourcis vers le profil par défaut.", "IDS = PROFILES[DEFAULT_PROFILE]['ids']", ""]
+    out += [
+        "#: Raccourcis vers le profil par défaut.",
+        "IDS = PROFILES[DEFAULT_PROFILE]['ids']",
+        "",
+    ]
 
     out += ["#: Description des nœuds déclarés dans l'ICD.", "NODES = ["]
     for node in icd.nodes:
@@ -150,8 +170,10 @@ def generate(icd: Icd) -> str:
         )
     out += ["]", ""]
 
-    out += ["#: Trames contendantes du test d'arbitrage, par priorité croissante d'identifiant.",
-            "CONTENDERS = ["]
+    out += [
+        "#: Trames contendantes du test d'arbitrage, par priorité croissante d'identifiant.",
+        "CONTENDERS = [",
+    ]
     for message in sorted(default.contenders, key=lambda m: m.can_id):
         out.append(
             f"    {{'name': {message.name!r}, 'can_id': 0x{message.can_id:03X}, "
@@ -159,10 +181,15 @@ def generate(icd: Icd) -> str:
         )
     out += ["]", ""]
 
-    out += ["#: Métadonnées de chaque trame, utilisées par le décodage générique.", "FRAMES = {"]
+    out += [
+        "#: Métadonnées de chaque trame, utilisées par le décodage générique.",
+        "FRAMES = {",
+    ]
     seen: set[str] = set()
     for message in default.messages:
-        base = message.name if message.node_id is None else message.name.rsplit("_", 1)[0]
+        base = (
+            message.name if message.node_id is None else message.name.rsplit("_", 1)[0]
+        )
         out.append(f"    0x{message.can_id:03X}: {{")
         out.append(f"        'name': {message.name!r},")
         out.append(f"        'layout': {base!r},")
@@ -180,7 +207,10 @@ def generate(icd: Icd) -> str:
     out += ["}", ""]
 
     # --- séquences déterministes des simulateurs --------------------------
-    out += ["#: Séquences déterministes des simulateurs de capteurs.", "SIMULATIONS = {"]
+    out += [
+        "#: Séquences déterministes des simulateurs de capteurs.",
+        "SIMULATIONS = {",
+    ]
     for name, simulation in icd.simulations.items():
         out.append(f"    {name!r}: {{")
         out.append(f"        'period_ms': {simulation.get('period_ms')!r},")
@@ -194,7 +224,9 @@ def generate(icd: Icd) -> str:
     # --- classes de trames -------------------------------------------------
     emitted: set[str] = set()
     for message in default.messages:
-        base = message.name if message.node_id is None else message.name.rsplit("_", 1)[0]
+        base = (
+            message.name if message.node_id is None else message.name.rsplit("_", 1)[0]
+        )
         if base in emitted or not message.signals:
             emitted.add(base)
             continue
@@ -214,11 +246,19 @@ def generate(icd: Icd) -> str:
         out += _unpack_body(message)
 
     # --- table de correspondance -------------------------------------------
-    out += ["", "", "#: Classe de décodage associée à chaque disposition de trame.", "LAYOUTS = {"]
+    out += [
+        "",
+        "",
+        "#: Classe de décodage associée à chaque disposition de trame.",
+        "LAYOUTS = {",
+    ]
     for base in sorted(emitted):
         layout_message = next(
-            (m for m in default.messages
-             if (m.name if m.node_id is None else m.name.rsplit("_", 1)[0]) == base),
+            (
+                m
+                for m in default.messages
+                if (m.name if m.node_id is None else m.name.rsplit("_", 1)[0]) == base
+            ),
             None,
         )
         if layout_message is not None and layout_message.signals:

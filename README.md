@@ -102,9 +102,15 @@ Toutes les sous-commandes fonctionnent sur le bus `virtual` de python-can, avec 
 simulateur qui reproduit N1 à N4 (ARM/GO et heartbeat compris) :
 
 ```bash
-canbench --interface virtual arbitration --cycles 100
-canbench --interface virtual encoding
+canbench --interface virtual --simulate arbitration --cycles 100
+canbench --interface virtual --simulate encoding
+canbench --interface virtual --simulate faults
+canbench --interface virtual --simulate busload --measure 2
 ```
+
+`--simulate` démarre un simulateur reproduisant N1 à N4. **Aucun verdict de réussite n'est
+prononcé sur le bus virtuel** : le simulateur reproduit le comportement attendu, il ne le
+démontre pas. Les rapports produits portent la mention correspondante.
 
 ### Premier test sur le banc réel
 

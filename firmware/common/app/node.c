@@ -77,7 +77,12 @@ bool bench_node_on_frame(bench_node_t *node, const bench_can_frame_t *frame, uin
     const bool is_contender_frame = (info != NULL) && info->is_contender;
 
     /* Le heartbeat est suspendu dès qu'un cycle d'arbitrage commence : une
-     * trame de heartbeat glissée entre GO et les contendants fausserait le rang. */
+     * trame de heartbeat glissée entre GO et les contendants fausserait le rang.
+     *
+     * La même règle vaudra pour l'émission périodique des trames applicatives
+     * quand le lot 6 l'ajoutera : entre ARM et la fin de sa propre émission, un
+     * nœud ne doit rien émettre d'autre que sa trame contendante. Une trame
+     * périodique arrivant juste après GO serait comptée comme contendante. */
     if (frame->id == BENCH_ID_ARM) {
         bench_heartbeat_suspend(&node->heartbeat, true);
     }

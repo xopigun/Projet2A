@@ -23,7 +23,14 @@ du dépôt correspond au dossier `v0.1`.
 - **Autotest de mise en route** (`presets n1-selftest` à `n3-selftest`) : bouclage interne
   FDCAN sans transceiver, puis ping/pong sur le bus réel, avec état `PSR`/`ECR` sur le VCP.
 - Documentation : `docs/bringup.md` (mise en route pas à pas), `docs/pinout.md`,
-  `docs/config_logicielle.md` et son extrait LaTeX généré depuis les `board.h`.
+  `docs/config_logicielle.md` et son extrait LaTeX généré depuis les `board.h`,
+  `docs/protocole_validation.md` (les sept tests T1 à T7).
+- **Outils PC `canbench`** : `monitor`, `arbitration`, `encoding`, `faults`, `busload`,
+  `record`, `replay` et `report`. Toutes les sous-commandes tournent sur le bus `virtual`
+  avec `--simulate`, qui reproduit N1 à N4 (ARM/GO, heartbeat, modes de faute).
+  L'interface est ouverte en CAN 2.0A classic ; toute trame FD ou étendue reçue est
+  signalée. Les rapports Markdown et LaTeX portent la date et le hash git du firmware,
+  et refusent de conclure à une réussite sur bus virtuel ou avec une horloge non conforme.
 
 ### Corrigé (écarts relevés par rapport au dossier v0.1)
 

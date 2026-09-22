@@ -48,7 +48,7 @@ def generate_header(icd: Icd) -> str:
         'extern "C" {',
         "#endif",
         "",
-        f"/** Débit nominal du bus, en bit/s. */",
+        "/** Débit nominal du bus, en bit/s. */",
         f"#define BENCH_BITRATE {icd.bus['bitrate']}u",
         "",
         "/** Nombre de nœuds déclarés dans l'ICD. */",
@@ -67,7 +67,9 @@ def generate_header(icd: Icd) -> str:
         prefix = f"BENCH_{profile.name.upper()}"
         out.append(f"/* Profil « {profile.name} » : {profile.description} */")
         for message in profile.messages:
-            out.append(f"#define {prefix}_ID_{message.name.upper()} 0x{message.can_id:03X}u")
+            out.append(
+                f"#define {prefix}_ID_{message.name.upper()} 0x{message.can_id:03X}u"
+            )
         out.append(f"#define {prefix}_HEARTBEAT_BASE 0x{profile.heartbeat_base:03X}u")
         out.append("")
 
@@ -108,14 +110,21 @@ def generate_header(icd: Icd) -> str:
     ]
     for profile in icd.profiles.values():
         prefix = f"bench_{profile.name}"
-        out.append(f"#define BENCH_{profile.name.upper()}_RESERVED_COUNT "
-                   f"{len(profile.reserved_ranges)}u")
-        out.append(f"#define BENCH_{profile.name.upper()}_FRAME_COUNT "
-                   f"{len(profile.messages)}u")
-        out.append(f"extern const bench_reserved_range_t {prefix}_reserved_ranges"
-                   f"[BENCH_{profile.name.upper()}_RESERVED_COUNT];")
-        out.append(f"extern const bench_frame_info_t {prefix}_frames"
-                   f"[BENCH_{profile.name.upper()}_FRAME_COUNT];")
+        out.append(
+            f"#define BENCH_{profile.name.upper()}_RESERVED_COUNT "
+            f"{len(profile.reserved_ranges)}u"
+        )
+        out.append(
+            f"#define BENCH_{profile.name.upper()}_FRAME_COUNT {len(profile.messages)}u"
+        )
+        out.append(
+            f"extern const bench_reserved_range_t {prefix}_reserved_ranges"
+            f"[BENCH_{profile.name.upper()}_RESERVED_COUNT];"
+        )
+        out.append(
+            f"extern const bench_frame_info_t {prefix}_frames"
+            f"[BENCH_{profile.name.upper()}_FRAME_COUNT];"
+        )
         out.append("")
 
     out += [
@@ -183,7 +192,9 @@ def _classic_assertions(icd: Icd) -> list[str]:
     ]
     seen: set[str] = set()
     for message in icd.default.messages:
-        base = message.name if message.node_id is None else message.name.rsplit("_", 1)[0]
+        base = (
+            message.name if message.node_id is None else message.name.rsplit("_", 1)[0]
+        )
         out.append(
             f"_Static_assert(BENCH_ID_{message.name.upper()} <= BENCH_CLASSIC_MAX_ID,"
             f' "{message.name} : identifiant hors des 11 bits du CAN 2.0A");'
@@ -208,28 +219,38 @@ def _unique_layouts(profile: Profile) -> list[Message]:
     seen: set[str] = set()
     result: list[Message] = []
     for message in profile.messages:
-        base = message.name if message.node_id is None else message.name.rsplit("_", 1)[0]
+        base = (
+            message.name if message.node_id is None else message.name.rsplit("_", 1)[0]
+        )
         if base in seen:
             continue
         seen.add(base)
-        result.append(
-            message if message.node_id is None else _rename(message, base)
-        )
+        result.append(message if message.node_id is None else _rename(message, base))
     return result
 
 
 def _rename(message: Message, name: str) -> Message:
     clone = Message(
-        name=name, can_id=message.can_id, dlc=message.dlc, sender=message.sender,
-        receivers=message.receivers, kind=message.kind, comment=message.comment,
-        signals=message.signals, period_ms=message.period_ms,
-        contender=message.contender, node_id=None,
+        name=name,
+        can_id=message.can_id,
+        dlc=message.dlc,
+        sender=message.sender,
+        receivers=message.receivers,
+        kind=message.kind,
+        comment=message.comment,
+        signals=message.signals,
+        period_ms=message.period_ms,
+        contender=message.contender,
+        node_id=None,
     )
     return clone
 
 
 def _struct_for(message: Message) -> list[str]:
-    out = [f"/* --- {message.name} (DLC {message.dlc}) ------------------------------ */", ""]
+    out = [
+        f"/* --- {message.name} (DLC {message.dlc}) ------------------------------ */",
+        "",
+    ]
     if message.comment:
         out += ["/**", f" * {message.comment}", " */"]
 
@@ -266,8 +287,15 @@ def _struct_for(message: Message) -> list[str]:
 
 
 def generate_source(icd: Icd) -> str:
-    out: list[str] = [BANNER, "", '#include "icd_gen.h"', "",
-                      "#include <math.h>", "#include <string.h>", ""]
+    out: list[str] = [
+        BANNER,
+        "",
+        '#include "icd_gen.h"',
+        "",
+        "#include <math.h>",
+        "#include <string.h>",
+        "",
+    ]
 
     # N'émettre que les fonctions réellement utilisées : une aide inutilisée
     # déclencherait -Wunused-function, et le projet compile sans avertissement.
@@ -284,18 +312,24 @@ def generate_source(icd: Icd) -> str:
     for profile in icd.profiles.values():
         prefix = f"bench_{profile.name}"
         upper = profile.name.upper()
-        out.append(f"const bench_reserved_range_t {prefix}_reserved_ranges"
-                   f"[BENCH_{upper}_RESERVED_COUNT] = {{")
+        out.append(
+            f"const bench_reserved_range_t {prefix}_reserved_ranges"
+            f"[BENCH_{upper}_RESERVED_COUNT] = {{"
+        )
         for reserved in profile.reserved_ranges:
-            out.append(f'    {{ 0x{reserved.first:03X}u, 0x{reserved.last:03X}u, '
-                       f'"{reserved.purpose}" }},')
+            out.append(
+                f"    {{ 0x{reserved.first:03X}u, 0x{reserved.last:03X}u, "
+                f'"{reserved.purpose}" }},'
+            )
         out += ["};", ""]
 
-        out.append(f"const bench_frame_info_t {prefix}_frames[BENCH_{upper}_FRAME_COUNT] = {{")
+        out.append(
+            f"const bench_frame_info_t {prefix}_frames[BENCH_{upper}_FRAME_COUNT] = {{"
+        )
         for message in profile.messages:
             out.append(
-                f'    {{ 0x{message.can_id:03X}u, {message.dlc}u, '
-                f'{"true" if message.kind == "service" else "false"}, '
+                f"    {{ 0x{message.can_id:03X}u, {message.dlc}u, "
+                f"{'true' if message.kind == 'service' else 'false'}, "
                 f'{"true" if message.contender else "false"}, "{message.name}" }},'
             )
         out += ["};", ""]
@@ -428,8 +462,8 @@ def _shift_expr(signal: Signal, dlc: int) -> tuple[str, int]:
 def _pack_for(message: Message) -> list[str]:
     out = [
         f"void bench_{message.c_name}_pack(uint8_t *data, const {message.struct_name} *src) {{",
-        f"    uint64_t frame_le = 0u;",
-        f"    uint64_t frame_be = 0u;",
+        "    uint64_t frame_le = 0u;",
+        "    uint64_t frame_be = 0u;",
         f"    memset(data, 0, {message.dlc}u);",
         "",
     ]
@@ -441,16 +475,20 @@ def _pack_for(message: Message) -> list[str]:
         mask = (1 << signal.length) - 1
         if signal.factor != 1.0 or signal.offset != 0.0:
             # llround arrondit à l'opposé de zéro, comme bench_round() côté Python.
-            expr = (f"(int64_t)llround(((double)src->{signal.name} - "
-                    f"({signal.offset:.17g})) / ({signal.factor:.17g}))")
+            expr = (
+                f"(int64_t)llround(((double)src->{signal.name} - "
+                f"({signal.offset:.17g})) / ({signal.factor:.17g}))"
+            )
         else:
             expr = f"(int64_t)src->{signal.name}"
 
         out += [
             f"    /* {signal.name} */",
             "    {",
-            f"        int64_t raw = bench_clamp({expr}, "
-            f"INT64_C({signal.raw_minimum}), INT64_C({signal.raw_maximum}));",
+            (
+                f"        int64_t raw = bench_clamp({expr}, "
+                f"INT64_C({signal.raw_minimum}), INT64_C({signal.raw_maximum}));"
+            ),
             f"        frame_{order} |= ((uint64_t)raw & UINT64_C(0x{mask:X})) << {shift}u;",
             "    }",
         ]
@@ -485,9 +523,13 @@ def _unpack_for(message: Message) -> list[str]:
         f"void bench_{message.c_name}_unpack({message.struct_name} *dst, const uint8_t *data) {{",
     ]
     if uses_le:
-        out.append(f"    const uint64_t frame_le = bench_load_le(data, {message.dlc}u);")
+        out.append(
+            f"    const uint64_t frame_le = bench_load_le(data, {message.dlc}u);"
+        )
     if uses_be:
-        out.append(f"    const uint64_t frame_be = bench_load_be(data, {message.dlc}u);")
+        out.append(
+            f"    const uint64_t frame_be = bench_load_be(data, {message.dlc}u);"
+        )
     out.append("")
 
     for signal in message.signals:
@@ -498,8 +540,11 @@ def _unpack_for(message: Message) -> list[str]:
             "    {",
             f"        uint64_t raw = (frame_{order} >> {shift}u) & UINT64_C(0x{mask:X});",
         ]
-        value = (f"bench_sign_extend(raw, {signal.length}u)" if signal.signed
-                 else "(int64_t)raw")
+        value = (
+            f"bench_sign_extend(raw, {signal.length}u)"
+            if signal.signed
+            else "(int64_t)raw"
+        )
         if signal.factor != 1.0 or signal.offset != 0.0:
             out.append(
                 f"        dst->{signal.name} = ({signal.c_phys_type})((double)({value}) * "

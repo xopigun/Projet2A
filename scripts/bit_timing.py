@@ -90,7 +90,9 @@ class Timing:
         )
 
 
-def enumerate_timings(controller: str, clock_hz: int, bitrate: int = TARGET_BITRATE) -> list[Timing]:
+def enumerate_timings(
+    controller: str, clock_hz: int, bitrate: int = TARGET_BITRATE
+) -> list[Timing]:
     """Toutes les configurations donnant exactement @p bitrate."""
     limits = LIMITS[controller]
     results: list[Timing] = []
@@ -109,7 +111,9 @@ def enumerate_timings(controller: str, clock_hz: int, bitrate: int = TARGET_BITR
             results.append(Timing(controller, clock_hz, prescaler, tseg1, tseg2, sjw))
 
     # Meilleur point d'échantillonnage d'abord, puis meilleure tolérance.
-    results.sort(key=lambda t: (abs(t.sample_point - TARGET_SAMPLE_POINT), -t.tolerance))
+    results.sort(
+        key=lambda t: (abs(t.sample_point - TARGET_SAMPLE_POINT), -t.tolerance)
+    )
     return results
 
 
@@ -139,8 +143,13 @@ def read_board(name: str) -> Timing | None:
     controller, clock_key = BOARDS[name]
     values = _defines(path.read_text(encoding="utf-8"))
 
-    required = [clock_key, "BENCH_CAN_PRESCALER", "BENCH_CAN_TSEG1", "BENCH_CAN_TSEG2",
-                "BENCH_CAN_SJW"]
+    required = [
+        clock_key,
+        "BENCH_CAN_PRESCALER",
+        "BENCH_CAN_TSEG1",
+        "BENCH_CAN_TSEG2",
+        "BENCH_CAN_SJW",
+    ]
     missing = [key for key in required if key not in values]
     if missing:
         raise SystemExit(f"{path} : constantes manquantes {missing}")
@@ -179,7 +188,9 @@ def check() -> int:
             )
         limits = LIMITS[timing.controller]
         if timing.sjw > timing.tseg2 or timing.sjw > limits["sjw"]:
-            problems.append(f"{name} : SJW {timing.sjw} incompatible avec TSEG2/le controleur")
+            problems.append(
+                f"{name} : SJW {timing.sjw} incompatible avec TSEG2/le controleur"
+            )
         if timing.tseg1 > limits["tseg1"] or timing.tseg2 > limits["tseg2"]:
             problems.append(f"{name} : segments hors des limites du controleur")
 
@@ -195,7 +206,9 @@ def check() -> int:
         worst = min(tolerances.values())
         print(f"\n  Tolerance commune la plus contraignante : {worst * 100:.4f} %")
         print(f"  Quartz 24 MHz a 20 ppm = 0.0020 % -> marge x{worst / 20e-6:.0f}")
-        print(f"  HSI16 a +/-1 %                     -> {1.0 / (worst * 100):.1f} fois trop imprecis")
+        print(
+            f"  HSI16 a +/-1 %                     -> {1.0 / (worst * 100):.1f} fois trop imprecis"
+        )
 
     if problems:
         print("\nECHEC :", file=sys.stderr)
@@ -209,13 +222,21 @@ def check() -> int:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--check", action="store_true",
-                        help="verifie les board.h du depot et sort en erreur si besoin")
-    parser.add_argument("--clock", type=float,
-                        help="horloge noyau en MHz, pour enumerer les configurations")
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="verifie les board.h du depot et sort en erreur si besoin",
+    )
+    parser.add_argument(
+        "--clock",
+        type=float,
+        help="horloge noyau en MHz, pour enumerer les configurations",
+    )
     parser.add_argument("--controller", choices=sorted(LIMITS), default="fdcan")
     parser.add_argument("--bitrate", type=int, default=TARGET_BITRATE)
-    parser.add_argument("--top", type=int, default=10, help="nombre de configurations affichees")
+    parser.add_argument(
+        "--top", type=int, default=10, help="nombre de configurations affichees"
+    )
     args = parser.parse_args(argv)
 
     if args.check:
@@ -225,14 +246,18 @@ def main(argv: list[str] | None = None) -> int:
     if args.clock is None:
         parser.error("indiquer --check ou --clock")
 
-    clock_hz = int(round(args.clock * 1e6))
+    clock_hz = round(args.clock * 1e6)
     candidates = enumerate_timings(args.controller, clock_hz, args.bitrate)
     if not candidates:
-        print(f"Aucune configuration exacte pour {args.clock} MHz a {args.bitrate} bit/s.")
+        print(
+            f"Aucune configuration exacte pour {args.clock} MHz a {args.bitrate} bit/s."
+        )
         return 1
 
-    print(f"Configurations pour {args.controller} a {args.clock} MHz, "
-          f"{args.bitrate} bit/s (meilleures d'abord) :\n")
+    print(
+        f"Configurations pour {args.controller} a {args.clock} MHz, "
+        f"{args.bitrate} bit/s (meilleures d'abord) :\n"
+    )
     for timing in candidates[: args.top]:
         marker = " <-" if abs(timing.sample_point - TARGET_SAMPLE_POINT) < 1e-9 else ""
         print(f"  {timing.describe()}{marker}")

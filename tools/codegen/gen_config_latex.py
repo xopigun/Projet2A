@@ -50,10 +50,15 @@ def generate(icd: Icd) -> str:
         timing = bt.read_board(board_name)
         rows.append((board_name, timing))
 
-    out = [HEADER, r"\begin{table}[H]", r"\centering\small",
-           r"\begin{tabular}{lcc}", r"\toprule",
-           r"\textbf{Paramètre} & \textbf{N1--N3 (STM32G431)} & \textbf{N4 (STM32F103)} \\",
-           r"\midrule"]
+    out = [
+        HEADER,
+        r"\begin{table}[H]",
+        r"\centering\small",
+        r"\begin{tabular}{lcc}",
+        r"\toprule",
+        r"\textbf{Paramètre} & \textbf{N1--N3 (STM32G431)} & \textbf{N4 (STM32F103)} \\",
+        r"\midrule",
+    ]
 
     g431 = dict(rows).get("nucleo_g431kb")
     f103 = dict(rows).get("bluepill_f103")
@@ -65,13 +70,14 @@ def generate(icd: Icd) -> str:
 
     out += [
         r"Périphérique & FDCAN1, mode \emph{Classic} & bxCAN \\",
-        r"Référence d'horloge & HSE \SI{24}{MHz} (quartz, \SI{20}{ppm}) & "
-        r"HSE \SI{8}{MHz} \\",
+        (
+            r"Référence d'horloge & HSE \SI{24}{MHz} (quartz, \SI{20}{ppm}) & "
+            r"HSE \SI{8}{MHz} \\"
+        ),
         rf"Horloge noyau CAN & {_clock(g431)} & {_clock(f103)} \\",
         rf"Prescaler & {cell(g431, 'prescaler')} & {cell(f103, 'prescaler')} \\",
         rf"Durée du bit & {_nbt(g431)} & {_nbt(f103)} \\",
-        rf"Segments (sync + 1 + 2) & "
-        rf"{_segments(g431)} & {_segments(f103)} \\",
+        rf"Segments (sync + 1 + 2) & {_segments(g431)} & {_segments(f103)} \\",
         rf"SJW & {cell(g431, 'sjw')} & {cell(f103, 'sjw')} \\",
         rf"Point d'échantillonnage & {_sp(g431)} & {_sp(f103)} \\",
         rf"Tolérance d'oscillateur & {_tol(g431)} & {_tol(f103)} \\",
@@ -79,11 +85,15 @@ def generate(icd: Icd) -> str:
         r"\midrule",
         r"Filtres d'acceptation & aucun & aucun \\",
         r"Retransmission automatique & activée & activée \\",
-        r"Reprise après \emph{bus-off} & logicielle (\texttt{CCCR.INIT}) & "
-        r"matérielle (\texttt{ABOM}) \\",
+        (
+            r"Reprise après \emph{bus-off} & logicielle (\texttt{CCCR.INIT}) & "
+            r"matérielle (\texttt{ABOM}) \\"
+        ),
         r"Mode silencieux & \texttt{CCCR.MON} & \texttt{BTR.SILM} \\",
-        r"Bouclage interne & \texttt{FDCAN\_MODE\_INTERNAL\_LOOPBACK} & "
-        r"\texttt{BTR.LBKM} \\",
+        (
+            r"Bouclage interne & \texttt{FDCAN\_MODE\_INTERNAL\_LOOPBACK} & "
+            r"\texttt{BTR.LBKM} \\"
+        ),
         r"\bottomrule",
         r"\end{tabular}",
     ]
@@ -100,7 +110,12 @@ def generate(icd: Icd) -> str:
             r"attend RM0008, DS5319 et le schéma de la carte."
         )
 
-    out += [rf"\caption{{{caption}}}", r"\label{tab:config-logicielle}", r"\end{table}", ""]
+    out += [
+        rf"\caption{{{caption}}}",
+        r"\label{tab:config-logicielle}",
+        r"\end{table}",
+        "",
+    ]
     return "\n".join(out)
 
 

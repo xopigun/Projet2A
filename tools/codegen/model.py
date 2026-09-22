@@ -45,7 +45,7 @@ def bench_round(value: float) -> int:
     pair le plus proche et donnerait des résultats différents sur les valeurs
     exactement à un demi, ce qui casserait la parité C <-> Python.
     """
-    return int(math.floor(value + 0.5)) if value >= 0 else int(math.ceil(value - 0.5))
+    return math.floor(value + 0.5) if value >= 0 else math.ceil(value - 0.5)
 
 
 def canopen_conflict(can_id: int) -> str | None:
@@ -124,7 +124,15 @@ class Signal:
 
     @property
     def c_raw_type(self) -> str:
-        bits = 8 if self.length <= 8 else 16 if self.length <= 16 else 32 if self.length <= 32 else 64
+        bits = (
+            8
+            if self.length <= 8
+            else 16
+            if self.length <= 16
+            else 32
+            if self.length <= 32
+            else 64
+        )
         return f"{'int' if self.signed else 'uint'}{bits}_t"
 
     @property
@@ -241,7 +249,9 @@ class Icd:
 def _signal_from_dict(raw: dict, message_name: str) -> Signal:
     missing = {"name", "start_byte", "start_bit", "length"} - raw.keys()
     if missing:
-        raise IcdError(f"{message_name}: signal incomplet, champs manquants {sorted(missing)}")
+        raise IcdError(
+            f"{message_name}: signal incomplet, champs manquants {sorted(missing)}"
+        )
     return Signal(
         name=raw["name"],
         start_byte=int(raw["start_byte"]),
@@ -259,7 +269,9 @@ def _signal_from_dict(raw: dict, message_name: str) -> Signal:
     )
 
 
-def _build_messages(spec: dict, profile_name: str, profile_spec: dict, nodes: list[Node]) -> list[Message]:
+def _build_messages(
+    spec: dict, profile_name: str, profile_spec: dict, nodes: list[Node]
+) -> list[Message]:
     services: dict[str, int] = {k: int(v) for k, v in profile_spec["services"].items()}
     heartbeat_base = int(profile_spec["heartbeat_base"])
 
@@ -267,22 +279,26 @@ def _build_messages(spec: dict, profile_name: str, profile_spec: dict, nodes: li
     for raw in spec["messages"]:
         name = raw["name"]
         signals = [_signal_from_dict(s, name) for s in (raw.get("signals") or [])]
-        common = dict(
-            dlc=int(raw["dlc"]),
-            sender=raw.get("sender", ""),
-            receivers=list(raw.get("receivers") or []),
-            kind=raw.get("kind", "application"),
-            comment=" ".join((raw.get("comment") or "").split()),
-            signals=signals,
-            period_ms=raw.get("period_ms"),
-            contender=bool(raw.get("contender", False)),
-        )
+        common = {
+            "dlc": int(raw["dlc"]),
+            "sender": raw.get("sender", ""),
+            "receivers": list(raw.get("receivers") or []),
+            "kind": raw.get("kind", "application"),
+            "comment": " ".join((raw.get("comment") or "").split()),
+            "signals": signals,
+            "period_ms": raw.get("period_ms"),
+            "contender": bool(raw.get("contender", False)),
+        }
 
         if raw.get("per_node"):
             for node in nodes:
                 messages.append(
-                    Message(name=f"{name}_{node.name}", can_id=heartbeat_base + node.node_id,
-                            node_id=node.node_id, **common)
+                    Message(
+                        name=f"{name}_{node.name}",
+                        can_id=heartbeat_base + node.node_id,
+                        node_id=node.node_id,
+                        **common,
+                    )
                 )
         elif "id_ref" in raw:
             ref = raw["id_ref"]
@@ -305,8 +321,13 @@ def load(path: Path | None = None) -> Icd:
     spec = yaml.safe_load(path.read_text(encoding="utf-8"))
 
     nodes = [
-        Node(node_id=int(n["node_id"]), name=n["name"], board=n["board"],
-             role=n["role"], contender=bool(n.get("contender", False)))
+        Node(
+            node_id=int(n["node_id"]),
+            name=n["name"],
+            board=n["board"],
+            role=n["role"],
+            contender=bool(n.get("contender", False)),
+        )
         for n in spec["nodes"]
     ]
 
@@ -358,40 +379,50 @@ def validate(icd: Icd) -> None:
         _validate_simulation(icd, message_name, simulation, errors)
 
     if errors:
-        raise IcdError(
-            "ICD invalide :\n" + "\n".join(f"  - {e}" for e in errors)
-        )
+        raise IcdError("ICD invalide :\n" + "\n".join(f"  - {e}" for e in errors))
     icd.warnings = warnings
 
 
-def _validate_profile(profile: Profile, id_max: int, errors: list[str], warnings: list[str]) -> None:
+def _validate_profile(
+    profile: Profile, id_max: int, errors: list[str], warnings: list[str]
+) -> None:
     where = f"profil « {profile.name} »"
 
     # --- collisions d'identifiants ----------------------------------------
     seen: dict[int, str] = {}
     for message in profile.messages:
         if not 0 <= message.can_id <= id_max:
-            errors.append(f"{where} : {message.name} a l'identifiant 0x{message.can_id:X} "
-                          f"hors de la plage 11 bits")
+            errors.append(
+                f"{where} : {message.name} a l'identifiant 0x{message.can_id:X} "
+                f"hors de la plage 11 bits"
+            )
         if message.can_id in seen:
-            errors.append(f"{where} : collision d'identifiant 0x{message.can_id:03X} entre "
-                          f"{seen[message.can_id]} et {message.name}")
+            errors.append(
+                f"{where} : collision d'identifiant 0x{message.can_id:03X} entre "
+                f"{seen[message.can_id]} et {message.name}"
+            )
         seen[message.can_id] = message.name
 
     # --- cohérence avec les plages réservées ------------------------------
     for message in profile.messages:
         inside = any(r.contains(message.can_id) for r in profile.reserved_ranges)
         if message.kind == "service" and not inside:
-            errors.append(f"{where} : {message.name} (0x{message.can_id:03X}) est un service "
-                          f"mais tombe hors des plages réservées déclarées")
+            errors.append(
+                f"{where} : {message.name} (0x{message.can_id:03X}) est un service "
+                f"mais tombe hors des plages réservées déclarées"
+            )
         if message.kind != "service" and inside:
-            errors.append(f"{where} : {message.name} (0x{message.can_id:03X}) est applicatif "
-                          f"mais tombe dans une plage réservée au banc")
+            errors.append(
+                f"{where} : {message.name} (0x{message.can_id:03X}) est applicatif "
+                f"mais tombe dans une plage réservée au banc"
+            )
 
     # --- contrainte d'ordre ARM/GO ----------------------------------------
     contenders = profile.contenders
     if not contenders:
-        errors.append(f"{where} : aucune trame contendante, le test d'arbitrage est impossible")
+        errors.append(
+            f"{where} : aucune trame contendante, le test d'arbitrage est impossible"
+        )
     else:
         lowest = min(m.can_id for m in contenders)
         lowest_name = next(m.name for m in contenders if m.can_id == lowest)
@@ -446,19 +477,27 @@ def _validate_signals(profile: Profile, message: Message, errors: list[str]) -> 
 
     for signal in message.signals:
         if not C_IDENTIFIER.match(signal.name):
-            errors.append(f"{where} : « {signal.name} » n'est pas un identifiant C valide")
+            errors.append(
+                f"{where} : « {signal.name} » n'est pas un identifiant C valide"
+            )
         if signal.name in names:
             errors.append(f"{where} : signal « {signal.name} » déclaré deux fois")
         names.add(signal.name)
 
         if signal.byte_order not in ("little_endian", "big_endian"):
-            errors.append(f"{where}.{signal.name} : byte_order « {signal.byte_order} » inconnu")
+            errors.append(
+                f"{where}.{signal.name} : byte_order « {signal.byte_order} » inconnu"
+            )
             continue
         if not 1 <= signal.length <= 64:
-            errors.append(f"{where}.{signal.name} : longueur {signal.length} hors plage 1..64")
+            errors.append(
+                f"{where}.{signal.name} : longueur {signal.length} hors plage 1..64"
+            )
             continue
         if not 0 <= signal.start_bit <= 7:
-            errors.append(f"{where}.{signal.name} : start_bit {signal.start_bit} hors plage 0..7")
+            errors.append(
+                f"{where}.{signal.name} : start_bit {signal.start_bit} hors plage 0..7"
+            )
             continue
         if signal.factor == 0:
             errors.append(f"{where}.{signal.name} : facteur nul")
@@ -502,7 +541,9 @@ def _validate_signals(profile: Profile, message: Message, errors: list[str]) -> 
             )
 
 
-def _validate_simulation(icd: Icd, message_name: str, simulation: dict, errors: list[str]) -> None:
+def _validate_simulation(
+    icd: Icd, message_name: str, simulation: dict, errors: list[str]
+) -> None:
     profile = icd.default
     try:
         message = profile.by_name(message_name)

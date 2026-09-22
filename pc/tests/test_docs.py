@@ -59,11 +59,7 @@ def test_pinout_coherent_avec_board_h(board: Path) -> None:
 
     assert pins, f"aucune broche extraite de {board}"
 
-    manquantes = {
-        name: pin
-        for name, pin in pins.items()
-        if not re.search(rf"\b{pin}\b", pinout)
-    }
+    manquantes = {name: pin for name, pin in pins.items() if not re.search(rf"\b{pin}\b", pinout)}
     assert not manquantes, (
         f"{board.parent.name} : broches absentes de docs/pinout.md — {manquantes}. "
         "Mettre la documentation a jour, board.h fait autorite."
@@ -91,16 +87,16 @@ def test_corrections_dossier_listees() -> None:
     assert "Corrections à reporter dans le dossier v0.2" in plan
 
     attendus = [
-        "PB9",        # broche inexistante sur le boitier
-        "BOOT0",      # PB8
-        "PA2",        # TX du VCP
-        "HW1",        # cavalier a retirer
-        "SB9",        # HSE non active par defaut
-        "PA5",        # entree flottante
-        "23,04",      # duree de rafraichissement OLED
+        "PB9",  # broche inexistante sur le boitier
+        "BOOT0",  # PB8
+        "PA2",  # TX du VCP
+        "HW1",  # cavalier a retirer
+        "SB9",  # HSE non active par defaut
+        "PA5",  # entree flottante
+        "23,04",  # duree de rafraichissement OLED
         "tableau 7",  # metrique « Perdus »
-        "120",        # terminaisons des modules
-        "216",        # duree de GO
+        "120",  # terminaisons des modules
+        "216",  # duree de GO
     ]
     manquants = [a for a in attendus if a not in plan]
     assert not manquants, f"points absents de PLAN.md : {manquants}"

@@ -102,7 +102,9 @@ def build(icd: Icd) -> dict:
 
     emitted: set[str] = set()
     for message in profile.messages:
-        base = message.name if message.node_id is None else message.name.rsplit("_", 1)[0]
+        base = (
+            message.name if message.node_id is None else message.name.rsplit("_", 1)[0]
+        )
         if base in emitted:
             continue
         emitted.add(base)

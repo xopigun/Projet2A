@@ -79,7 +79,7 @@ def _fill_function(message: Message) -> list[str]:
     """Fonction qui remplit la structure de @p message depuis un tableau de doubles."""
     out = [
         f"static void bench_fill_{message.c_name}({message.struct_name} *frame,",
-        f"                                        const double *values) {{",
+        "                                        const double *values) {",
     ]
     for index, signal in enumerate(message.signals):
         cast = signal.c_phys_type
@@ -99,8 +99,16 @@ def generate_source(icd: Icd) -> str:
             f"BENCH_VECTOR_MAX_SIGNALS ({MAX_SIGNALS}) est trop petit pour {too_many}"
         )
 
-    out = [BANNER, "", '#include "icd_vectors.h"', "", '#include "icd_gen.h"', "",
-           "#include <string.h>", ""]
+    out = [
+        BANNER,
+        "",
+        '#include "icd_vectors.h"',
+        "",
+        '#include "icd_gen.h"',
+        "",
+        "#include <string.h>",
+        "",
+    ]
 
     # --- tableau des cas ---------------------------------------------------
     out.append("const bench_vector_t bench_vectors[] = {")
@@ -112,16 +120,14 @@ def generate_source(icd: Icd) -> str:
             bytes_literal = ", ".join(f"0x{b:02X}u" for b in payload)
 
             # Valeurs physiques dans l'ordre des signaux ; défaut si non fixée.
-            physical = [
-                float(case["values"].get(s.name, s.default)) for s in signals
-            ]
+            physical = [float(case["values"].get(s.name, s.default)) for s in signals]
             physical += [0.0] * (MAX_SIGNALS - len(physical))
             values_literal = ", ".join(f"{v:.17g}" for v in physical)
 
             label = case["label"].replace("\\", "").replace('"', "'")
             out.append(
                 f'    {{ "{frame["name"]}", "{label}", 0x{frame["can_id"]:03X}u, '
-                f'{frame["dlc"]}u, {len(signals)}u,'
+                f"{frame['dlc']}u, {len(signals)}u,"
             )
             out.append(f"      {{ {values_literal} }},")
             out.append(f"      {{ {bytes_literal} }} }},")
@@ -147,7 +153,7 @@ def generate_source(icd: Icd) -> str:
         out += [
             f'    {keyword} (strcmp(vector->frame, "{message.name}") == 0) {{',
             f"        {message.struct_name} frame;",
-            f"        memset(&frame, 0, sizeof(frame));",
+            "        memset(&frame, 0, sizeof(frame));",
             f"        bench_fill_{message.c_name}(&frame, vector->values);",
             f"        bench_{message.c_name}_pack(out, &frame);",
             "        return 1;",

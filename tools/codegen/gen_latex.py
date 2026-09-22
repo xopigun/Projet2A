@@ -57,15 +57,19 @@ def generate_encoding_table(icd: Icd) -> str:
         HEADER,
         r"\begin{longtable}{llrrcccrrl}",
         r"\toprule",
-        r"\textbf{Trame} & \textbf{Signal} & \textbf{Oct.} & \textbf{Bit} &"
-        r" \textbf{Long.} & \textbf{Ordre} & \textbf{S} &"
-        r" \textbf{Facteur} & \textbf{Offset} & \textbf{Unité} \\",
+        (
+            r"\textbf{Trame} & \textbf{Signal} & \textbf{Oct.} & \textbf{Bit} &"
+            r" \textbf{Long.} & \textbf{Ordre} & \textbf{S} &"
+            r" \textbf{Facteur} & \textbf{Offset} & \textbf{Unité} \\"
+        ),
         r"\midrule",
         r"\endfirsthead",
         r"\toprule",
-        r"\textbf{Trame} & \textbf{Signal} & \textbf{Oct.} & \textbf{Bit} &"
-        r" \textbf{Long.} & \textbf{Ordre} & \textbf{S} &"
-        r" \textbf{Facteur} & \textbf{Offset} & \textbf{Unité} \\",
+        (
+            r"\textbf{Trame} & \textbf{Signal} & \textbf{Oct.} & \textbf{Bit} &"
+            r" \textbf{Long.} & \textbf{Ordre} & \textbf{S} &"
+            r" \textbf{Facteur} & \textbf{Offset} & \textbf{Unité} \\"
+        ),
         r"\midrule",
         r"\endhead",
         r"\bottomrule",
@@ -74,7 +78,9 @@ def generate_encoding_table(icd: Icd) -> str:
 
     emitted: set[str] = set()
     for message in profile.messages:
-        base = message.name if message.node_id is None else message.name.rsplit("_", 1)[0]
+        base = (
+            message.name if message.node_id is None else message.name.rsplit("_", 1)[0]
+        )
         if base in emitted:
             continue
         emitted.add(base)
@@ -109,9 +115,15 @@ def generate_encoding_table(icd: Icd) -> str:
 
 
 def generate_reserved_table(icd: Icd) -> str:
-    out = [HEADER, r"\begin{table}[H]", r"\centering\small", r"\begin{tabular}{llll}", r"\toprule",
-           r"\textbf{Identifiant} & \textbf{Nom} & \textbf{Sens} & \textbf{Rôle} \\",
-           r"\midrule"]
+    out = [
+        HEADER,
+        r"\begin{table}[H]",
+        r"\centering\small",
+        r"\begin{tabular}{llll}",
+        r"\toprule",
+        r"\textbf{Identifiant} & \textbf{Nom} & \textbf{Sens} & \textbf{Rôle} \\",
+        r"\midrule",
+    ]
 
     profile = icd.default
     for message in profile.messages:

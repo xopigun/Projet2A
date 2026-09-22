@@ -10,7 +10,7 @@ Regénérer :  python -m tools.codegen
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 def bench_round(value: float) -> int:
@@ -354,7 +354,6 @@ class BenchCfg:
 
     def pack(self) -> bytes:
         frame_le = 0
-        frame_be = 0
         raw = _clamp(int(self.target_node), 0, 255)
         frame_le |= (raw & 0xFF) << 0
         raw = _clamp(int(self.mode), 0, 255)
@@ -366,9 +365,6 @@ class BenchCfg:
         raw = _clamp(int(self.heartbeat_period_ms), 0, 65535)
         frame_le |= (raw & 0xFFFF) << 48
         data = bytearray(frame_le.to_bytes(8, 'little'))
-        if frame_be:
-            be = frame_be.to_bytes(8, 'big')
-            data = bytearray(a | b for a, b in zip(data, be))
         return bytes(data)
 
     @classmethod
@@ -376,7 +372,6 @@ class BenchCfg:
         if len(data) != 8:
             raise ValueError(f'BENCH_CFG : {len(data)} octets reçus, 8 attendus')
         frame_le = int.from_bytes(data, 'little')
-        frame_be = int.from_bytes(data, 'big')
         return cls(
             target_node=(frame_le >> 0) & 0xFF,
             mode=(frame_le >> 8) & 0xFF,
@@ -400,7 +395,6 @@ class BenchResult:
 
     def pack(self) -> bytes:
         frame_le = 0
-        frame_be = 0
         raw = _clamp(int(self.node_id), 0, 255)
         frame_le |= (raw & 0xFF) << 0
         raw = _clamp(int(self.mode), 0, 255)
@@ -414,9 +408,6 @@ class BenchResult:
         raw = _clamp(int(self.frames_lost), 0, 65535)
         frame_le |= (raw & 0xFFFF) << 48
         data = bytearray(frame_le.to_bytes(8, 'little'))
-        if frame_be:
-            be = frame_be.to_bytes(8, 'big')
-            data = bytearray(a | b for a, b in zip(data, be))
         return bytes(data)
 
     @classmethod
@@ -424,7 +415,6 @@ class BenchResult:
         if len(data) != 8:
             raise ValueError(f'BENCH_RESULT : {len(data)} octets reçus, 8 attendus')
         frame_le = int.from_bytes(data, 'little')
-        frame_be = int.from_bytes(data, 'big')
         return cls(
             node_id=(frame_le >> 0) & 0xFF,
             mode=(frame_le >> 8) & 0xFF,
@@ -456,7 +446,6 @@ class Heartbeat:
 
     def pack(self) -> bytes:
         frame_le = 0
-        frame_be = 0
         raw = _clamp(int(self.ctrl_state), 0, 3)
         frame_le |= (raw & 0x3) << 0
         raw = _clamp(int(self.last_error_code), 0, 7)
@@ -484,9 +473,6 @@ class Heartbeat:
         raw = _clamp(int(self.ext_id_rx), 0, 255)
         frame_le |= (raw & 0xFF) << 56
         data = bytearray(frame_le.to_bytes(8, 'little'))
-        if frame_be:
-            be = frame_be.to_bytes(8, 'big')
-            data = bytearray(a | b for a, b in zip(data, be))
         return bytes(data)
 
     @classmethod
@@ -494,7 +480,6 @@ class Heartbeat:
         if len(data) != 8:
             raise ValueError(f'HEARTBEAT_N1 : {len(data)} octets reçus, 8 attendus')
         frame_le = int.from_bytes(data, 'little')
-        frame_be = int.from_bytes(data, 'big')
         return cls(
             ctrl_state=(frame_le >> 0) & 0x3,
             last_error_code=(frame_le >> 2) & 0x7,
@@ -527,7 +512,6 @@ class EnergyCommand:
 
     def pack(self) -> bytes:
         frame_le = 0
-        frame_be = 0
         raw = _clamp(bench_round((float(self.torque_setpoint) - (0.0)) / (0.1)), -32768, 32767)
         frame_le |= (raw & 0xFFFF) << 0
         raw = _clamp(bench_round((float(self.speed_setpoint) - (0.0)) / (0.5)), -32768, 32767)
@@ -543,9 +527,6 @@ class EnergyCommand:
         raw = _clamp(int(self.checksum), 0, 255)
         frame_le |= (raw & 0xFF) << 56
         data = bytearray(frame_le.to_bytes(8, 'little'))
-        if frame_be:
-            be = frame_be.to_bytes(8, 'big')
-            data = bytearray(a | b for a, b in zip(data, be))
         return bytes(data)
 
     @classmethod
@@ -553,7 +534,6 @@ class EnergyCommand:
         if len(data) != 8:
             raise ValueError(f'ENERGY_COMMAND : {len(data)} octets reçus, 8 attendus')
         frame_le = int.from_bytes(data, 'little')
-        frame_be = int.from_bytes(data, 'big')
         return cls(
             torque_setpoint=(_sign_extend((frame_le >> 0) & 0xFFFF, 16)) * 0.1 + 0.0,
             speed_setpoint=(_sign_extend((frame_le >> 16) & 0xFFFF, 16)) * 0.5 + 0.0,
@@ -579,7 +559,6 @@ class ImuSpeed:
 
     def pack(self) -> bytes:
         frame_le = 0
-        frame_be = 0
         raw = _clamp(bench_round((float(self.accel_x) - (0.0)) / (0.001)), -32768, 32767)
         frame_le |= (raw & 0xFFFF) << 0
         raw = _clamp(bench_round((float(self.accel_y) - (0.0)) / (0.001)), -32768, 32767)
@@ -593,9 +572,6 @@ class ImuSpeed:
         raw = _clamp(int(self.frame_counter), 0, 7)
         frame_le |= (raw & 0x7) << 61
         data = bytearray(frame_le.to_bytes(8, 'little'))
-        if frame_be:
-            be = frame_be.to_bytes(8, 'big')
-            data = bytearray(a | b for a, b in zip(data, be))
         return bytes(data)
 
     @classmethod
@@ -603,7 +579,6 @@ class ImuSpeed:
         if len(data) != 8:
             raise ValueError(f'IMU_SPEED : {len(data)} octets reçus, 8 attendus')
         frame_le = int.from_bytes(data, 'little')
-        frame_be = int.from_bytes(data, 'big')
         return cls(
             accel_x=(_sign_extend((frame_le >> 0) & 0xFFFF, 16)) * 0.001 + 0.0,
             accel_y=(_sign_extend((frame_le >> 16) & 0xFFFF, 16)) * 0.001 + 0.0,
@@ -628,7 +603,6 @@ class TempBattery:
 
     def pack(self) -> bytes:
         frame_le = 0
-        frame_be = 0
         raw = _clamp(bench_round((float(self.temperature) - (0.0)) / (0.0625)), -32768, 32767)
         frame_le |= (raw & 0xFFFF) << 0
         raw = _clamp(bench_round((float(self.pack_voltage) - (0.0)) / (0.01)), 0, 65535)
@@ -642,9 +616,6 @@ class TempBattery:
         raw = _clamp(int(self.frame_counter), 0, 255)
         frame_le |= (raw & 0xFF) << 56
         data = bytearray(frame_le.to_bytes(8, 'little'))
-        if frame_be:
-            be = frame_be.to_bytes(8, 'big')
-            data = bytearray(a | b for a, b in zip(data, be))
         return bytes(data)
 
     @classmethod
@@ -652,7 +623,6 @@ class TempBattery:
         if len(data) != 8:
             raise ValueError(f'TEMP_BATTERY : {len(data)} octets reçus, 8 attendus')
         frame_le = int.from_bytes(data, 'little')
-        frame_be = int.from_bytes(data, 'big')
         return cls(
             temperature=(_sign_extend((frame_le >> 0) & 0xFFFF, 16)) * 0.0625 + 0.0,
             pack_voltage=((frame_le >> 16) & 0xFFFF) * 0.01 + 0.0,
