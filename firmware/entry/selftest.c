@@ -293,6 +293,10 @@ int main(void) {
            BENCH_CAN_PRESCALER, BENCH_CAN_TSEG1, BENCH_CAN_TSEG2, BENCH_CAN_SJW,
            (unsigned long)BENCH_BITRATE);
 
+#ifdef BENCH_CAN_DIRECT
+    printf("  Bus         : DIRECT, sans transceiver (TX a drain ouvert)\r\n");
+#endif
+
     if (!bench_clock_is_qualified()) {
         printf("\r\n  *** ATTENTION : horloge HSI, reference NON CONFORME pour le CAN.\r\n");
         printf("  *** %s\r\n", BENCH_CLOCK_FIX_HINT);

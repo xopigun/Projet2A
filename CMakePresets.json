@@ -132,6 +132,36 @@
       "cacheVariables": {
         "BENCH_CLOCK_SOURCE": "HSI"
       }
+    },
+    {
+      "name": "n1-selftest-direct",
+      "inherits": "n1-selftest-hsi",
+      "displayName": "N1 - autotest, bus direct sans transceiver",
+      "description": "Deux Nucleo reliees fil a fil (TX a drain ouvert). Essai sur table uniquement.",
+      "binaryDir": "${sourceDir}/build/n1-selftest-direct",
+      "cacheVariables": {
+        "BENCH_CAN_DIRECT": "ON"
+      }
+    },
+    {
+      "name": "n2-selftest-direct",
+      "inherits": "n2-selftest-hsi",
+      "displayName": "N2 - autotest, bus direct sans transceiver",
+      "description": "Deux Nucleo reliees fil a fil (TX a drain ouvert). Essai sur table uniquement.",
+      "binaryDir": "${sourceDir}/build/n2-selftest-direct",
+      "cacheVariables": {
+        "BENCH_CAN_DIRECT": "ON"
+      }
+    },
+    {
+      "name": "n3-selftest-direct",
+      "inherits": "n3-selftest-hsi",
+      "displayName": "N3 - autotest, bus direct sans transceiver",
+      "description": "Deux Nucleo reliees fil a fil (TX a drain ouvert). Essai sur table uniquement.",
+      "binaryDir": "${sourceDir}/build/n3-selftest-direct",
+      "cacheVariables": {
+        "BENCH_CAN_DIRECT": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -182,6 +212,18 @@
     {
       "name": "n3-selftest-hsi",
       "configurePreset": "n3-selftest-hsi"
+    },
+    {
+      "name": "n1-selftest-direct",
+      "configurePreset": "n1-selftest-direct"
+    },
+    {
+      "name": "n2-selftest-direct",
+      "configurePreset": "n2-selftest-direct"
+    },
+    {
+      "name": "n3-selftest-direct",
+      "configurePreset": "n3-selftest-direct"
     }
   ],
   "testPresets": [

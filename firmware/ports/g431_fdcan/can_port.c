@@ -70,8 +70,19 @@ static void gpio_init(void) {
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     gpio.Pin = BENCH_CAN_RX_PIN | BENCH_CAN_TX_PIN;
+#ifdef BENCH_CAN_DIRECT
+    /* Bus direct, sans transceiver : TX à drain ouvert, TX et RX tirés vers 3,3 V
+     * par les résistances internes. Toutes les cartes reliées sur un même fil
+     * forment un ET câblé : un 0 (dominant) tire le fil à la masse et l'emporte
+     * sur un 1 (récessif), comme sur un vrai bus CAN. Réservé aux essais sur
+     * table, sur quelques centimètres. Toutes les cartes du fil doivent porter
+     * ce firmware : une sortie push-pull en face serait un court-circuit. */
+    gpio.Mode = GPIO_MODE_AF_OD;
+    gpio.Pull = GPIO_PULLUP;
+#else
     gpio.Mode = GPIO_MODE_AF_PP;
     gpio.Pull = GPIO_NOPULL;
+#endif
     gpio.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     gpio.Alternate = BENCH_CAN_AF;
     HAL_GPIO_Init(BENCH_CAN_RX_PORT, &gpio);

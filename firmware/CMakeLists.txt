@@ -125,6 +125,14 @@ target_link_libraries(bench_app PUBLIC bench_hal)
 # seul le programme principal change (voir docs/bringup.md).
 set(ENTRY ${CMAKE_CURRENT_SOURCE_DIR}/entry)
 option(BENCH_SELFTEST "Compiler l'autotest de mise en route au lieu du firmware" OFF)
+
+# Bus direct : deux cartes reliées fil à fil, sans transceiver (essai sur table).
+option(BENCH_CAN_DIRECT "TX a drain ouvert pour un bus direct sans transceiver" OFF)
+if(BENCH_CAN_DIRECT)
+    target_compile_definitions(bench_app PUBLIC BENCH_CAN_DIRECT=1)
+    message(WARNING "Bus direct sans transceiver : toutes les cartes reliees doivent porter "
+                    "ce firmware, jamais un firmware normal (sortie push-pull).")
+endif()
 if(BENCH_SELFTEST)
     set(BENCH_MAIN ${ENTRY}/selftest.c)
     message(STATUS "Mode autotest : bouclage interne puis ping/pong")
