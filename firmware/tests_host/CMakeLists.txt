@@ -49,6 +49,7 @@ bench_add_test(test_arbitration)
 bench_add_test(test_heartbeat)
 bench_add_test(test_classic_can)
 bench_add_test(test_faults)
+bench_add_test(test_node)
 
 # --- garde-fou : aucun en-tête HAL dans firmware/common ---------------------
 #

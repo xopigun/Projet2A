@@ -109,10 +109,12 @@ int main(void) {
                 bench_can_frame_t tx = {0};
                 tx.id = s_node.tx_id;
                 tx.dlc = 8u;
+                /* Le rang n'est pas figé ici mais à la confirmation d'émission,
+                 * qui revient par le tampon (BENCH_FRAME_OWN_TX), dans l'ordre
+                 * du bus : à l'armement, GO n'est pas encore passé. */
                 if (s_can.ops->arm(s_can.ctx, &tx)) {
                     s_node.frames_sent++;
                     last_tx_ms = now_ms;
-                    bench_arb_on_own_tx(&s_node.arb);
                 }
             }
         }

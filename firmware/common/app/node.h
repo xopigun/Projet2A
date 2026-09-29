@@ -50,7 +50,14 @@ typedef struct {
 
     uint32_t frames_sent;
     uint32_t frames_received;
+    uint32_t arb_started_ms;  /**< réception du dernier ARM */
 } bench_node_t;
+
+/**
+ * Délai de garde d'un cycle d'arbitrage. Un cycle nominal dure moins d'une
+ * milliseconde (GO puis trois trames) ; au-delà, il est abandonné.
+ */
+#define BENCH_ARB_TIMEOUT_MS 100u
 
 /** @brief Initialise l'état applicatif du nœud. */
 void bench_node_init(bench_node_t *node, uint8_t node_id, bench_can_t *can,

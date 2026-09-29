@@ -23,6 +23,10 @@ typedef struct {
     volatile uint8_t      ext_id_rx;       /**< trames a identifiant 29 bits, saturant */
     bench_busoff_policy_t busoff_policy;
     bool                  silent;
+    /** Tampon(s) d'émission portant la trame contendante armée ; 0 si aucune.
+     *  Écrit par arm(), lu et remis à zéro par l'ISR de fin d'émission. */
+    volatile uint32_t     armed_buffers;
+    uint16_t              armed_id;
 } bench_port_can_t;
 
 /**

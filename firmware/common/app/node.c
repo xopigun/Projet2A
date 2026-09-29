@@ -75,6 +75,13 @@ void bench_node_apply_cfg(bench_node_t *node, const uint8_t *data, uint32_t now_
 }
 
 bool bench_node_on_frame(bench_node_t *node, const bench_can_frame_t *frame, uint32_t now_ms) {
+    /* Confirmation d'émission de notre trame contendante, déposée par le port
+     * dans l'ordre du bus : c'est elle, et non l'armement, qui fige le rang. */
+    if ((frame->flags & BENCH_FRAME_OWN_TX) != 0u) {
+        bench_arb_on_own_tx(&node->arb);
+        return false;
+    }
+
     node->frames_received++;
 
     if (frame->id == BENCH_ID_BENCH_CFG) {
@@ -94,6 +101,7 @@ bool bench_node_on_frame(bench_node_t *node, const bench_can_frame_t *frame, uin
      * périodique arrivant juste après GO serait comptée comme contendante. */
     if (frame->id == BENCH_ID_ARM) {
         bench_heartbeat_suspend(&node->heartbeat, true);
+        node->arb_started_ms = now_ms;
     }
 
     return bench_arb_on_frame(&node->arb, frame, is_contender_frame);
@@ -108,6 +116,13 @@ bool bench_node_tick(bench_node_t *node, uint32_t now_ms, const bench_can_status
         node->mode = BENCH_MODE_NORMAL;
         node->mode_deadline_ms = 0u;
         node->fault_param = 0u;
+    }
+
+    /* Un cycle qui n'aboutit pas est abandonné : sans ce délai de garde, un
+     * nœud parti avant GO resterait en comptage, heartbeat suspendu. */
+    if ((node->arb.phase == BENCH_ARB_ARMED || node->arb.phase == BENCH_ARB_COUNTING) &&
+        (now_ms - node->arb_started_ms) >= BENCH_ARB_TIMEOUT_MS) {
+        bench_arb_abandon(&node->arb);
     }
 
     /* Hors cycle d'arbitrage, le heartbeat reprend. */

@@ -511,6 +511,10 @@ la mise en forme du rapport.
 
 ### D1 — Le protocole ARM/GO ne tient pas sur le matériel en l'état (bloque T3)
 
+> **État au 29/09/2026 :** côté firmware **corrigé** (points b et 2 ci-dessous : confirmation
+> d'émission par interruption, dans le tampon de réception ; délai de garde de 100 ms).
+> Côté PC (points a, c, 1 et 3) : **en cours**.
+
 Relevé le 29/09/2026 en relisant le chemin ARM/GO de bout en bout. **Ne bloque pas la phase 2
 de la mise en route**, qui n'utilise pas ARM/GO, mais **T3 échouerait** tant qu'il n'est pas
 corrigé.

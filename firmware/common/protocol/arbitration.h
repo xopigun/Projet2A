@@ -116,9 +116,23 @@ bool bench_arb_on_frame(bench_arb_t *arb, const bench_can_frame_t *frame,
 /**
  * @brief Signale que notre propre trame contendante vient d'être émise.
  *
- * À appeler depuis la confirmation d'émission. Fige le rang du cycle courant.
+ * À appeler à la **confirmation d'émission** (élément BENCH_FRAME_OWN_TX du
+ * tampon), jamais à l'armement : à l'armement, GO n'est pas encore passé et
+ * l'appel serait ignoré. Fige le rang du cycle courant.
+ *
+ * Une confirmation reçue avant GO signifie que la trame est partie seule, sans
+ * affronter personne : elle est ignorée, et le cycle finira invalide.
  */
 void bench_arb_on_own_tx(bench_arb_t *arb);
+
+/**
+ * @brief Abandonne le cycle en cours, compté comme invalide.
+ *
+ * Appelée quand un cycle n'aboutit pas dans le délai de garde : sans elle, un
+ * nœud dont la trame est partie **avant** GO resterait bloqué en phase de
+ * comptage — et son heartbeat suspendu — jusqu'au prochain ARM.
+ */
+void bench_arb_abandon(bench_arb_t *arb);
 
 /** @brief Rang obtenu au dernier cycle achevé ; 0 si aucun cycle n'est terminé. */
 uint8_t bench_arb_last_rank(const bench_arb_t *arb);

@@ -173,14 +173,20 @@ static bool port_open(void *ctx, const bench_can_config_t *config) {
     /* Sur FDCAN la reprise après bus-off est logicielle : le matériel n'a pas
      * d'équivalent du bit ABOM de bxCAN. Le bit INIT est remis à zéro par
      * bench_port_can_poll() lorsque la politique est automatique. */
+    /* Fin d'émission activée sur les trois tampons : elle confirme le départ de
+     * la trame contendante (voir port_arm). Toutes ces sources restent sur la
+     * ligne d'interruption 0 : réception et fin d'émission sont traitées par la
+     * même ISR, donc déposées dans le tampon dans l'ordre du bus. */
     if (HAL_FDCAN_ActivateNotification(&port->hfdcan,
                                        FDCAN_IT_RX_FIFO0_NEW_MESSAGE |
                                            FDCAN_IT_RX_FIFO0_MESSAGE_LOST |
                                            FDCAN_IT_BUS_OFF | FDCAN_IT_ERROR_PASSIVE |
-                                           FDCAN_IT_ERROR_WARNING,
-                                       0u) != HAL_OK) {
+                                           FDCAN_IT_ERROR_WARNING | FDCAN_IT_TX_COMPLETE,
+                                       FDCAN_TX_BUFFER0 | FDCAN_TX_BUFFER1 |
+                                           FDCAN_TX_BUFFER2) != HAL_OK) {
         return false;
     }
+    port->armed_buffers = 0u;
 
     HAL_NVIC_SetPriority(FDCAN1_IT0_IRQn, 1u, 0u);
     HAL_NVIC_EnableIRQ(FDCAN1_IT0_IRQn);
@@ -229,9 +235,21 @@ static bool port_send(void *ctx, const bench_can_frame_t *frame) {
  *
  * C'est l'armement du protocole ARM/GO. La trame partira dès que le bus sera
  * libre ; comme GO l'occupe encore, tous les contendants démarrent au même bit.
+ *
+ * Le tampon choisi par le FDCAN est mémorisé : sa fin d'émission, et elle
+ * seule, produira l'élément BENCH_FRAME_OWN_TX. Une trame dure au moins
+ * 94 µs à 500 kbit/s (47 bits), bien plus que l'écart entre l'ajout et
+ * l'affectation ci-dessous.
  */
 static bool port_arm(void *ctx, const bench_can_frame_t *frame) {
-    return tx_common((bench_port_can_t *)ctx, frame);
+    bench_port_can_t *port = (bench_port_can_t *)ctx;
+
+    if (!tx_common(port, frame)) {
+        return false;
+    }
+    port->armed_id = frame->id;
+    port->armed_buffers |= HAL_FDCAN_GetLatestTxFifoQRequestBuffer(&port->hfdcan);
+    return true;
 }
 
 /* --------------------------------------------------------------------- état */
@@ -371,6 +389,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t interrupts)
         }
 
         frame.timestamp_us = now_us(NULL);
+        frame.flags = 0u;
         frame.id = (uint16_t)header.Identifier;
         /* FDCAN_DLC_BYTES_n == n. En CAN 2.0, un DLC de 9 à 15 signifie 8 octets :
          * le tampon et tout le code commun supposent dlc <= 8. */
@@ -381,6 +400,21 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t interrupts)
         }
         (void)bench_ring_push(s_port->rx_ring, &frame);
     }
+}
+
+void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t indexes) {
+    (void)hfdcan;
+    if (s_port == NULL || (indexes & s_port->armed_buffers) == 0u) {
+        return;  /* heartbeat ou trame de faute : sans effet sur l'arbitrage */
+    }
+    s_port->armed_buffers &= ~indexes;
+
+    bench_can_frame_t event = {0};
+    event.timestamp_us = now_us(NULL);
+    event.id = s_port->armed_id;
+    event.dlc = 8u;
+    event.flags = BENCH_FRAME_OWN_TX;
+    (void)bench_ring_push(s_port->rx_ring, &event);
 }
 
 void FDCAN1_IT0_IRQHandler(void) {

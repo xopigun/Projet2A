@@ -19,11 +19,23 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/**
+ * Drapeau d'un élément du tampon de réception : ce n'est pas une trame reçue,
+ * mais la **confirmation que notre trame contendante est partie** sur le bus.
+ *
+ * Le port la dépose depuis l'interruption de fin d'émission, dans le même
+ * tampon que les trames reçues. C'est la seule façon de conserver l'ordre réel
+ * du bus entre « ma trame est partie » et « j'ai reçu celle d'un autre », dont
+ * dépend le comptage du rang d'arbitrage (défaut D1 de docs/PLAN.md).
+ */
+#define BENCH_FRAME_OWN_TX 0x01u
+
 /** Une trame CAN 2.0A horodatée. */
 typedef struct {
     uint32_t timestamp_us;  /**< date de fin de réception ou d'émission */
     uint16_t id;            /**< identifiant 11 bits */
     uint8_t  dlc;           /**< 0 à 8 */
+    uint8_t  flags;         /**< 0 pour une trame reçue ; voir BENCH_FRAME_OWN_TX */
     uint8_t  data[8];
 } bench_can_frame_t;
 
@@ -100,7 +112,11 @@ typedef struct {
 typedef struct {
     bool (*open)(void *ctx, const bench_can_config_t *config);
     bool (*send)(void *ctx, const bench_can_frame_t *frame);
-    /** Place une trame en attente d'émission sans déclencher l'envoi immédiat. */
+    /**
+     * Place la trame contendante en attente d'émission. Contrairement à send(),
+     * le port signale sa fin d'émission par un élément BENCH_FRAME_OWN_TX dans
+     * le tampon de réception.
+     */
     bool (*arm)(void *ctx, const bench_can_frame_t *frame);
     void (*status)(void *ctx, bench_can_status_t *status);
     /** Force la sortie du bus-off lorsque la politique est BENCH_BUSOFF_MANUAL. */

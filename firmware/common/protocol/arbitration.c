@@ -26,6 +26,12 @@ static void abandon_cycle(bench_arb_t *arb) {
     arb->seen_contenders = 0u;
 }
 
+void bench_arb_abandon(bench_arb_t *arb) {
+    if (arb->phase == BENCH_ARB_ARMED || arb->phase == BENCH_ARB_COUNTING) {
+        abandon_cycle(arb);
+    }
+}
+
 bool bench_arb_on_frame(bench_arb_t *arb, const bench_can_frame_t *frame,
                         bool is_contender_frame) {
     if (frame->id == arb->arm_id) {

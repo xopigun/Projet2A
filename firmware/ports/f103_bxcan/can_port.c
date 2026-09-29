@@ -171,14 +171,20 @@ static bool port_open(void *ctx, const bench_can_config_t *config) {
     }
 
     if (HAL_CAN_ActivateNotification(&port->hcan, CAN_IT_RX_FIFO0_MSG_PENDING |
-                                                      CAN_IT_RX_FIFO0_OVERRUN) != HAL_OK) {
+                                                      CAN_IT_RX_FIFO0_OVERRUN |
+                                                      CAN_IT_TX_MAILBOX_EMPTY) != HAL_OK) {
         return false;
     }
+    port->armed_mailboxes = 0u;
 
-    /* Sur le F103, la réception FIFO 0 partage son vecteur avec l'USB basse
-     * priorité ; l'USB n'est pas utilisé (voir board.h). */
+    /* Sur le F103, la réception FIFO 0 et l'émission partagent leurs vecteurs
+     * avec l'USB, qui n'est pas utilisé (voir board.h). Les deux vecteurs ont la
+     * même priorité : aucun ne préempte l'autre, le tampon garde un seul
+     * producteur à la fois et l'ordre du bus est conservé. */
     HAL_NVIC_SetPriority(USB_LP_CAN1_RX0_IRQn, 1u, 0u);
     HAL_NVIC_EnableIRQ(USB_LP_CAN1_RX0_IRQn);
+    HAL_NVIC_SetPriority(USB_HP_CAN1_TX_IRQn, 1u, 0u);
+    HAL_NVIC_EnableIRQ(USB_HP_CAN1_TX_IRQn);
 
     if (HAL_CAN_Start(&port->hcan) != HAL_OK) {
         return false;
@@ -189,9 +195,10 @@ static bool port_open(void *ctx, const bench_can_config_t *config) {
 
 /* ------------------------------------------------------------------ émission */
 
-static bool tx_common(bench_port_can_t *port, const bench_can_frame_t *frame) {
+/** Émet une trame ; @p mailbox reçoit la boîte choisie par le contrôleur. */
+static bool tx_common(bench_port_can_t *port, const bench_can_frame_t *frame,
+                      uint32_t *mailbox) {
     CAN_TxHeaderTypeDef header = {0};
-    uint32_t mailbox;
 
     /* Verrouillage CAN 2.0A classic, côté émission, comme sur le G431. */
     if (frame->dlc > BENCH_CLASSIC_MAX_DLC || frame->id > BENCH_CLASSIC_MAX_ID) {
@@ -206,16 +213,29 @@ static bool tx_common(bench_port_can_t *port, const bench_can_frame_t *frame) {
     header.TransmitGlobalTime = DISABLE;
 
     /* Échec si les trois boîtes d'émission sont pleines : l'appelant réessaie. */
-    return HAL_CAN_AddTxMessage(&port->hcan, &header, frame->data, &mailbox) == HAL_OK;
+    return HAL_CAN_AddTxMessage(&port->hcan, &header, frame->data, mailbox) == HAL_OK;
 }
 
 static bool port_send(void *ctx, const bench_can_frame_t *frame) {
-    return tx_common((bench_port_can_t *)ctx, frame);
+    uint32_t mailbox;
+    return tx_common((bench_port_can_t *)ctx, frame, &mailbox);
 }
 
-/** Armement du protocole ARM/GO : la trame part dès que le bus est libre. */
+/**
+ * Armement du protocole ARM/GO : la trame part dès que le bus est libre. La
+ * boîte choisie est mémorisée ; sa fin d'émission, et elle seule, produira
+ * l'élément BENCH_FRAME_OWN_TX.
+ */
 static bool port_arm(void *ctx, const bench_can_frame_t *frame) {
-    return tx_common((bench_port_can_t *)ctx, frame);
+    bench_port_can_t *port = (bench_port_can_t *)ctx;
+    uint32_t mailbox;
+
+    if (!tx_common(port, frame, &mailbox)) {
+        return false;
+    }
+    port->armed_id = frame->id;
+    port->armed_mailboxes |= mailbox;
+    return true;
 }
 
 /* --------------------------------------------------------------------- état */
@@ -318,6 +338,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
         }
 
         frame.timestamp_us = now_us(NULL);
+        frame.flags = 0u;
         frame.id = (uint16_t)header.StdId;
         /* En CAN 2.0, un DLC de 9 à 15 signifie 8 octets. */
         frame.dlc = (header.DLC > BENCH_CLASSIC_MAX_DLC) ? (uint8_t)BENCH_CLASSIC_MAX_DLC
@@ -341,6 +362,42 @@ void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan) {
         }
     }
     (void)HAL_CAN_ResetError(hcan);
+}
+
+/** Fin d'émission réussie d'une boîte : confirme la trame contendante armée. */
+static void on_tx_complete(uint32_t mailbox) {
+    if (s_port == NULL || (s_port->armed_mailboxes & mailbox) == 0u) {
+        return;  /* heartbeat ou trame de faute : sans effet sur l'arbitrage */
+    }
+    s_port->armed_mailboxes &= ~mailbox;
+
+    bench_can_frame_t event = {0};
+    event.timestamp_us = now_us(NULL);
+    event.id = s_port->armed_id;
+    event.dlc = 8u;
+    event.flags = BENCH_FRAME_OWN_TX;
+    (void)bench_ring_push(s_port->rx_ring, &event);
+}
+
+void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan) {
+    (void)hcan;
+    on_tx_complete(CAN_TX_MAILBOX0);
+}
+
+void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan) {
+    (void)hcan;
+    on_tx_complete(CAN_TX_MAILBOX1);
+}
+
+void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan) {
+    (void)hcan;
+    on_tx_complete(CAN_TX_MAILBOX2);
+}
+
+void USB_HP_CAN1_TX_IRQHandler(void) {
+    if (s_port != NULL) {
+        HAL_CAN_IRQHandler(&s_port->hcan);
+    }
 }
 
 void USB_LP_CAN1_RX0_IRQHandler(void) {
