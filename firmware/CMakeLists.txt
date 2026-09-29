@@ -82,6 +82,7 @@ add_library(bench_app STATIC
     ${COMMON}/protocol/arbitration.c
     ${COMMON}/protocol/heartbeat.c
     ${COMMON}/app/node.c
+    ${COMMON}/app/faults.c
 )
 target_include_directories(bench_app PUBLIC ${COMMON} ${COMMON}/icd_gen ${BENCH_BOARD_DIR})
 

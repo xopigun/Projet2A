@@ -44,6 +44,8 @@ typedef struct {
 
     bench_mode_t mode;
     uint32_t     mode_deadline_ms;  /**< toute faute est bornée dans le temps */
+    /** Paramètre du mode (BENCH_CFG.param_u16) : identifiant de faute, 0 si aucun. */
+    uint16_t     fault_param;
     bool         clock_qualified;
 
     uint32_t frames_sent;

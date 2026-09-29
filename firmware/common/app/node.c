@@ -58,10 +58,19 @@ void bench_node_apply_cfg(bench_node_t *node, const uint8_t *data, uint32_t now_
     if (cfg.duration_ms == 0u) {
         node->mode = BENCH_MODE_NORMAL;
         node->mode_deadline_ms = 0u;
+        node->fault_param = 0u;
+        return;
+    }
+
+    /* Un mode inconnu est ignoré plutôt que stocké : le transtypage en
+     * bench_mode_t d'une valeur hors énumération laisserait le nœud dans un état
+     * que ni l'exécuteur de fautes ni le heartbeat ne savent décrire. */
+    if (cfg.mode > (uint8_t)BENCH_MODE_HOLD_BUSOFF) {
         return;
     }
 
     node->mode = (bench_mode_t)cfg.mode;
+    node->fault_param = cfg.param_u16;
     node->mode_deadline_ms = now_ms + cfg.duration_ms;
 }
 
@@ -98,6 +107,7 @@ bool bench_node_tick(bench_node_t *node, uint32_t now_ms, const bench_can_status
         (int32_t)(now_ms - node->mode_deadline_ms) >= 0) {
         node->mode = BENCH_MODE_NORMAL;
         node->mode_deadline_ms = 0u;
+        node->fault_param = 0u;
     }
 
     /* Hors cycle d'arbitrage, le heartbeat reprend. */

@@ -13,6 +13,8 @@ add_library(bench_common STATIC
     ${BENCH_COMMON_DIR}/util/ring_buffer.c
     ${BENCH_COMMON_DIR}/protocol/arbitration.c
     ${BENCH_COMMON_DIR}/protocol/heartbeat.c
+    ${BENCH_COMMON_DIR}/app/node.c
+    ${BENCH_COMMON_DIR}/app/faults.c
 )
 target_include_directories(bench_common PUBLIC
     ${BENCH_COMMON_DIR}
@@ -46,6 +48,7 @@ bench_add_test(test_ring_buffer)
 bench_add_test(test_arbitration)
 bench_add_test(test_heartbeat)
 bench_add_test(test_classic_can)
+bench_add_test(test_faults)
 
 # --- garde-fou : aucun en-tête HAL dans firmware/common ---------------------
 #
