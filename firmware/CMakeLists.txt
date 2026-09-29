@@ -17,6 +17,7 @@ if(BENCH_NODE_ID EQUAL 4)
     set(BENCH_CPU_FLAGS -mcpu=cortex-m3 -mthumb -mfloat-abi=soft)
     set(BENCH_STARTUP ${VENDOR}/cmsis_device_f1/Source/Templates/gcc/startup_stm32f103xb.s)
     set(BENCH_LINKER_SCRIPT ${BENCH_PORT_DIR}/STM32F103C8Tx_FLASH.ld)
+    set(BENCH_VECTORS SysTick_Handler USB_LP_CAN1_RX0_IRQHandler USB_HP_CAN1_TX_IRQHandler)
     if(BENCH_CLOCK_SOURCE STREQUAL "HSI")
         message(FATAL_ERROR
             "Pas de repli HSI pour N4 : le quartz de la Blue Pill est cable d'origine, "
@@ -30,6 +31,7 @@ else()
     set(BENCH_CPU_FLAGS -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard)
     set(BENCH_STARTUP ${VENDOR}/cmsis_device_g4/Source/Templates/gcc/startup_stm32g431xx.s)
     set(BENCH_LINKER_SCRIPT ${BENCH_PORT_DIR}/STM32G431KBTx_FLASH.ld)
+    set(BENCH_VECTORS SysTick_Handler FDCAN1_IT0_IRQHandler)
 endif()
 
 set(BENCH_ELF n${BENCH_NODE_ID})
@@ -133,6 +135,7 @@ endif()
 add_executable(${BENCH_ELF}
     ${BENCH_MAIN}
     ${ENTRY}/syscalls.c
+    ${ENTRY}/interrupts.c
     ${BENCH_PORT_DIR}/serial.c
     ${BENCH_PORT_DIR}/clock.c
     ${BENCH_PORT_DIR}/can_port.c
@@ -173,6 +176,17 @@ add_custom_command(TARGET ${BENCH_ELF} POST_BUILD
             $<TARGET_FILE_DIR:${BENCH_ELF}>/${BENCH_ELF}.bin
     COMMAND ${CMAKE_SIZE} --format=berkeley $<TARGET_FILE:${BENCH_ELF}>
     COMMENT "Tailles flash et RAM de ${BENCH_ELF}"
+)
+
+# Garde-fou : un vecteur activé sans gestionnaire retombe sur Default_Handler,
+# une boucle infinie, sans erreur ni avertissement. L'édition de liens échoue
+# désormais dans ce cas (scripts/check_vectors.py).
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+add_custom_command(TARGET ${BENCH_ELF} POST_BUILD
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/check_vectors.py
+            --nm ${CMAKE_NM} $<TARGET_FILE:${BENCH_ELF}> ${BENCH_VECTORS}
+    COMMENT "Verification des vecteurs d'interruption de ${BENCH_ELF}"
+    VERBATIM
 )
 
 bench_add_flash_target(${BENCH_ELF}

@@ -562,6 +562,21 @@ DLC mis à zéro. Même règle sur le F103, où la HAL ne copie jamais plus de 8
 
 ---
 
+### D4 — Aucun gestionnaire SysTick : nœud figé 1 ms après le démarrage → **corrigé**
+
+Relevé le 29/09/2026 par une revue extérieure. Le fichier de démarrage de ST déclare
+chaque vecteur comme alias faible de `Default_Handler`, une boucle infinie ; aucun
+`SysTick_Handler` n'était écrit. `HAL_Init()` active SysTick : à la première
+interruption, **tous les firmwares, autotest compris, se figeaient sans rien afficher**.
+Ni les tests natifs ni la compilation ne pouvaient le voir.
+
+Correctif : `firmware/entry/interrupts.c`. Garde-fou : `scripts/check_vectors.py`, lancé
+après chaque édition de liens, fait échouer la compilation si un vecteur utilisé
+(SysTick, interruptions CAN) a l'adresse de `Default_Handler`. Vérifié en retirant le
+gestionnaire : la compilation échoue avec un message explicite.
+
+---
+
 ## 9. Questions ouvertes
 
 | # | Question | État |
