@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import threading
 import time
 import webbrowser
@@ -628,6 +629,19 @@ def make_handler(target: BenchService | Application):
     return Handler
 
 
+class LocalServer(ThreadingHTTPServer):
+    """Serveur HTTP qui refuse un port déjà occupé.
+
+    ``http.server`` active ``SO_REUSEADDR`` ; sous Windows, cette option permet à
+    un second programme d'écouter sur un port **déjà pris**, et les requêtes vont
+    alors à l'un ou l'autre au hasard. Deux instances du logiciel ouvertes en même
+    temps se répondraient l'une à la place de l'autre.
+    """
+
+    allow_reuse_address = sys.platform != "win32"
+    daemon_threads = True
+
+
 def start_server(
     interface: str = "virtual",
     channel: str | None = None,
@@ -639,10 +653,10 @@ def start_server(
     """Crée le service et le serveur HTTP ; le port 0 en choisit un libre."""
     app = Application(BenchService(interface, channel, bitrate, profile, simulate))
     try:
-        server = ThreadingHTTPServer(("127.0.0.1", port), make_handler(app))
+        server = LocalServer(("127.0.0.1", port), make_handler(app))
     except OSError:
         # Port déjà pris (une autre instance ouverte) : on en prend un libre.
-        server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(app))
+        server = LocalServer(("127.0.0.1", 0), make_handler(app))
     return server, app
 
 

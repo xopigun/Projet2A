@@ -28,7 +28,8 @@ dev = [
 ]
 # Interfaces materielles : installees a la demande.
 # gs_usb est le firmware candleLight du CANable 2.0 ; slcan n'a besoin que de pyserial.
-gs-usb = ["gs-usb>=0.3", "pyusb>=1.2"]
+# libusb-package fournit libusb-1.0.dll, absente de Windows.
+gs-usb = ["gs-usb>=0.3", "pyusb>=1.2", "libusb-package>=1.0"]
 slcan = ["pyserial>=3.5"]
 
 [project.scripts]

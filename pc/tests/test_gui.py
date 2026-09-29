@@ -11,7 +11,7 @@ from http.server import ThreadingHTTPServer
 
 import pytest
 
-from canbench.gui.server import Application, BenchService, make_handler
+from canbench.gui.server import Application, BenchService, LocalServer, make_handler
 
 
 @pytest.fixture
@@ -100,3 +100,14 @@ def test_changement_de_connexion_et_repli_en_simulation(service: BenchService) -
         assert app.connect_error is None
     finally:
         app.close()
+
+
+def test_un_port_occupe_n_est_jamais_partage(service: BenchService) -> None:
+    """Deux instances ne doivent pas écouter le même port (piège de Windows)."""
+    first = LocalServer(("127.0.0.1", 0), make_handler(service))
+    port = first.server_address[1]
+    try:
+        with pytest.raises(OSError):
+            LocalServer(("127.0.0.1", port), make_handler(service))
+    finally:
+        first.server_close()

@@ -132,9 +132,10 @@ Le fichier produit est `dist/BancCAN.exe`. Pour que le logiciel pilote un CANabl
 installer le pilote python-can correspondant **avant** de le construire
 (`python -m pip install -e "pc[slcan]"` ou `"pc[gs-usb]"`) : il est alors embarqué.
 Le firmware candleLight (`gs_usb`) demande en outre la bibliothèque système **libusb**,
-absente par défaut sous Windows : le paquet `libusb-package` la fournit. Tant qu'elle
-manque, la fenêtre « Connexion » l'indique au lieu de proposer une connexion vouée à
-l'échec. Le firmware `slcan` n'en a pas besoin.
+absente par défaut sous Windows : installer `libusb-package` avant la construction, qui
+embarque alors `libusb-1.0.dll`. Tant qu'elle manque, la fenêtre « Connexion »
+l'indique au lieu de proposer une connexion vouée à l'échec. Le firmware `slcan` n'en a
+pas besoin.
 
 Sans construire l'exécutable, **double-cliquer sur `lancer_banc.bat`** donne la même
 interface dans le navigateur. Le navigateur s'ouvre sur

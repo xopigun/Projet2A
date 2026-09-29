@@ -134,6 +134,10 @@ def main(argv: list[str] | None = None) -> int:
         # l'analyse statique de PyInstaller ne les voit pas.
         "--collect-submodules",
         "can.interfaces",
+        # libusb-1.0.dll, fournie par libusb-package pour le firmware candleLight :
+        # c'est une donnée du paquet, que l'analyse des imports ne voit pas.
+        "--collect-all",
+        "libusb_package",
         "--distpath",
         str(dist),
         "--workpath",
