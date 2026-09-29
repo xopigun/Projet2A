@@ -84,6 +84,20 @@ add_library(bench_app STATIC
     ${COMMON}/app/node.c
 )
 target_include_directories(bench_app PUBLIC ${COMMON} ${COMMON}/icd_gen ${BENCH_BOARD_DIR})
+
+# Source d'horloge du noeud. HSE par defaut : c'est la seule reference valable
+# pour le CAN. HSI n'est qu'un repli pour travailler avant la soudure de SB9/SB10 ;
+# il declenche un avertissement a la compilation et le noeud le signale ensuite
+# dans son heartbeat (clock_not_qualified).
+set(BENCH_CLOCK_SOURCE "HSE" CACHE STRING "Source d'horloge : HSE (defaut) ou HSI (repli non valide)")
+set_property(CACHE BENCH_CLOCK_SOURCE PROPERTY STRINGS HSE HSI)
+if(BENCH_CLOCK_SOURCE STREQUAL "HSI")
+    target_compile_definitions(bench_app PUBLIC BENCH_CLOCK_SOURCE=2)
+    message(WARNING "Horloge HSI : reference NON CONFORME pour le CAN. Le debit ne "
+                    "pourra pas etre valide. Souder SB9 et SB10 puis repasser en HSE.")
+elseif(NOT BENCH_CLOCK_SOURCE STREQUAL "HSE")
+    message(FATAL_ERROR "BENCH_CLOCK_SOURCE doit valoir HSE ou HSI, pas « ${BENCH_CLOCK_SOURCE} ».")
+endif()
 target_link_libraries(bench_app PUBLIC bench_hal)
 
 # ---------------------------------------------------------------------------

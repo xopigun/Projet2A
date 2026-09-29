@@ -92,6 +92,36 @@
       "cacheVariables": {
         "BENCH_SELFTEST": "ON"
       }
+    },
+    {
+      "name": "n1-selftest-hsi",
+      "inherits": "n1-selftest",
+      "displayName": "N1 - autotest sur HSI (avant soudure de SB9/SB10)",
+      "description": "Repli sans quartz : valide cablage et logique, JAMAIS le debit.",
+      "binaryDir": "${sourceDir}/build/n1-selftest-hsi",
+      "cacheVariables": {
+        "BENCH_CLOCK_SOURCE": "HSI"
+      }
+    },
+    {
+      "name": "n2-selftest-hsi",
+      "inherits": "n2-selftest",
+      "displayName": "N2 - autotest sur HSI (avant soudure de SB9/SB10)",
+      "description": "Repli sans quartz : valide cablage et logique, JAMAIS le debit.",
+      "binaryDir": "${sourceDir}/build/n2-selftest-hsi",
+      "cacheVariables": {
+        "BENCH_CLOCK_SOURCE": "HSI"
+      }
+    },
+    {
+      "name": "n3-selftest-hsi",
+      "inherits": "n3-selftest",
+      "displayName": "N3 - autotest sur HSI (avant soudure de SB9/SB10)",
+      "description": "Repli sans quartz : valide cablage et logique, JAMAIS le debit.",
+      "binaryDir": "${sourceDir}/build/n3-selftest-hsi",
+      "cacheVariables": {
+        "BENCH_CLOCK_SOURCE": "HSI"
+      }
     }
   ],
   "buildPresets": [
@@ -126,6 +156,18 @@
     {
       "name": "n3-selftest",
       "configurePreset": "n3-selftest"
+    },
+    {
+      "name": "n1-selftest-hsi",
+      "configurePreset": "n1-selftest-hsi"
+    },
+    {
+      "name": "n2-selftest-hsi",
+      "configurePreset": "n2-selftest-hsi"
+    },
+    {
+      "name": "n3-selftest-hsi",
+      "configurePreset": "n3-selftest-hsi"
     }
   ],
   "testPresets": [

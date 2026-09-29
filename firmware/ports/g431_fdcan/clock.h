@@ -26,7 +26,18 @@ const char *bench_clock_source_name(void);
 /** @brief Horloge noyau du FDCAN effectivement obtenue, en Hz. */
 uint32_t bench_clock_fdcan_hz(void);
 
-/** @brief Appelee si la configuration d'horloge echoue ; ne revient jamais. */
+/**
+ * @brief Arret fatal, visible : message sur le VCP et LED LD2 qui clignote vite.
+ *
+ * Ne revient jamais. Le noeud cesse toute emission : un noeud mal configure ne
+ * doit pas perturber le bus avec un temps de bit faux.
+ *
+ * Le message est emis meme si l'horloge n'a pas pu etre configuree : dans ce cas
+ * le MCU tourne encore sur le HSI de reset, et le port serie s'ouvre dessus.
+ */
+void bench_fatal(const char *reason);
+
+/** @brief Echec de demarrage du quartz ou du PLL ; appelle bench_fatal(). */
 void bench_clock_failure(void);
 
 #endif /* BENCH_CLOCK_H */

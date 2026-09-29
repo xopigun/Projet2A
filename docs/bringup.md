@@ -69,11 +69,17 @@ SB9 et SB10 sont sur la face inférieure, près du quartz X2. Les ponter à l'é
 **Contrôle :** continuité entre chaque pastille du pont. À défaut, l'étape 3 affichera
 `HSE 24MHz` ou `HSI - NON VALIDE`, ce qui tranche sans ambiguïté.
 
-> **Si les encadrants n'ont pas encore validé cette soudure**, il est possible de continuer
-> en compilant avec `-DBENCH_CLOCK_SOURCE=2`. Le firmware émet alors un avertissement à la
-> compilation, affiche `HSI - NON VALIDE` et lève le bit `clock_not_qualified` dans son
-> heartbeat, ce qui empêche `canbench` de prononcer un verdict de réussite. **Les étapes 3
-> et 4 restent exécutables** et gardent tout leur intérêt de mise au point.
+> **Si les encadrants n'ont pas encore validé cette soudure**, utiliser les presets
+> `n1-selftest-hsi`, `n2-selftest-hsi` et `n3-selftest-hsi` à l'étape 2. Le firmware émet
+> alors un avertissement à la compilation, affiche `HSI - NON VALIDE` et lève le bit
+> `clock_not_qualified` dans son heartbeat, ce qui empêche `canbench` de prononcer un
+> verdict de réussite. **Les phases 1 et 2 restent entièrement exécutables** : elles
+> valident la carte, le câblage et la logique. Seul le débit (étape 6 bis) ne peut pas être
+> établi dans cet état.
+>
+> **Ne pas flasher un preset sans `-hsi` sur une carte non soudée** : le quartz ne
+> démarrerait pas. Le firmware le détecte, l'annonce sur le port série
+> (`*** ARRET FATAL : le quartz HSE ne demarre pas`) et fait clignoter rapidement LD2.
 
 ---
 
@@ -81,26 +87,33 @@ SB9 et SB10 sont sur la face inférieure, près du quartz X2. Les ponter à l'é
 
 Rien n'est encore câblé : ni transceiver, ni bus. Seule la carte et son câble USB.
 
+Choisir le preset selon l'état de la carte :
+
+| SB9 et SB10 | Preset à utiliser |
+|---|---|
+| **soudés** | `n1-selftest`, `n2-selftest`, `n3-selftest` |
+| **non soudés** | `n1-selftest-hsi`, `n2-selftest-hsi`, `n3-selftest-hsi` |
+
 ```bash
-git clone --recursive <url> banc-can
-cd banc-can
-cmake --preset n1-selftest
-cmake --build --preset n1-selftest
+cmake --preset n1-selftest-hsi
+cmake --build --preset n1-selftest-hsi
 ```
 
-Le résumé de taille doit s'afficher en fin de compilation (environ 36 Ko de flash, 28 %).
+Le résumé de taille doit s'afficher en fin de compilation (environ 37 Ko de flash, 28 %).
+En HSI, un avertissement « référence d'horloge NON CONFORME » est attendu : il est voulu.
 
-Programmer la carte :
+Programmer la carte, **une seule carte branchée en USB à la fois** :
 
 ```bash
-cmake --build --preset n1-selftest --target flash_n1
+cmake --build --preset n1-selftest-hsi --target flash_n1
 ```
 
 `STM32_Programmer_CLI` et `openocd` sont cherchés dans le `PATH` puis dans les emplacements
 d'installation usuels. Si aucun n'est trouvé, la cible l'indique et donne la variable à
 renseigner.
 
-Répéter avec `n2-selftest` et `n3-selftest` pour les deux autres cartes.
+Répéter pour N2 et N3 avec leurs presets. **Marquer chaque carte** (N1, N2, N3) au feutre ou
+à l'étiquette : les trois se ressemblent, et le rôle n'est inscrit que dans le firmware.
 
 ---
 
@@ -149,7 +162,8 @@ sans broncher. Le débit relève de l'étape 6 bis.
 | Rien ne s'affiche | Terminal mal réglé, ou mauvais port COM | 115200 8N1 ; vérifier le port dans le gestionnaire de périphériques |
 | Rien ne s'affiche, port COM absent | Pilote ST-LINK, ou carte non alimentée | LED LD4 (5V_PWR) doit être allumée |
 | `Horloge : HSI - NON VALIDE` | SB9/SB10 non soudés, ou compilé avec `-DBENCH_CLOCK_SOURCE=2` | Étape 1.2, puis recompiler sans l'option |
-| La carte reste muette après la bannière | Échec de `bench_clock_config()` : le quartz ne démarre pas | Reprendre la soudure de SB9/SB10 ; vérifier qu'il n'y a pas de court-circuit |
+| `*** ARRET FATAL : le quartz HSE ne demarre pas`, LD2 clignote vite | Preset HSE flashé sur une carte dont SB9/SB10 ne sont pas soudés, ou soudure défectueuse | Reflasher avec le preset `-hsi`, ou reprendre la soudure |
+| Rien du tout sur le port série, LD2 éteinte | Firmware non flashé, ou mauvais port COM | Relancer la cible `flash_…` ; vérifier le port dans le gestionnaire de périphériques |
 | `ECHEC : aucune trame recue en 50 ms` | Interruption non déclenchée, ou temps de bit refusé | Le contrôleur n'est pas en cause ici, le bouclage est interne : vérifier que la carte est bien un G431KB |
 | `ECHEC : octet N recu 0xXX` | Régression dans le code généré | `python -m tools.codegen --check`, puis `ctest --preset host` |
 

@@ -24,6 +24,15 @@
 #include "clock.h"
 #include "icd_gen.h"  /* BENCH_CLASSIC_MAX_DLC / _MAX_ID */
 
+/* Le codage du DLC dans l'API HAL a change entre versions : les anciennes HAL
+ * attendaient n << 16, les versions epinglees ici attendent n. Si le sous-module
+ * etait un jour retrograde, la compilation doit echouer plutot que d'emettre
+ * silencieusement des trames de DLC nul. */
+_Static_assert(FDCAN_DLC_BYTES_8 == 8u,
+               "Codage du DLC FDCAN inattendu : verifier la version de la HAL G4");
+_Static_assert(FDCAN_DLC_BYTES_0 == 0u,
+               "Codage du DLC FDCAN inattendu : verifier la version de la HAL G4");
+
 /** Contexte unique du port ; le G431KB n'a qu'un seul FDCAN. */
 static bench_g431_can_t *s_port;
 
@@ -182,11 +191,15 @@ static bool tx_common(bench_g431_can_t *port, const bench_can_frame_t *frame) {
     header.Identifier = frame->id;
     header.IdType = FDCAN_STANDARD_ID;
     header.TxFrameType = FDCAN_DATA_FRAME;
-    header.DataLength = (uint32_t)frame->dlc << 16;  /* FDCAN_DLC_BYTES_n */
+    /* Depuis la HAL G4 v1.2.x, FDCAN_DLC_BYTES_n vaut n pour n <= 8 : le DLC se
+     * passe tel quel. Les anciennes versions attendaient n << 16 ; un tel decalage
+     * ici ferait indexer par la HAL un tableau de 16 cases avec 0x80000. Voir
+     * l'assertion statique en tete de fichier. */
+    header.DataLength = (uint32_t)frame->dlc;
     header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
     header.BitRateSwitch = FDCAN_BRS_OFF;
     header.FDFormat = FDCAN_CLASSIC_CAN;
-    header.TxEventFifoControl = FDCAN_STORE_TX_EVENTS;
+    header.TxEventFifoControl = FDCAN_NO_TX_EVENTS;  /* FIFO d'evenements jamais lue */
     header.MessageMarker = 0u;
 
     return HAL_FDCAN_AddMessageToTxFifoQ(&port->hfdcan, &header, frame->data) == HAL_OK;
@@ -339,7 +352,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t interrupts)
 
         frame.timestamp_us = now_us(NULL);
         frame.id = (uint16_t)header.Identifier;
-        frame.dlc = (uint8_t)(header.DataLength >> 16);
+        frame.dlc = (uint8_t)header.DataLength;  /* FDCAN_DLC_BYTES_n == n */
         (void)bench_ring_push(s_port->rx_ring, &frame);
     }
 }

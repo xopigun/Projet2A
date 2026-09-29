@@ -73,7 +73,7 @@ int main(void) {
     config.auto_retransmit = true;  /* indispensable à l'arbitrage */
 
     if (!s_can.ops->open(s_can.ctx, &config)) {
-        bench_clock_failure();
+        bench_fatal("ouverture du FDCAN impossible.");
     }
 
     bench_node_init(&s_node, BENCH_NODE_ID, &s_can, &s_rx_ring, bench_clock_is_qualified());
@@ -120,15 +120,6 @@ int main(void) {
     }
 }
 
-/** Arrêt franc : les trois LEDs allumées, plus aucune émission. */
-void bench_clock_failure(void) {
-    __disable_irq();
-    for (;;) {
-        /* Volontairement bloquant : un nœud mal configuré ne doit pas perturber
-         * le bus en émettant avec un temps de bit faux. */
-    }
-}
-
 void HAL_MspInit(void) {
     __HAL_RCC_PWR_CLK_ENABLE();
     __HAL_RCC_SYSCFG_CLK_ENABLE();
@@ -138,6 +129,6 @@ void HAL_MspInit(void) {
 void assert_failed(uint8_t *file, uint32_t line) {
     (void)file;
     (void)line;
-    bench_clock_failure();
+    bench_fatal("assertion HAL en echec.");
 }
 #endif

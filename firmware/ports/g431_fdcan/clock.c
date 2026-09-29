@@ -18,7 +18,10 @@
 
 #include "clock.h"
 
+#include <stdio.h>
+
 #include "board.h"
+#include "serial.h"
 
 /**
  * @brief Configure PLL, SYSCLK et l'horloge noyau du FDCAN.
@@ -99,4 +102,43 @@ const char *bench_clock_source_name(void) {
 
 uint32_t bench_clock_fdcan_hz(void) {
     return HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN);
+}
+
+/* ------------------------------------------------------------------ arrets -- */
+
+/** Attente active, independante de SysTick et des interruptions. */
+static void busy_wait(uint32_t loops) {
+    for (volatile uint32_t i = 0u; i < loops; i++) {
+    }
+}
+
+void bench_fatal(const char *reason) {
+    GPIO_InitTypeDef gpio = {0};
+
+    /* Le port serie est rouvert ici : si l'horloge n'a pas pu etre configuree,
+     * le MCU tourne encore sur le HSI de reset et le VCP fonctionne dessus. */
+    (void)bench_serial_open();
+    printf("\r\n\r\n*** ARRET FATAL : %s\r\n", reason);
+    printf("*** Le noeud n'emet plus rien. LD2 clignote rapidement.\r\n");
+
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    gpio.Pin = BENCH_LED_TX_PIN;
+    gpio.Mode = GPIO_MODE_OUTPUT_PP;
+    gpio.Pull = GPIO_NOPULL;
+    gpio.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(BENCH_LED_TX_PORT, &gpio);
+
+    for (;;) {
+        HAL_GPIO_TogglePin(BENCH_LED_TX_PORT, BENCH_LED_TX_PIN);
+        busy_wait(400000u);  /* quelques Hz, que l'horloge soit a 16 ou 160 MHz */
+    }
+}
+
+void bench_clock_failure(void) {
+#if BENCH_CLOCK_SOURCE == BENCH_CLOCK_HSE
+    bench_fatal("le quartz HSE ne demarre pas. SB9 et SB10 sont-ils soudes ? "
+                "Sinon, utiliser un preset *-hsi (repli non valide pour le debit).");
+#else
+    bench_fatal("echec de configuration du PLL sur HSI.");
+#endif
 }

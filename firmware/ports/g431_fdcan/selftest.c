@@ -325,16 +325,10 @@ void HAL_MspInit(void) {
     __HAL_RCC_SYSCFG_CLK_ENABLE();
 }
 
-void bench_clock_failure(void) {
-    __disable_irq();
-    for (;;) {
-    }
-}
-
 #ifdef USE_FULL_ASSERT
 void assert_failed(uint8_t *file, uint32_t line) {
     (void)file;
     (void)line;
-    bench_clock_failure();
+    bench_fatal("assertion HAL en echec.");
 }
 #endif
