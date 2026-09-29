@@ -26,13 +26,14 @@ import os
 import sys
 import threading
 import time
+import urllib.parse
 import webbrowser
 from collections import deque
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from .. import arbitration, decode, encoding, faults, icd_gen, report
+from .. import arbitration, decode, encoding, faults, icd_gen, physical, report
 from ..bus import Bench
 from ..simulator import NodeSimulator
 
@@ -578,8 +579,16 @@ def make_handler(target: BenchService | Application):
                     {
                         "modes": {str(k): v for k, v in faults.MODE_NAMES.items()},
                         "contenders": icd_gen.CONTENDERS,
+                        "frames": [meta["name"] for _, meta in sorted(icd_gen.FRAMES.items())],
                     }
                 )
+            elif self.path.startswith("/api/physical"):
+                query = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+                name = (query.get("name") or ["ENERGY_COMMAND"])[0]
+                try:
+                    self._json(physical.describe(name, service.profile))
+                except KeyError:
+                    self._json({"error": f"trame inconnue : {name}"}, HTTPStatus.NOT_FOUND)
             elif self.path == "/api/interfaces":
                 self._json(
                     {

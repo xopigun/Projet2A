@@ -12,6 +12,7 @@
   --bad: #c53030; --bad-soft: #fde8e8; --orange: #d0641a;
   --bus-h: #d64545; --bus-l: #2f6fdb; --shadow: 0 1px 2px rgba(20,30,50,.06), 0 4px 16px rgba(20,30,50,.05);
   color-scheme: light dark;
+  --diff: #7a4fd0;
   --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) {
@@ -21,6 +22,7 @@
     --ok: #4cc584; --ok-soft: #14301f; --warn: #e5b04b; --warn-soft: #33290f;
     --bad: #f07070; --bad-soft: #3a1717; --orange: #f08a3c;
     --shadow: none;
+    --diff: #b69cf2;
   }
 }
 * { box-sizing: border-box; }
@@ -138,6 +140,19 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; 
   justify-content: center; font-size: 11px; font-weight: 800; background: var(--accent-soft);
   color: var(--accent); cursor: help; margin-left: 4px; }
 .err { color: var(--bad); font-size: 13px; margin-top: 8px; }
+.phy-controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin: 12px 0; font-size: 14px; }
+.phy-controls input[type=range] { width: 140px; vertical-align: middle; }
+button.mini { padding: 3px 8px; font-size: 12px; margin-left: 4px; }
+.phy-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 6px 18px;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; font-size: 13px; }
+.phy-stats div { display: flex; justify-content: space-between; gap: 10px; }
+.phy-stats span { color: var(--muted); }
+.phy-h { font-size: 15px; margin: 22px 0 2px; }
+.chrono { width: 100%; display: block; border: 1px solid var(--line); border-radius: 8px; margin-top: 6px; }
+.phy-explain { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; font-size: 14px; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; }
+.phy-explain table { margin: 8px 0; }
+@media (max-width: 900px) { .phy-explain { grid-template-columns: 1fr; } }
 footer { text-align: center; color: var(--muted); font-size: 12px; padding-bottom: 20px; }
 </style>
 </head>
@@ -223,6 +238,69 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding-botto
         </table>
       </div>
     </div>
+  </section>
+
+  <section class="panel" id="physique">
+    <div class="row" style="justify-content:space-between">
+      <h2 style="margin:0">Couche physique : chronogrammes d'une trame</h2>
+      <span class="note">Niveaux et délais : datasheet TJA1051. Câble et bruit : modèle simplifié.</span>
+    </div>
+    <div class="phy-controls">
+      <label>Trame <select id="ph-frame"></select></label>
+      <label>Affichage
+        <select id="ph-win">
+          <option value="debut">Début de trame (SOF → DLC)</option>
+          <option value="complete">Trame entière</option>
+          <option value="front">Zoom sur le premier front (ns)</option>
+        </select></label>
+      <label>Longueur du bus <input type="range" id="ph-len" min="1" max="40" value="10"> <b id="ph-len-v">10 m</b>
+        <button class="ghost mini" data-len="1">1 m</button><button class="ghost mini" data-len="10">10 m</button></label>
+      <label>Câble <select id="ph-cable"><option value="torsadee">paire torsadée</option><option value="parallele">deux fils non torsadés</option></select></label>
+      <label>Bruit ambiant <select id="ph-noise"><option value="0">aucun</option><option value="1" selected>faible</option><option value="2">moyen (moteur proche)</option><option value="3">fort</option></select></label>
+      <label>Terminaisons <select id="ph-term"><option value="deux">2 × 120 Ω (normal)</option><option value="une">une seule</option><option value="aucune">aucune</option></select></label>
+      <button class="ghost" id="ph-redraw">Nouveau tirage du bruit</button>
+    </div>
+    <div class="phy-stats" id="ph-stats"></div>
+
+    <h3 class="phy-h">1 · Début du bus, côté émetteur</h3>
+    <p class="note">Tensions de CAN_H et CAN_L juste à la sortie du transceiver qui émet, et leur différence.</p>
+    <canvas class="chrono" id="ch-near" height="200"></canvas>
+
+    <h3 class="phy-h">2 · Entrée et sortie du transceiver émetteur</h3>
+    <p class="note">Entrée : TXD, signal logique 0 / 3,3 V venant du microcontrôleur. Sortie : la tension différentielle
+      CAN_H − CAN_L qu'il impose au bus. En zoom, on voit ses délais : 65 ns vers dominant, 90 ns vers récessif.</p>
+    <canvas class="chrono" id="ch-trx" height="200"></canvas>
+
+    <h3 class="phy-h">3 · Ce que fait le transceiver</h3>
+    <div class="phy-explain">
+      <div>
+        <b>À l'émission</b>, il traduit un bit logique en tension sur deux fils :
+        <table>
+          <tr><th>TXD</th><th>Bit</th><th>CAN_H</th><th>CAN_L</th><th>CAN_H − CAN_L</th></tr>
+          <tr><td>0 V</td><td>0 dominant</td><td>≈ 3,5 V</td><td>≈ 1,5 V</td><td>≈ 2 V</td></tr>
+          <tr><td>3,3 V</td><td>1 récessif</td><td>≈ 2,5 V</td><td>≈ 2,5 V</td><td>≈ 0 V</td></tr>
+        </table>
+        En dominant il <b>force</b> les lignes ; en récessif il les <b>relâche</b>, et ce sont les résistances de
+        terminaison qui ramènent l'écart à zéro. C'est pour ça qu'un dominant l'emporte toujours : c'est la base
+        de l'arbitrage.
+      </div>
+      <div>
+        <b>À la réception</b>, il mesure CAN_H − CAN_L et le compare à un seuil, entre 0,5 et 0,9 V, avec
+        120 mV d'hystérésis. Au-dessus : RXD = 0 (dominant). En dessous : RXD = 1.<br><br>
+        Tout l'intérêt est là : un parasite qui touche <b>les deux fils de la même façon</b> (mode commun) les
+        décale ensemble, et <b>disparaît dans la différence</b>. Le transceiver ne comprend pas les trames : il
+        ne fait que convertir. Découper les bits, vérifier le CRC et arbitrer, c'est le travail du contrôleur
+        CAN du microcontrôleur.
+      </div>
+    </div>
+
+    <h3 class="phy-h">4 · Fin du bus, côté récepteur</h3>
+    <p class="note">Le même signal, arrivé au bout du câble : retardé par la propagation (environ 5 ns par mètre),
+      arrondi, et chargé du bruit capté en chemin. Zone grise : seuil de décision du récepteur (0,5 à 0,9 V).</p>
+    <canvas class="chrono" id="ch-far" height="220"></canvas>
+    <p class="note">RXD reconstruit par le transceiver récepteur. Chaque bit est lu à 87,5 % de sa durée :
+      point vert s'il est bien lu, croix rouge sinon. En pointillé, TXD de l'émetteur pour comparer.</p>
+    <canvas class="chrono" id="ch-rxd" height="170"></canvas>
   </section>
 
   <section class="grid g-work">
@@ -569,6 +647,236 @@ fetch("/api/icd").then((r) => r.json()).then((icd) => {
   $("f-mode").innerHTML = Object.entries(icd.modes).filter(([k]) => k !== "0")
     .map(([k, v]) => `<option value="${k}">${esc(v)}${["2", "5"].includes(k) ? " (sans effet en simulation)" : ""}</option>`).join("");
 });
+// ---- chronogrammes de la couche physique --------------------------------
+// Niveaux et délais : datasheet du TJA1051 (fournis par /api/physical).
+// Câble : modèle RC du premier ordre, propagation 5 ns/m, réflexions et bruit
+// simplifiés. Illustratif : seul l'oscilloscope fait foi (tests T1 et T2).
+const PHY = {frame: null, seed: 1};
+
+function xorshift(seed) {
+  let s = (seed >>> 0) || 1;
+  return () => { s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return (s >>> 0) / 4294967296; };
+}
+function gaussian(r) { const u = Math.max(1e-9, r()), v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+
+function phyParams() {
+  const f = PHY.frame, T = f.tja1051;
+  const L = +$("ph-len").value, noise = +$("ph-noise").value, term = $("ph-term").value;
+  const cBus = 50e-12 * L + 4 * 30e-12;                      // câble ~50 pF/m + 4 nœuds
+  const rLoad = term === "deux" ? 60 : term === "une" ? 120 : 30000 / 4;  // sans terminaison : Ri(dif) des nœuds
+  return {
+    T, L, Tb: 1e9 / f.bitrate, tp: 5 * L,
+    tauDom: 8 + 20 * cBus * 1e9,                              // le transceiver force le dominant
+    tauRec: Math.max(8, rLoad * cBus * 1e9),                  // le récessif revient par la charge
+    refl: term === "deux" ? 0.03 : term === "une" ? 0.25 : 0.5,
+    acm: [0, 0.3, 1.5, 4][noise] * L / 10,                    // bruit de mode commun capté
+    resid: $("ph-cable").value === "torsadee" ? 0.02 : 0.25,  // part qui devient différentielle
+    sigma: noise ? 0.004 + 0.01 * noise : 0.002,
+  };
+}
+
+/** Simule la trame entre t0 et t1 (ns) au pas dt ; renvoie toutes les traces. */
+function phySimulate(t0, t1, dt) {
+  const P = phyParams(), bits = PHY.frame.bits, n = bits.length, Tb = P.Tb, T = P.T;
+  const busAt = (t) => { if (t < 0) return 1; const i = Math.floor(t / Tb); return i < n ? bits[i].value : 1; };
+  const txAt = (t) => { if (t < 0) return 1; const i = Math.floor(t / Tb); return i < n ? (bits[i].tx_value ?? bits[i].value) : 1; };
+  const dominantNear = (t) => busAt(t - T.td_txd_dom_ns) === 0 || busAt(t - T.td_txd_rec_ns) === 0;
+  const N = Math.max(2, Math.floor((t1 - t0) / dt) + 1);
+  const r = xorshift(PHY.seed * 7919 + Math.round(P.L * 13));
+  const out = {t: new Float64Array(N), txd: new Float64Array(N), hNear: new Float64Array(N), lNear: new Float64Array(N),
+    dNear: new Float64Array(N), hFar: new Float64Array(N), lFar: new Float64Array(N), dFar: new Float64Array(N),
+    rxd: new Float64Array(N), P};
+  // Le proche est simulé depuis bien avant t0 pour que le filtre soit établi.
+  let v = 0, lastEdge = -1e9, lastStep = 0, prevDom = false;
+  const warm = Math.min(t0, -Tb);
+  for (let tt = warm; tt < t0; tt += dt) {
+    const dom = dominantNear(tt), target = dom ? 2 : 0;
+    if (dom !== prevDom) { lastEdge = tt; lastStep = dom ? 2 : -2; prevDom = dom; }
+    v += (target - v) * (1 - Math.exp(-dt / (target > v ? P.tauDom : P.tauRec)));
+  }
+  const nearHist = [];  // pour retarder le signal jusqu'à l'extrémité du câble
+  const delaySamples = Math.round(P.tp / dt);
+  let rxState = 1;      // 1 récessif, 0 dominant (comparateur à hystérésis)
+  const rxRaw = new Int8Array(N);
+  for (let k = 0; k < N; k++) {
+    const tt = t0 + k * dt;
+    const dom = dominantNear(tt), target = dom ? 2 : 0;
+    if (dom !== prevDom) { lastEdge = tt; lastStep = dom ? 2 : -2; prevDom = dom; }
+    v += (target - v) * (1 - Math.exp(-dt / (target > v ? P.tauDom : P.tauRec)));
+    const cm = P.acm * (0.6 * Math.sin(2 * Math.PI * tt / 6667) + 0.4 * Math.sin(2 * Math.PI * tt / 1000 + 1));
+    const period = Math.max(10, 4 * P.tp), age = tt - lastEdge;
+    const ringFar = age > P.tp ? lastStep * P.refl * Math.sin(2 * Math.PI * (age - P.tp) / period) * Math.exp(-(age - P.tp) / (2 * period)) : 0;
+    const ringNear = age > 2 * P.tp ? 0.5 * lastStep * P.refl * Math.sin(2 * Math.PI * (age - 2 * P.tp) / period) * Math.exp(-(age - 2 * P.tp) / (2 * period)) : 0;
+    const dNear = v + ringNear + P.sigma * 0.5 * gaussian(r);
+    nearHist.push(v);
+    const vDelayed = k >= delaySamples ? nearHist[k - delaySamples] : 0;
+    const nd = P.resid * cm + P.sigma * gaussian(r);
+    const dFar = vDelayed + ringFar + nd;
+    out.t[k] = tt;
+    out.txd[k] = txAt(tt) ? T.vio : 0;
+    out.dNear[k] = dNear;
+    out.hNear[k] = T.rec + dNear / 2 + 0.3 * cm;
+    out.lNear[k] = T.rec - dNear / 2 + 0.3 * cm;
+    out.dFar[k] = dFar;
+    out.hFar[k] = T.rec + dFar / 2 + cm;
+    out.lFar[k] = T.rec - dFar / 2 + cm;
+    if (rxState === 1 && dFar > T.vth_rx + T.vhys_rx / 2) rxState = 0;
+    else if (rxState === 0 && dFar < T.vth_rx - T.vhys_rx / 2) rxState = 1;
+    rxRaw[k] = rxState;
+  }
+  // RXD : sortie du comparateur retardée de 60 ns (dominant) ou 65 ns (récessif).
+  const d1 = Math.round(T.td_bus_rxd_dom_ns / dt), d2 = Math.round(T.td_bus_rxd_rec_ns / dt);
+  for (let k = 0; k < N; k++) {
+    const a = k >= d1 ? rxRaw[k - d1] : 1, b = k >= d2 ? rxRaw[k - d2] : 1;
+    out.rxd[k] = (a === 0 || b === 0) ? 0 : T.vio;
+  }
+  return out;
+}
+
+/** Lecture des bits par le récepteur : synchronisation sur le SOF, échantillon à 87,5 %. */
+function phySample(sim) {
+  const P = sim.P, bits = PHY.frame.bits, dt = sim.t[1] - sim.t[0];
+  let ts = null;
+  for (let k = 0; k < sim.t.length; k++) if (sim.rxd[k] === 0) { ts = sim.t[k]; break; }
+  const samples = [];
+  if (ts === null) return {samples, errors: bits.length, ts: null};
+  let errors = 0, noiseMargin = Infinity;
+  for (let i = 0; i < bits.length; i++) {
+    const tsamp = ts + (i + 0.875) * P.Tb;
+    const k = Math.round((tsamp - sim.t[0]) / dt);
+    if (k < 0 || k >= sim.t.length) continue;
+    const read = sim.rxd[k] === 0 ? 0 : 1, ok = read === bits[i].value;
+    if (!ok) errors++;
+    const kd = Math.max(0, k - Math.round(P.T.td_bus_rxd_dom_ns / dt));
+    const vd = sim.dFar[kd];
+    noiseMargin = Math.min(noiseMargin, bits[i].value === 0 ? vd - P.T.vth_max : P.T.vth_min - vd);
+    samples.push({t: tsamp, ok, value: bits[i].value});
+  }
+  return {samples, errors, ts, noiseMargin};
+}
+
+// ---- tracé ----------------------------------------------------------------
+function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+function drawChrono(id, sim, opts) {
+  const c = $(id), ctx = c.getContext("2d"), dpr = devicePixelRatio || 1;
+  const W = c.clientWidth, H = +c.getAttribute("height");
+  c.width = W * dpr; c.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  const padL = 52, padR = 10, padT = opts.band ? 26 : 10, padB = 22;
+  const t0 = opts.t0, t1 = opts.t1, [y0, y1] = opts.y;
+  const X = (t) => padL + (t - t0) / (t1 - t0) * (W - padL - padR);
+  const Y = (v) => padT + (1 - (v - y0) / (y1 - y0)) * (H - padT - padB);
+  const muted = cssVar("--muted"), line = cssVar("--line"), ink = cssVar("--ink");
+  ctx.font = "11px Segoe UI, system-ui, sans-serif";
+  // grille : bits en pointillé, graduations en tension
+  ctx.strokeStyle = line; ctx.lineWidth = 1; ctx.setLineDash([2, 3]);
+  const Tb = PHY.frame ? 1e9 / PHY.frame.bitrate : 2000;
+  if ((t1 - t0) / Tb < 60) for (let b = Math.ceil(t0 / Tb) * Tb; b <= t1; b += Tb) { ctx.beginPath(); ctx.moveTo(X(b), padT); ctx.lineTo(X(b), H - padB); ctx.stroke(); }
+  ctx.setLineDash([]);
+  ctx.fillStyle = muted; ctx.textAlign = "right";
+  for (const v of opts.ticks) { ctx.fillText(`${v} V`, padL - 6, Y(v) + 4); ctx.strokeStyle = line; ctx.beginPath(); ctx.moveTo(padL, Y(v)); ctx.lineTo(W - padR, Y(v)); ctx.stroke(); }
+  // zone de seuil du récepteur
+  if (opts.threshold) {
+    ctx.fillStyle = cssVar("--line"); ctx.globalAlpha = 0.6;
+    ctx.fillRect(padL, Y(0.9), W - padL - padR, Y(0.5) - Y(0.9)); ctx.globalAlpha = 1;
+    ctx.fillStyle = muted; ctx.textAlign = "left"; ctx.fillText("seuil 0,5–0,9 V", padL + 4, Y(0.9) - 3);
+  }
+  // bande des champs de la trame
+  if (opts.band) {
+    const bits = PHY.frame.bits;
+    let start = 0;
+    for (let i = 0; i <= bits.length; i++) {
+      if (i === bits.length || bits[i].field !== bits[start].field) {
+        const xa = X(Math.max(t0, start * Tb)), xb = X(Math.min(t1, i * Tb));
+        if (xb > xa + 1) {
+          ctx.fillStyle = cssVar("--accent-soft"); ctx.fillRect(xa, 2, xb - xa - 1, 18);
+          ctx.fillStyle = cssVar("--accent"); ctx.textAlign = "center";
+          if (xb - xa > 26) ctx.fillText(bits[start].field, (xa + xb) / 2, 15);
+        }
+        start = i;
+      }
+    }
+    ctx.fillStyle = cssVar("--warn");
+    bits.forEach((b, i) => { if (b.stuff) { const xa = X(i * Tb), xb = X((i + 1) * Tb); if (xb > padL && xa < W) ctx.fillRect(xa, 18, Math.max(1, xb - xa - 1), 3); } });
+  }
+  // traces
+  const i0 = 0, i1 = sim.t.length;
+  const step = Math.max(1, Math.floor((i1 - i0) / (2 * (W - padL))));
+  for (const s of opts.series) {
+    ctx.strokeStyle = s.color; ctx.lineWidth = s.width || 1.5; ctx.setLineDash(s.dash || []);
+    ctx.beginPath();
+    for (let k = i0; k < i1; k += step) { const x = X(sim.t[k]), y = Y(s.y[k]); k === i0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  // points d'échantillonnage
+  if (opts.samples) for (const s of opts.samples) {
+    if (s.t < t0 || s.t > t1) continue;
+    const x = X(s.t), y = Y(s.value ? 3.3 : 0);
+    ctx.fillStyle = s.ok ? cssVar("--ok") : cssVar("--bad");
+    if (s.ok) { ctx.beginPath(); ctx.arc(x, y, 3, 0, 2 * Math.PI); ctx.fill(); }
+    else { ctx.strokeStyle = cssVar("--bad"); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x - 5, y - 5); ctx.lineTo(x + 5, y + 5); ctx.moveTo(x + 5, y - 5); ctx.lineTo(x - 5, y + 5); ctx.stroke(); }
+  }
+  // légende et axe du temps
+  ctx.textAlign = "left"; let lx = padL + 4;
+  for (const s of opts.series) { ctx.fillStyle = s.color; ctx.fillRect(lx, H - 14, 12, 3); ctx.fillStyle = ink; ctx.fillText(s.label, lx + 16, H - 9); lx += ctx.measureText(s.label).width + 32; }
+  ctx.fillStyle = muted; ctx.textAlign = "right";
+  const span = t1 - t0, unit = span > 5000 ? ["µs", 1000] : ["ns", 1];
+  ctx.fillText(`${(t0 / unit[1]).toFixed(0)} → ${(t1 / unit[1]).toFixed(0)} ${unit[0]}`, W - padR, H - 9);
+}
+
+function drawPhysical() {
+  if (!PHY.frame) return;
+  const win = $("ph-win").value, bits = PHY.frame.bits, Tb = 1e9 / PHY.frame.bitrate;
+  $("ph-len-v").textContent = `${$("ph-len").value} m`;
+  // Simulation de la trame entière : sert au comptage des erreurs, quelle que soit la vue.
+  const full = phySimulate(-Tb, bits.length * Tb, 5);
+  const read = phySample(full);
+  let view = full, t0 = -Tb, t1 = bits.length * Tb;
+  if (win === "debut") { t1 = 20 * Tb; }
+  if (win === "front") { t0 = -150; t1 = 900; view = phySimulate(t0, t1, 1); }
+  const P = full.P;
+  const C = {h: cssVar("--bus-h"), l: cssVar("--bus-l"), d: cssVar("--diff"), a: cssVar("--accent"), m: cssVar("--muted")};
+  drawChrono("ch-near", view, {t0, t1, y: [-0.4, 4.6], ticks: [0, 1.5, 2.5, 3.5], band: true,
+    series: [{y: view.hNear, color: C.h, label: "CAN_H"}, {y: view.lNear, color: C.l, label: "CAN_L"}, {y: view.dNear, color: C.d, label: "CAN_H − CAN_L"}]});
+  drawChrono("ch-trx", view, {t0, t1, y: [-0.4, 3.8], ticks: [0, 2, 3.3],
+    series: [{y: view.txd, color: C.a, label: "TXD (entrée, 0/3,3 V)"}, {y: view.dNear, color: C.d, label: "CAN_H − CAN_L (sortie)"}]});
+  drawChrono("ch-far", view, {t0, t1, y: [-0.8, 5.2], ticks: [0, 1.5, 2.5, 3.5], threshold: true,
+    series: [{y: view.hFar, color: C.h, label: "CAN_H"}, {y: view.lFar, color: C.l, label: "CAN_L"}, {y: view.dFar, color: C.d, label: "CAN_H − CAN_L"}]});
+  drawChrono("ch-rxd", view, {t0, t1, y: [-0.4, 3.8], ticks: [0, 3.3], samples: read.samples,
+    series: [{y: view.txd, color: C.m, label: "TXD émetteur", dash: [4, 3], width: 1}, {y: view.rxd, color: C.a, label: "RXD récepteur"}]});
+
+  const loop = P.T.td_txd_dom_ns + P.tp + P.T.td_bus_rxd_dom_ns;
+  const verdict = read.errors === 0
+    ? `<span class="ok">trame lue sans erreur</span>`
+    : `<span class="ko">${read.errors} bit(s) mal lu(s)</span> : le contrôleur détecterait l'erreur (bourrage, forme ou CRC), enverrait une trame d'erreur, et l'émetteur recommencerait`;
+  $("ph-stats").innerHTML = [
+    ["Trame", `${esc(PHY.frame.name)} · 0x${PHY.frame.id.toString(16).toUpperCase().padStart(3, "0")} · ${bits.length} bits dont ${PHY.frame.stuff_bits} de bourrage`],
+    ["Durée d'un bit", `${(Tb / 1000).toFixed(2)} µs à ${(PHY.frame.bitrate / 1000)} kbit/s`],
+    ["Propagation sur le câble", `${P.tp.toFixed(0)} ns pour ${P.L} m, soit ${(100 * P.tp / Tb).toFixed(1)} % d'un bit`],
+    ["Retard TXD émetteur → RXD récepteur", `≈ ${loop.toFixed(0)} ns`],
+    ["Marge de bruit au point d'échantillonnage", isFinite(read.noiseMargin) ? `${(read.noiseMargin * 1000).toFixed(0)} mV${read.noiseMargin < 0 ? " : négative, un transceiver au seuil le plus défavorable (0,5 ou 0,9 V) se tromperait" : ""}` : "—"],
+    ["Résultat", verdict],
+  ].map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join("")
+    + `<div class="note" style="grid-column:1/-1">À 500 kbit/s, la règle usuelle limite le bus à environ 100 m : l'aller-retour du signal doit tenir avant le point d'échantillonnage, pour que l'arbitrage fonctionne.</div>`;
+}
+
+async function phyLoad() {
+  const name = $("ph-frame").value;
+  PHY.frame = await (await fetch(`/api/physical?name=${encodeURIComponent(name)}`)).json();
+  drawPhysical();
+}
+["ph-win", "ph-cable", "ph-noise", "ph-term"].forEach((id) => $(id).onchange = drawPhysical);
+$("ph-len").oninput = drawPhysical;
+$("ph-frame").onchange = phyLoad;
+$("ph-redraw").onclick = () => { PHY.seed++; drawPhysical(); };
+document.querySelectorAll("[data-len]").forEach((b) => b.onclick = () => { $("ph-len").value = b.dataset.len; drawPhysical(); });
+window.addEventListener("resize", () => drawPhysical());
+fetch("/api/icd").then((r) => r.json()).then((icd) => {
+  $("ph-frame").innerHTML = icd.frames.map((f) => `<option ${f === "ENERGY_COMMAND" ? "selected" : ""}>${esc(f)}</option>`).join("");
+  phyLoad();
+});
+
 tick();
 </script>
 </body>
