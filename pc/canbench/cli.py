@@ -258,6 +258,24 @@ def cmd_replay(args: argparse.Namespace) -> int:
         return 0
 
 
+def cmd_gui(args: argparse.Namespace) -> int:
+    """Interface graphique : serveur local et page web."""
+    from .gui.server import serve
+
+    # En virtuel, le simulateur est démarré d'office : sans lui, la page n'aurait
+    # rien à afficher. Sur une interface réelle, --simulate reste refusé.
+    serve(
+        interface=args.interface,
+        channel=args.channel,
+        bitrate=args.bitrate,
+        profile=args.profile,
+        simulate=args.interface == "virtual",
+        port=args.port,
+        open_browser=not args.no_browser,
+    )
+    return 0
+
+
 def cmd_report(args: argparse.Namespace) -> int:
     """Produit un rapport à partir d'un résultat saisi, pour T1, T2 et T7."""
     text = sys.stdin.read() if args.stdin else (args.result or "")
@@ -391,6 +409,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--stdin", action="store_true", help="lit le résultat sur l'entrée standard")
     p.add_argument("--passed", action="store_true", help="marque le test comme réussi")
     p.set_defaults(func=cmd_report)
+
+    p = sub.add_parser("gui", help="interface graphique dans le navigateur")
+    p.add_argument("--port", type=int, default=8765, help="port local (défaut : 8765)")
+    p.add_argument("--no-browser", action="store_true", help="ne pas ouvrir le navigateur")
+    p.set_defaults(func=cmd_gui)
 
     return parser
 

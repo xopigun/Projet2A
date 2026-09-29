@@ -112,6 +112,25 @@ canbench --interface virtual --simulate busload --measure 2
 prononcé sur le bus virtuel** : le simulateur reproduit le comportement attendu, il ne le
 démontre pas. Les rapports produits portent la mention correspondante.
 
+### Interface graphique
+
+Pour une démonstration, ou simplement pour piloter le banc sans ligne de commande :
+**double-cliquer sur `lancer_banc.bat`** à la racine du dépôt. Le navigateur s'ouvre sur
+<http://127.0.0.1:8765> et affiche le bus en direct, l'état des nœuds tiré de leurs
+heartbeats, les trames décodées par l'ICD, les tests T3, T4 et T6 avec leur rapport
+téléchargeable, et l'injection de fautes par `BENCH_CFG`.
+
+Sans argument, l'interface tourne en **simulation** : un bandeau le rappelle en permanence
+et aucun verdict n'y vaut preuve. Sur le banc réel :
+
+```bash
+lancer_banc.bat gs_usb
+```
+
+L'équivalent en ligne de commande est `canbench --interface virtual gui`. L'interface
+n'ajoute aucune dépendance et n'a aucune logique de test propre : elle appelle les mêmes
+fonctions que `canbench`.
+
 ### Premier test sur le banc réel
 
 Le CANable 2.0 est supporté en firmware candleLight (`gs_usb`) et en `slcan` :

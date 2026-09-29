@@ -38,6 +38,9 @@ canbench = "canbench.cli:main"
 where = ["."]
 include = ["canbench*"]
 
+[tool.setuptools.package-data]
+"canbench.gui" = ["static/*.html"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]

@@ -38,6 +38,10 @@ du dépôt correspond au dossier `v0.1`.
   signalée. Les rapports Markdown et LaTeX portent la date et le hash git du firmware,
   et refusent de conclure à une réussite sur bus virtuel ou avec une horloge non conforme.
 
+- **Interface graphique** (`canbench gui`, `lancer_banc.bat`) : bus en direct, état des
+  nœuds, trames décodées, tests T3, T4 et T6 avec rapport, injection de fautes. Sans
+  dépendance supplémentaire ; simulation signalée en permanence.
+
 ### Corrigé (écarts relevés par rapport au dossier v0.1)
 
 - **PB9 n'existe pas** sur le boîtier UFQFPN32 du STM32G431KB. Le schéma de l'IHM locale du
