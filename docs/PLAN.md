@@ -503,6 +503,43 @@ la mise en forme du rapport.
 
 ---
 
+## 8 bis. Défauts connus, non encore corrigés
+
+### D1 — Le protocole ARM/GO ne tient pas sur le matériel en l'état (bloque T3)
+
+Relevé le 29/09/2026 en relisant le chemin ARM/GO de bout en bout. **Ne bloque pas la phase 2
+de la mise en route**, qui n'utilise pas ARM/GO, mais **T3 échouerait** tant qu'il n'est pas
+corrigé.
+
+| # | Où | Défaut | Conséquence |
+|---|---|---|---|
+| a | `pc/canbench/arbitration.py` | `canbench` attend `settle = 2 ms` entre ARM et GO. | Le bus reste libre 2 ms après ARM : les nœuds armés émettent **seuls, avant GO**, dans l'ordre de leur latence logicielle. Le départ simultané, raison d'être de GO, n'a plus lieu. |
+| b | `firmware/ports/g431_fdcan/main.c` | `bench_arb_on_own_tx()` est appelée au moment où la trame est **armée**, alors que la machine d'états est encore en phase `ARMED`. | L'appel est ignoré : le rang, `gagnés` et `perdus` ne sont jamais mis à jour côté nœud. Le classement calculé par le PC n'est pas affecté, mais l'affichage local (lot 6) le serait. |
+| c | `pc/canbench/simulator.py` | Le simulateur n'émet les contendants **qu'à la réception de GO**. | Il modélise le comportement **voulu**, pas celui du firmware. C'est ce qui a masqué (a) et (b) : `canbench arbitration` passait en simulation. |
+
+**Correction prévue.**
+
+1. `canbench` émet ARM et GO **l'un derrière l'autre**, sans attente, pour que GO soit déjà en
+   file dans l'adaptateur quand ARM se termine.
+2. Le firmware reçoit la confirmation de fin d'émission par l'interruption *TX complete* du
+   FDCAN, et la dépose **dans le même tampon circulaire que les trames reçues**. C'est la seule
+   façon de préserver l'ordre réel du bus entre « ma trame est partie » et « j'ai reçu celle
+   d'un autre », dont dépend le comptage du rang.
+3. Le simulateur reproduit le cas dégradé : un nœud armé qui trouve le bus libre émet
+   immédiatement. Un test vérifie que ce cas fait échouer T3.
+4. **Précondition matérielle de T3, à mesurer à l'oscilloscope** : l'écart entre la fin d'ARM
+   et le début de GO doit être l'intermission seule, soit **3 bits = 6 µs**. Si l'adaptateur
+   USB n'enchaîne pas les deux trames assez vite, le protocole doit être revu — ce point ne
+   peut pas être tranché sans matériel.
+
+### D2 — Le firmware nominal pèse 36 Ko au lieu de 18
+
+Depuis que l'arrêt fatal affiche un message, `printf` est lié au firmware nominal. Sans
+conséquence pratique (27 % de la flash), mais à reconsidérer si la place venait à manquer
+avec l'IHM du lot 6.
+
+---
+
 ## 9. Questions ouvertes
 
 | # | Question | État |
