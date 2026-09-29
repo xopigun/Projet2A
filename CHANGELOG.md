@@ -17,6 +17,12 @@ du dépôt correspond au dossier `v0.1`.
   LaTeX, et parité d'encodage vérifiée entre quatre implémentations.
 - Code commun testable nativement : tampon circulaire, protocole ARM/GO, heartbeat.
 - Firmware des nœuds N1 à N3 (port FDCAN, horloges HSE/HSI sélectionnables).
+- **Firmware du nœud N4** sur Blue Pill STM32F103 (port bxCAN, CAN remappé sur PB8/PB9,
+  journal sur USART1), avec son autotest (`n4-selftest`). Programme principal commun
+  aux deux cartes (`firmware/entry/`).
+- **Exécution des modes de faute** commandés par `BENCH_CFG` sur les nœuds réels
+  (babbling idiot, débit erroné, DLC incohérent, silencieux, bus-off maintenu), avec le
+  même comportement que le simulateur.
 - **Verrouillage CAN 2.0A classic** à trois niveaux : validateur de l'ICD, `_Static_assert`
   générés, contrôle à l'émission et à l'ouverture. Les trames CAN FD ou à identifiant
   29 bits reçues sont comptées et remontées dans le heartbeat.
@@ -46,6 +52,14 @@ du dépôt correspond au dossier `v0.1`.
   toute mise sous tension du bus.
 - **Métrique « Perdus »** du tableau 7 : définie sans ambiguïté comme le nombre de cycles où
   le nœud a perdu au moins un arbitrage, complétée par la métrique de rang.
+
+### Corrigé (firmware)
+
+- **Débordement de tampon en réception sur le G431** : la HAL G4 recopie jusqu'à 64
+  octets pour une trame classique de DLC 9 à 15, légale en CAN 2.0. Réception dans un
+  tampon de 64 octets, DLC ramené à 8.
+- **Codage du DLC** à l'émission et à la réception sur le G431, qui dépend de la version
+  de la HAL ; verrouillé par des assertions statiques.
 
 ### Corrigé (dans nos propres documents)
 

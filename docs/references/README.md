@@ -58,18 +58,23 @@ Sections utilisées :
 > Blue Pill** : c'est une présentation commerciale du portfolio cartes ST (Q1 2022). Il ne
 > contient aucune information exploitable sur le STM32F103 ni sur bxCAN.
 
-## Documents encore manquants
+## Documents microcontrôleurs, reçus le 29/09/2026
 
-Ils bloquent les vérifications listées au §10 de [PLAN.md](../PLAN.md).
+| Document | Réf. | Révision | Nom attendu ici | Utilisé pour |
+|---|---|---|---|---|
+| STM32G4 series — reference manual | **RM0440** | Rev 9, 03/2025 | `RM0440.pdf` | §2.4 mémoire (V11), §2.6 démarrage et `FLASH_OPTR` (V2), §7.4.4 PLL (V3), Table 9 latence flash, §44.4.6 `FDCAN_CCCR` |
+| STM32G431x6/x8/xB — datasheet | **DS12589** | Rev 6, 10/2021 | `DS12589.pdf` | Table 13 fonctions alternées (V1), Table 42 HSI16 (V4), Table 45 PLL (V3) |
+| STM32G431/441 — errata sheet | **ES0431** | Rev 9, 06/2024 | `ES0431.pdf` | §2.15 FDCAN (V10) |
+| STM32F10xxx — reference manual | **RM0008** | Rev 21, 02/2021 | `RM0008.pdf` | §9.3.4 Table 34 remap CAN (V5), § bxCAN (SRAM partagée avec l'USB, modes de test), `FLASH_ACR` |
+| STM32F103x8/xB — datasheet | **DS5319** | Rev 20, 07/2025 | `DS5319.pdf` | Table 5 broches du LQFP48 et remap (V5), note 5 sur PC13 (V13) |
 
-| Document | Réf. | Nécessaire pour |
+Tous sont disponibles sur <https://www.st.com>, page produit du microcontrôleur, onglet
+« Documentation ».
+
+## Documents inexistants ou manquants
+
+| Document | Pourquoi | Ce qui le remplace |
 |---|---|---|
-| STM32G4 series — reference manual | **RM0440** | Registres RCC/PLL, FDCAN, option bytes `nSWBOOT0` (V2, V3) |
-| STM32G431xx — datasheet | **DS12589** | Fonctions alternées (FDCAN1 sur PA11/PA12, V1), précision HSI16 (V4) |
-| STM32G431 — errata sheet | ES (G431) | Anomalies FDCAN éventuelles (V10) |
-| STM32F10xxx — reference manual | **RM0008** | bxCAN, remap `AFIO_MAPR.CAN_REMAP` (V5) |
-| STM32F103x8/xB — datasheet | **DS5319** | Brochage et fonctions alternées du F103C8 (V5) |
-| Schéma de la carte « Blue Pill » | — | Pull-up USB sur PA12, clones F103 (V6) |
-
-Tant que RM0008, DS5319 et le schéma de la Blue Pill ne sont pas disponibles, le **lot 5**
-(port bxCAN et carte N4) reste bloqué : aucun brochage F103 ne sera écrit sans source.
+| Schéma de la carte « Blue Pill » | carte générique non ST : aucun schéma officiel | contrôles sur la carte reçue (V12 quartz, V13 LED, V6 pull-up PA12), voir [bringup.md](../bringup.md) §8.1 |
+| Errata STM32F103 | non fourni ; référence ES096 à confirmer sur st.com | à lire avant le lot 6 (I2C du F1) — V14 |
+| Manuel des Nucleo-64 (**UM1724**) | non fourni | nécessaire seulement pour programmer la Blue Pill avec le ST-LINK d'une Nucleo-L476RG |

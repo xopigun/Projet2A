@@ -3,11 +3,13 @@
  * @brief Mise en route matérielle : autotest d'un nœud, en deux phases.
  *
  * Remplace `main.c` lorsque le firmware est compilé avec `-DBENCH_SELFTEST=ON`
- * (presets `n1-selftest` à `n3-selftest`). Tout est reporté sur le port COM
- * virtuel du ST-LINK, à 115200 bauds.
+ * (presets `n1-selftest` à `n4-selftest`). Commun aux deux cartes. Tout est
+ * reporté sur le journal série, à 115200 bauds : port COM virtuel du ST-LINK
+ * sur la Nucleo, adaptateur USB-série sur USART1 pour la Blue Pill.
  *
- * **Phase 1 — bouclage interne.** Le FDCAN est ouvert en
- * `FDCAN_MODE_INTERNAL_LOOPBACK` : rien n'est émis sur PA12, et **ni transceiver
+ * **Phase 1 — bouclage interne.** Le contrôleur est ouvert en bouclage sans
+ * rien émettre sur sa broche TX (FDCAN : `INTERNAL_LOOPBACK` ; bxCAN : bouclage
+ * combiné au mode silencieux, qui maintient CANTX récessive). **Ni transceiver
  * ni bus câblé ne sont nécessaires**. Une trame de chaque type de l'ICD est
  * émise, reçue, décodée et comparée octet par octet.
  *
@@ -22,8 +24,8 @@
  * 500 passerait cette phase sans broncher.
  *
  * **Phase 2 — ping/pong sur le bus réel.** Le nœud repasse en mode normal. N1
- * émet périodiquement, N2 et N3 répondent. C'est ici que se détectent un HW1
- * oublié, une terminaison manquante ou un transceiver mal alimenté.
+ * émet périodiquement, N2, N3 et N4 répondent. C'est ici que se détectent un
+ * HW1 oublié, une terminaison manquante ou un transceiver mal alimenté.
  *
  * Cette phase **ne prouve toujours pas le débit** : les trois Nucleo partagent
  * la même configuration d'horloge, donc une erreur commune est invisible entre
@@ -49,7 +51,7 @@
 #endif
 
 static bench_ring_t     s_rx_ring;
-static bench_g431_can_t s_port;
+static bench_port_can_t s_port;
 static bench_can_t      s_can;
 
 /** Une trame de l'ICD à éprouver en bouclage, avec une charge utile connue. */
@@ -125,7 +127,7 @@ static unsigned phase1_loopback(void) {
     printf("  horloge, donc une PLL fausse se boucle sur elle-meme sans erreur.\r\n");
 
     if (!open_can(true)) {
-        printf("  ECHEC : ouverture du FDCAN impossible.\r\n");
+        printf("  ECHEC : ouverture du " BENCH_CAN_PERIPH_NAME " impossible.\r\n");
         return 1u;
     }
 
@@ -216,7 +218,7 @@ static void phase2_ping_pong(void) {
     printf("  ATTENTION : cette phase ne prouve pas le debit (cf. phase 3).\r\n\r\n");
 
     if (!open_can(false)) {
-        printf("  ECHEC : reouverture du FDCAN en mode normal impossible.\r\n");
+        printf("  ECHEC : reouverture du " BENCH_CAN_PERIPH_NAME " en mode normal impossible.\r\n");
         return;
     }
 
@@ -224,7 +226,7 @@ static void phase2_ping_pong(void) {
         const uint32_t now_ms = HAL_GetTick();
         bench_can_frame_t rx;
 
-        bench_g431_can_poll(&s_port);
+        bench_port_can_poll(&s_port);
 
         while (bench_ring_pop(&s_rx_ring, &rx)) {
             received++;
@@ -286,19 +288,19 @@ int main(void) {
            BENCH_BOARD_NAME);
     printf("============================================================\r\n");
     printf("  Horloge     : %s\r\n", bench_clock_source_name());
-    printf("  FDCAN       : %lu Hz\r\n", (unsigned long)bench_clock_fdcan_hz());
-    printf("  Temps de bit: BRP=%u, 1+%u+%u tq, SJW=%u -> %lu bit/s, SP=87,50 %%\r\n",
+    printf("  %-12s: %lu Hz\r\n", BENCH_CAN_PERIPH_NAME, (unsigned long)bench_clock_can_hz());
+    printf("  Temps de bit: BRP=%u, 1+%u+%u tq, SJW=%u -> %lu bit/s\r\n",
            BENCH_CAN_PRESCALER, BENCH_CAN_TSEG1, BENCH_CAN_TSEG2, BENCH_CAN_SJW,
            (unsigned long)BENCH_BITRATE);
 
     if (!bench_clock_is_qualified()) {
         printf("\r\n  *** ATTENTION : horloge HSI, reference NON CONFORME pour le CAN.\r\n");
-        printf("  *** Souder SB9 et SB10, puis recompiler sans -DBENCH_CLOCK_SOURCE=2.\r\n");
+        printf("  *** %s\r\n", BENCH_CLOCK_FIX_HINT);
         printf("  *** Aucun verdict de reussite ne peut etre prononce dans cet etat.\r\n");
     }
 
     bench_ring_init(&s_rx_ring);
-    bench_g431_can_bind(&s_port, &s_rx_ring, &s_can);
+    bench_port_can_bind(&s_port, &s_rx_ring, &s_can);
 
     const unsigned failures = phase1_loopback();
     if (failures != 0u) {
@@ -309,20 +311,13 @@ int main(void) {
     }
 
     printf("\r\n  Phase 1 reussie. Avant la phase 2, verifier :\r\n");
-    printf("    - cavalier HW1 (CN4 4-5) RETIRE sur chaque carte ;\r\n");
-    printf("    - transceiver alimente en 5 V, VIO en 3,3 V ;\r\n");
-    printf("    - environ 60 ohms entre CAN_H et CAN_L, hors tension.\r\n");
-    printf("\r\n  Rappel : la phase 2 met en jeu trois cartes de meme configuration.\r\n");
+    printf("%s", BENCH_BOARD_PRECHECKS);
+    printf("\r\n  Rappel : les Nucleo de la phase 2 partagent la meme configuration.\r\n");
     printf("  Une erreur d'horloge commune y serait invisible. Le debit n'est\r\n");
     printf("  etabli qu'en phase 3, contre une reference independante.\r\n");
 
     phase2_ping_pong();
     return 0;
-}
-
-void HAL_MspInit(void) {
-    __HAL_RCC_PWR_CLK_ENABLE();
-    __HAL_RCC_SYSCFG_CLK_ENABLE();
 }
 
 #ifdef USE_FULL_ASSERT

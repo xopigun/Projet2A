@@ -94,6 +94,16 @@
       }
     },
     {
+      "name": "n4-selftest",
+      "inherits": "n4",
+      "displayName": "N4 - autotest de mise en route",
+      "description": "Bouclage silencieux bxCAN puis ping/pong ; sortie sur USART1 (PA9).",
+      "binaryDir": "${sourceDir}/build/n4-selftest",
+      "cacheVariables": {
+        "BENCH_SELFTEST": "ON"
+      }
+    },
+    {
       "name": "n1-selftest-hsi",
       "inherits": "n1-selftest",
       "displayName": "N1 - autotest sur HSI (avant soudure de SB9/SB10)",
@@ -156,6 +166,10 @@
     {
       "name": "n3-selftest",
       "configurePreset": "n3-selftest"
+    },
+    {
+      "name": "n4-selftest",
+      "configurePreset": "n4-selftest"
     },
     {
       "name": "n1-selftest-hsi",

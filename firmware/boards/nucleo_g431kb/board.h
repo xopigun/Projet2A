@@ -193,6 +193,17 @@
 #define BENCH_LED_BUSOFF_PORT  GPIOA
 #define BENCH_LED_BUSOFF_PIN   GPIO_PIN_1
 
+/** Horloges des ports GPIO portant les LEDs. */
+#define BENCH_LED_CLK_ENABLE()      \
+    do {                            \
+        __HAL_RCC_GPIOA_CLK_ENABLE(); \
+        __HAL_RCC_GPIOB_CLK_ENABLE(); \
+    } while (0)
+
+/** LD2 est allumée par un niveau haut (UM2397 §6.6.1). */
+#define BENCH_LED_TX_ON  GPIO_PIN_SET
+#define BENCH_LED_TX_OFF GPIO_PIN_RESET
+
 /** Durée de l'impulsion de la LED TX, en millisecondes. */
 #define BENCH_LED_TX_PULSE_MS 20u
 
@@ -223,5 +234,19 @@
 /** Bus 1-Wire du DS18B20 de N3 : CN3 broche 6 (A6). */
 #define BENCH_ONEWIRE_PORT GPIOA
 #define BENCH_ONEWIRE_PIN  GPIO_PIN_7
+
+/* =========================================================================
+ *  Textes de l'autotest propres à la carte
+ * ========================================================================= */
+
+/** Vérifications à faire avant la phase 2, affichées par l'autotest. */
+#define BENCH_BOARD_PRECHECKS                                         \
+    "    - cavalier HW1 (CN4 4-5) RETIRE sur chaque carte ;\r\n"      \
+    "    - transceiver alimente en 5 V, VIO en 3,3 V ;\r\n"            \
+    "    - environ 60 ohms entre CAN_H et CAN_L, hors tension.\r\n"
+
+/** Remède affiché quand l'horloge n'est pas qualifiée. */
+#define BENCH_CLOCK_FIX_HINT \
+    "Souder SB9 et SB10, puis recompiler sans -DBENCH_CLOCK_SOURCE=2."
 
 #endif /* BENCH_BOARD_H */

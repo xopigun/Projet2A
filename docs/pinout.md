@@ -73,17 +73,61 @@ A5 en entrées analogiques, ce dont le banc n'a pas besoin.
 
 ## 4. Blue Pill STM32F103 (nœud N4)
 
-**Aucun brochage n'est proposé à ce stade.** Le document fourni sous le nom
-`BluePill STM32F103.pdf` est une présentation commerciale du portfolio cartes ST et ne
-contient aucune information sur la carte, le F103 ni bxCAN.
+Sources : **DS5319 Rev 20**, Table 5 (broches du LQFP48, fonctions par défaut et
+remappées, tolérance 5 V), et **RM0008 Rev 21**, §9.3.4 Table 34 (remappage du CAN). La
+Blue Pill n'étant **pas une carte ST**, aucun schéma officiel n'existe : ce qui dépend de la
+carte plutôt que du microcontrôleur est marqué `TODO(verif)` et se contrôle sur la carte
+reçue.
 
-Le brochage sera écrit au lot 5, une fois disponibles **RM0008**, **DS5319** et le schéma de
-la carte. Deux points seront alors tranchés :
+| Fonction | Broche | Broche LQFP48 | Remarque |
+|---|---|---|---|
+| `CAN_RX` | PB8 | 45 | **remappée** (`CAN_REMAP = 10`), FT |
+| `CAN_TX` | PB9 | 46 | **remappée**, FT |
+| Broche S transceiver | PB12 | 25 | FT, aucune autre fonction utilisée |
+| `I2C1_SCL` (écran, lot 6) | PB6 | 42 | affectation par défaut, FT |
+| `I2C1_SDA` (écran, lot 6) | PB7 | 43 | affectation par défaut, FT |
+| Journal `USART1_TX` | PA9 | 30 | vers le RX d'un adaptateur USB-série 3,3 V |
+| Journal `USART1_RX` | PA10 | 31 | optionnel |
+| LED TX | PC13 | 2 | LED de la carte, allumée au niveau bas — `TODO(verif) V13` |
+| LED erreur | PA0 | 10 | error-passive, LED externe |
+| LED bus-off | PA1 | 11 | bus-off, LED externe |
 
-- PA11/PA12 sont partagées avec l'USB, et la Blue Pill porte une résistance de tirage sur
-  PA12 (valeur souvent erronée sur les clones) — `TODO(verif) V6` ;
-- l'alternative est de remapper bxCAN sur PB8/PB9 via `AFIO_MAPR.CAN_REMAP = 10`, broches
-  libres sur cette carte — `TODO(verif) V5`.
+### Pourquoi PB8/PB9 et pas PA11/PA12
+
+Par défaut, le CAN du F103 sort sur PA11/PA12, qui portent aussi l'**USB**. La Blue Pill y
+ajoute une résistance de tirage sur PA12 (D+), dont la valeur varie d'un clone à l'autre.
+Deux raisons font préférer le remappage :
+
+1. **L'USB et le CAN ne peuvent pas fonctionner ensemble** sur ce microcontrôleur. RM0008
+   (§ bxCAN) : ils partagent 512 octets de SRAM dédiée et « cannot be used concurrently ».
+   Sur PB8/PB9, rien ne relie le CAN au connecteur USB.
+2. PB8/PB9 sont tolérantes au 5 V et libres sur la carte.
+
+Piège de lecture : dans RM0008 Table 34, la ligne du TX est libellée « CAN_RX » par
+coquille. La description du registre `AFIO_MAPR` lève l'ambiguïté : `10` place CAN_RX sur
+PB8 et **CAN_TX sur PB9**.
+
+La résistance de PA12 n'a donc plus d'effet sur le CAN (`V6`, non bloquant). Sa valeur se
+mesure à l'ohmmètre, hors tension, entre PA12 et 3,3 V, si l'on veut la connaître.
+
+### LED de la carte
+
+DS5319 Table 5, note 5 : PC13 ne peut absorber que 3 mA et **ne doit pas servir de source
+de courant pour une LED**. La LED de la carte est donc câblée en puits et s'allume au
+**niveau bas** ; `board.h` en tient compte. À confirmer sur la carte reçue (`V13`) : au
+démarrage de l'autotest, la LED doit clignoter à chaque trame émise.
+
+### Alimentation et programmation
+
+| Liaison | Brancher | Ne **pas** brancher |
+|---|---|---|
+| USB de la Blue Pill | vers le PC : alimente la carte et fournit le **5 V** du transceiver | — |
+| ST-Link V2 | SWDIO, SWCLK, GND | **le 3,3 V** : la carte est déjà alimentée par son USB |
+| Adaptateur USB-série | GND, et son RX sur PA9 | **son VCC** |
+
+Le transceiver de N4 se câble comme les autres (§5), en prenant son VCC sur la broche
+**5V** de la Blue Pill et son VIO sur **3.3**. Le quartz de 8 MHz est supposé
+(`TODO(verif) V12`) : lire son marquage sur la carte reçue.
 
 ---
 

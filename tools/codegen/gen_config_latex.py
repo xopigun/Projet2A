@@ -83,7 +83,10 @@ def generate(icd: Icd) -> str:
         rf"Tolérance d'oscillateur & {_tol(g431)} & {_tol(f103)} \\",
         r"Débit & \SI{500}{kbit/s} & \SI{500}{kbit/s} \\",
         r"\midrule",
-        r"Filtres d'acceptation & aucun & aucun \\",
+        (
+            r"Filtres d'acceptation & aucun & "
+            r"un banc, masque nul (tout accepter) \\"
+        ),
         r"Retransmission automatique & activée & activée \\",
         (
             r"Reprise après \emph{bus-off} & logicielle (\texttt{CCCR.INIT}) & "
@@ -92,7 +95,7 @@ def generate(icd: Icd) -> str:
         r"Mode silencieux & \texttt{CCCR.MON} & \texttt{BTR.SILM} \\",
         (
             r"Bouclage interne & \texttt{FDCAN\_MODE\_INTERNAL\_LOOPBACK} & "
-            r"\texttt{BTR.LBKM} \\"
+            r"\texttt{BTR.LBKM} + \texttt{SILM} (CANTX récessive) \\"
         ),
         r"\bottomrule",
         r"\end{tabular}",

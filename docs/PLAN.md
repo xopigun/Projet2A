@@ -21,7 +21,9 @@ Révisions de ce plan :
 | `BluePill STM32F103.pdf` | oui | Support marketing ST « portfolio cartes Q1'2022 » | **non — hors sujet** |
 | `TJA1051.PDF` | oui | NXP TJA1051 Rev 02 | oui |
 | `SN65HVD230.PDF` | oui | TI SLOS346G | oui (hors BOM nominale, voir §3.3) |
-| RM0440, RM0008, DS12589, DS5319, ES G431, schéma Blue Pill | **en cours** (Q4) | — | Lot 5 en attente |
+| `RM0440.pdf`, `RM0008.pdf`, `DS12589.pdf`, `DS5319.pdf`, `ES0431.pdf` | oui | RM0440 Rev 9, RM0008 Rev 21, DS12589 Rev 6, DS5319 Rev 20, ES0431 Rev 9 | **oui** |
+| Schéma de la Blue Pill | **inexistant** | carte non ST, aucun schéma officiel | remplacé par des contrôles sur la carte reçue (V12, V13) |
+| Errata STM32F103 (ES096, référence à confirmer sur st.com) | non fourni | — | à consulter : `TODO(verif) V14` |
 
 Le fichier PDF du dossier a été recopié depuis `Downloads` vers `docs/references/` sous le
 nom `Dossier_Banc_Test_CAN_v0_1.pdf`. La source LaTeX se trouve hors dépôt, dans
@@ -88,12 +90,12 @@ Confirmé par Table 12. Le dossier demandait précisément cette vérification.
 confirmer sur DS12589 — `TODO(verif) V1`. Le `board.h` la porte derrière une constante
 unique, signalée.
 
-### 2.5 — Blue Pill : PA11/PA12 partagés avec l'USB → **NON VÉRIFIABLE**
+### 2.5 — Blue Pill : PA11/PA12 partagés avec l'USB → **CONFIRMÉ, contourné**
 
-Le PDF fourni est un support marketing sans aucune information sur la carte, le F103 ou
-bxCAN. En attente de RM0008 + DS5319 + schéma (Q4). Piste à évaluer alors : remapper bxCAN
-sur PB8/PB9 (`AFIO_MAPR.CAN_REMAP = 10`) pour éviter le partage avec l'USB —
-`TODO(verif) V5`. **Lot 5 bloqué.**
+RM0008 Rev 21 §9.3.4 Table 34 : le CAN se remappe sur PB8 (RX) / PB9 (TX) avec
+`CAN_REMAP = 10`, disponible sur le boîtier 48 broches. RM0008 (§ bxCAN) ajoute que l'USB
+et le CAN partagent 512 octets de SRAM et **ne peuvent pas fonctionner en même temps**.
+N4 utilise donc PB8/PB9 et n'utilise pas l'USB ; son journal passe par USART1. Lot 5 fait.
 
 ### 2.6 — Métrique « Perdus » du tableau 7 → **AMBIGUÏTÉ CONFIRMÉE**
 
@@ -317,7 +319,8 @@ Contraintes PLL à confirmer sur RM0440 — `TODO(verif) V3`.
 Par rapport au dossier : SCL/SDA déplacés de PB8/PB9 (PB9 inexistant) vers PA15/PB7 ; LED TX
 déplacée de PA2 (VCP) vers PB8 ; PA0 et PA1 conservées.
 
-**Blue Pill F103** : aucun brochage proposé — pas de source (§2.5). Lot 5.
+**Blue Pill F103** : CAN remappé sur PB8/PB9, journal sur USART1 (PA9), LED PC13 en puits ;
+brochage complet et sources dans `docs/pinout.md` §4.
 
 ### 4.4 Métrique d'arbitrage
 
@@ -495,7 +498,7 @@ la mise en forme du rapport.
 | 2 | ICD : YAML, schéma, générateur, vecteurs de référence, tests de collision/chevauchement/ordre ARM-GO | **fait** |
 | 3 | `firmware/common` + `tests_host` | **fait** |
 | 4 | `ports/g431_fdcan` + `boards/nucleo_g431kb` + horloges (HSE/HSI sélectionnable) | **fait** — n1 à n3 : 17,8 Ko flash (13,6 %), 2,8 Ko RAM (8,7 %) |
-| 5 | `ports/f103_bxcan` + `boards/bluepill_f103` | **bloqué** (Q4 : RM0008, DS5319, schéma) |
+| 5 | `ports/f103_bxcan` + `boards/bluepill_f103`, `entry/` commun, exécution des modes de faute | **fait** — n4 : 23,4 Ko flash (36 %), 3,3 Ko RAM (16 %) ; non éprouvé sur carte |
 | 6 | IHM SSD1306 DMA + pages partielles, LEDs, capteurs + simulateurs | à faire |
 | 7 | `pc/canbench` : CLI, simulateur de nœuds, `monitor`/`arbitration`/`encoding` | à faire |
 | 8 | `faults`, `busload`, `record`/`replay`, `report` | à faire |
@@ -541,6 +544,20 @@ avec l'IHM du lot 6.
 
 ---
 
+### D3 — Débordement de tampon en réception sur le G431 → **corrigé**
+
+Relevé le 29/09/2026 en écrivant le port bxCAN. `HAL_FDCAN_GetRxMessage()` recopie
+`DLCtoBytes[DLC]` octets, jusqu'à 64, sans regarder le format de la trame. Une trame
+**classique** de DLC 9 à 15 — légale en CAN 2.0, où elle signifie 8 octets — faisait donc
+écrire jusqu'à 64 octets dans `frame.data[8]`, **depuis l'ISR**. N'importe quel nœud
+étranger au banc, partenaire ou CANable, pouvait écraser la pile.
+
+Correctif : réception dans un tampon de 64 octets, DLC ramené à 8 au plus, octets au-delà du
+DLC mis à zéro. Même règle sur le F103, où la HAL ne copie jamais plus de 8 octets. À
+éprouver en T6 en injectant depuis le CANable une trame de DLC 15.
+
+---
+
 ## 9. Questions ouvertes
 
 | # | Question | État |
@@ -548,7 +565,7 @@ avec l'IHM du lot 6.
 | Q1 | Dossier de définition | **résolu** (r2) |
 | Q2 | Soudure SB9/SB10 | **en attente encadrants** — repli HSI implémenté et signalé |
 | Q3 | Identifiants réservés | **résolu** — profils réseau, heartbeat 0x780+n (§4.5) |
-| Q4 | RM0440, RM0008, DS12589, DS5319, ES G431, schéma Blue Pill | **en cours** — bloque le Lot 5 |
+| Q4 | RM0440, RM0008, DS12589, DS5319, ES G431, schéma Blue Pill | **résolu** — documents reçus le 29/09/2026 ; pas de schéma officiel de la Blue Pill, remplacé par V12/V13 |
 | Q5a | Modèle de transceiver | **résolu par le dossier** : TJA1051T/3 (§3.3) |
 | Q5b | 120 Ω soudé sur les modules ? | **ouvert** — champ resté entre crochets (§3.7) |
 | Q5c | Retrait du 120 Ω : sur 4 nœuds et non 3 ? | **ouvert** — voir §3.7 |
@@ -688,10 +705,13 @@ moniteur, qui n'acquitte pas.
 | V2 | Mécanisme `nSWBOOT0`/`nBOOT0` sur PB8 | RM0440 Rev 9, §2.6 Table 5 et §5.7.8 | ✅ valeur usine de `FLASH_OPTR` = 0xFFEF F8AA : `nSWBOOT0 = 1` et `nBOOT1 = 1`, donc BOOT0 est **lu sur PB8** et un niveau haut au reset démarre le **chargeur système**. Aucune pull-up sur PB8 : c'est déjà la règle |
 | V3 | Contraintes PLL G4 (M, N, Q, R, plages VCO) | DS12589 Table 45, RM0440 §7.4.4 et Table 9 | ✅ toutes respectées (voir `board.h`) |
 | V4 | Précision HSI16 | DS12589 Table 42 | ✅ ±1 % en thermique **plus** −0,75 / +0,5 % d'étalonnage : pire que supposé |
-| V5 | Brochage Blue Pill + remap bxCAN PB8/PB9 | RM0008 Rev 21, §9.3.4 Table 34 ; DS5319 | remap confirmé (`CAN_REMAP = 10`, absent du boîtier 36 broches seulement) ; brochage complet au lot 5 |
+| V5 | Brochage Blue Pill + remap bxCAN PB8/PB9 | RM0008 Rev 21, §9.3.4 Table 34 ; DS5319 Rev 20, Table 5 | ✅ remap confirmé (`CAN_REMAP = 10`) ; broches LQFP48 et tolérance 5 V relevées dans `board.h` |
 | V6 | Pull-up USB sur PA12 de la Blue Pill, clones F103 | mesure à l'ohmmètre sur la carte reçue | **non bloquant** : avec le remap, PA12 ne porte plus le CAN. RM0008 (§ bxCAN) : USB et CAN partagent 512 o de SRAM et ne peuvent pas fonctionner en même temps, donc N4 n'utilise pas l'USB |
 | V7 | Horodatage matériel du firmware candleLight | doc candleLight / gs_usb | Lot 7 |
 | V8 | Tolérance du MCO ST-LINK (option B, §3.2) | UM2448 | si option B |
 | V9 | Présence/valeur des terminaisons sur les modules | inspection visuelle | T1, Q5b |
 | V10 | Errata G431 : anomalies FDCAN | ES0431 Rev 9, §2.15 | ✅ sans effet : §2.15.1 exige `CCCR.EFBI`, jamais positionné (0 au reset) ; §2.15.2 exige le mode FIFO, or on utilise le mode file (`TFQM = 1`) |
 | V11 | Cartographie mémoire du G431KB | RM0440 Rev 9, §2.4 | ✅ SRAM1 + SRAM2 + CCM aliasée à 0x20005800 : 32 Ko contigus |
+| V12 | Quartz de 8 MHz sur la Blue Pill | marquage du quartz, carte reçue | à vérifier — `docs/bringup.md` §8.1 |
+| V13 | LED de la Blue Pill sur PC13, allumée au niveau bas | carte reçue ; DS5319 Table 5 note 5 impose le câblage en puits | à vérifier — `docs/bringup.md` §8.4 |
+| V14 | Errata STM32F103 (bxCAN, I2C) | ES096, référence à confirmer | document non fourni ; l'I2C du F1 a des limitations connues, à lire avant le lot 6 |

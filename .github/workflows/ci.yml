@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [n1, n2, n3]
+        node: [n1, n2, n3, n4, n1-selftest, n4-selftest]
     steps:
       - uses: actions/checkout@v4
         with:

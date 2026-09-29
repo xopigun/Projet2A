@@ -7,9 +7,9 @@
  * sans avertissement : on fournit donc nos propres talons, qui échouent
  * proprement plutôt que bruyamment.
  *
- * `_write` est branché sur le port COM virtuel du ST-LINK lorsque le journal
- * série est actif, ce qui rend `printf()` utilisable pour le diagnostic sans
- * rien changer d'autre.
+ * `_write` est branché sur le journal série lorsqu'il est actif — port COM
+ * virtuel du ST-LINK sur la Nucleo, USART1 sur la Blue Pill — ce qui rend
+ * `printf()` utilisable pour le diagnostic sans rien changer d'autre.
  */
 
 #include <errno.h>

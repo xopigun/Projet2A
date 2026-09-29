@@ -23,8 +23,8 @@ bool bench_clock_is_qualified(void);
 /** @brief Libelle court de la source d'horloge, pour l'ecran et le journal. */
 const char *bench_clock_source_name(void);
 
-/** @brief Horloge noyau du FDCAN effectivement obtenue, en Hz. */
-uint32_t bench_clock_fdcan_hz(void);
+/** @brief Horloge du controleur CAN effectivement obtenue, en Hz (noyau FDCAN). */
+uint32_t bench_clock_can_hz(void);
 
 /**
  * @brief Arret fatal, visible : message sur le VCP et LED LD2 qui clignote vite.

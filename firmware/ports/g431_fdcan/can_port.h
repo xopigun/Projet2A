@@ -11,6 +11,9 @@
 #include "can_if.h"
 #include "util/ring_buffer.h"
 
+/** Nom du controleur, pour le journal : chaque port expose les memes noms. */
+#define BENCH_CAN_PERIPH_NAME "FDCAN"
+
 /** Contexte du port FDCAN. */
 typedef struct {
     FDCAN_HandleTypeDef   hfdcan;
@@ -20,7 +23,7 @@ typedef struct {
     volatile uint8_t      ext_id_rx;       /**< trames a identifiant 29 bits, saturant */
     bench_busoff_policy_t busoff_policy;
     bool                  silent;
-} bench_g431_can_t;
+} bench_port_can_t;
 
 /**
  * @brief Relie le port a un tampon de reception et remplit l'interface abstraite.
@@ -28,7 +31,7 @@ typedef struct {
  * A appeler avant @c open(). Le G431KB n'ayant qu'un seul FDCAN, un seul port
  * peut etre lie a la fois.
  */
-void bench_g431_can_bind(bench_g431_can_t *port, bench_ring_t *rx_ring, bench_can_t *out);
+void bench_port_can_bind(bench_port_can_t *port, bench_ring_t *rx_ring, bench_can_t *out);
 
 /**
  * @brief Entretien periodique, a appeler depuis la boucle principale.
@@ -36,6 +39,6 @@ void bench_g431_can_bind(bench_g431_can_t *port, bench_ring_t *rx_ring, bench_ca
  * Applique la politique de reprise apres bus-off : FDCAN n'a pas d'equivalent
  * materiel du bit ABOM de bxCAN, la reprise automatique est donc logicielle.
  */
-void bench_g431_can_poll(bench_g431_can_t *port);
+void bench_port_can_poll(bench_port_can_t *port);
 
 #endif /* BENCH_G431_CAN_PORT_H */

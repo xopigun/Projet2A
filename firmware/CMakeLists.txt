@@ -11,11 +11,16 @@ set(VENDOR ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
 if(BENCH_NODE_ID EQUAL 4)
     set(BENCH_BOARD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boards/bluepill_f103)
     set(BENCH_PORT_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/ports/f103_bxcan)
-    if(NOT EXISTS ${BENCH_BOARD_DIR}/board.h)
+    set(BENCH_MCU_FAMILY f1)
+    # Le STM32F103C8 est un « medium density » : il partage l'en-tete xB.
+    set(BENCH_MCU_DEVICE STM32F103xB)
+    set(BENCH_CPU_FLAGS -mcpu=cortex-m3 -mthumb -mfloat-abi=soft)
+    set(BENCH_STARTUP ${VENDOR}/cmsis_device_f1/Source/Templates/gcc/startup_stm32f103xb.s)
+    set(BENCH_LINKER_SCRIPT ${BENCH_PORT_DIR}/STM32F103C8Tx_FLASH.ld)
+    if(BENCH_CLOCK_SOURCE STREQUAL "HSI")
         message(FATAL_ERROR
-            "Le noeud N4 (Blue Pill / bxCAN) n'est pas encore porte : lot 5.\n"
-            "Il attend RM0008, DS5319 et le schema de la carte — aucun brochage "
-            "F103 ne sera ecrit sans source. Voir docs/PLAN.md, points V5 et V6.")
+            "Pas de repli HSI pour N4 : le quartz de la Blue Pill est cable d'origine, "
+            "et le HSI du F103 ne permet pas le meme arbre d'horloge. Utiliser HSE.")
     endif()
 else()
     set(BENCH_BOARD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boards/nucleo_g431kb)
@@ -35,32 +40,41 @@ set(BENCH_ELF n${BENCH_NODE_ID})
 set(HAL_DIR ${VENDOR}/stm32${BENCH_MCU_FAMILY}xx_hal_driver)
 set(HAL_PREFIX stm32${BENCH_MCU_FAMILY}xx_hal)
 
+# Modules presents sous le meme nom dans les deux HAL.
 set(HAL_MODULES
     ${HAL_DIR}/Src/${HAL_PREFIX}.c
     ${HAL_DIR}/Src/${HAL_PREFIX}_cortex.c
     ${HAL_DIR}/Src/${HAL_PREFIX}_dma.c
-    ${HAL_DIR}/Src/${HAL_PREFIX}_dma_ex.c
     ${HAL_DIR}/Src/${HAL_PREFIX}_exti.c
-    ${HAL_DIR}/Src/${HAL_PREFIX}_fdcan.c
     ${HAL_DIR}/Src/${HAL_PREFIX}_flash.c
     ${HAL_DIR}/Src/${HAL_PREFIX}_flash_ex.c
     ${HAL_DIR}/Src/${HAL_PREFIX}_gpio.c
     ${HAL_DIR}/Src/${HAL_PREFIX}_i2c.c
-    ${HAL_DIR}/Src/${HAL_PREFIX}_i2c_ex.c
     ${HAL_DIR}/Src/${HAL_PREFIX}_pwr.c
-    ${HAL_DIR}/Src/${HAL_PREFIX}_pwr_ex.c
     ${HAL_DIR}/Src/${HAL_PREFIX}_rcc.c
     ${HAL_DIR}/Src/${HAL_PREFIX}_rcc_ex.c
     ${HAL_DIR}/Src/${HAL_PREFIX}_uart.c
-    ${HAL_DIR}/Src/${HAL_PREFIX}_uart_ex.c
 )
+# Modules propres a chaque famille : le controleur CAN en premier lieu.
+if(BENCH_MCU_FAMILY STREQUAL "g4")
+    list(APPEND HAL_MODULES
+        ${HAL_DIR}/Src/${HAL_PREFIX}_dma_ex.c
+        ${HAL_DIR}/Src/${HAL_PREFIX}_fdcan.c
+        ${HAL_DIR}/Src/${HAL_PREFIX}_i2c_ex.c
+        ${HAL_DIR}/Src/${HAL_PREFIX}_pwr_ex.c
+        ${HAL_DIR}/Src/${HAL_PREFIX}_uart_ex.c)
+else()
+    list(APPEND HAL_MODULES
+        ${HAL_DIR}/Src/${HAL_PREFIX}_can.c
+        ${HAL_DIR}/Src/${HAL_PREFIX}_gpio_ex.c)
+endif()
 
 add_library(bench_hal STATIC
     ${HAL_MODULES}
     ${VENDOR}/cmsis_device_${BENCH_MCU_FAMILY}/Source/Templates/system_stm32${BENCH_MCU_FAMILY}xx.c
 )
 target_include_directories(bench_hal PUBLIC
-    ${BENCH_PORT_DIR}                      # stm32g4xx_hal_conf.h du projet
+    ${BENCH_PORT_DIR}                      # stm32<famille>xx_hal_conf.h du projet
     ${HAL_DIR}/Inc
     ${VENDOR}/cmsis_device_${BENCH_MCU_FAMILY}/Include
     ${VENDOR}/cmsis_core/Core/Include
@@ -104,22 +118,24 @@ target_link_libraries(bench_app PUBLIC bench_hal)
 # ---------------------------------------------------------------------------
 #  Exécutable
 # ---------------------------------------------------------------------------
+# Programme principal et appels systeme : communs aux deux cartes (entry/).
 # Le mode autotest remplace main.c par selftest.c : meme port, meme code commun,
 # seul le programme principal change (voir docs/bringup.md).
+set(ENTRY ${CMAKE_CURRENT_SOURCE_DIR}/entry)
 option(BENCH_SELFTEST "Compiler l'autotest de mise en route au lieu du firmware" OFF)
 if(BENCH_SELFTEST)
-    set(BENCH_MAIN ${BENCH_PORT_DIR}/selftest.c)
+    set(BENCH_MAIN ${ENTRY}/selftest.c)
     message(STATUS "Mode autotest : bouclage interne puis ping/pong")
 else()
-    set(BENCH_MAIN ${BENCH_PORT_DIR}/main.c)
+    set(BENCH_MAIN ${ENTRY}/main.c)
 endif()
 
 add_executable(${BENCH_ELF}
     ${BENCH_MAIN}
+    ${ENTRY}/syscalls.c
     ${BENCH_PORT_DIR}/serial.c
     ${BENCH_PORT_DIR}/clock.c
     ${BENCH_PORT_DIR}/can_port.c
-    ${BENCH_PORT_DIR}/syscalls.c
     ${BENCH_STARTUP}
 )
 target_include_directories(${BENCH_ELF} PRIVATE ${BENCH_PORT_DIR})

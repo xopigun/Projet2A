@@ -34,7 +34,7 @@ _Static_assert(FDCAN_DLC_BYTES_0 == 0u,
                "Codage du DLC FDCAN inattendu : verifier la version de la HAL G4");
 
 /** Contexte unique du port ; le G431KB n'a qu'un seul FDCAN. */
-static bench_g431_can_t *s_port;
+static bench_port_can_t *s_port;
 
 /* ------------------------------------------------------------------ temps -- */
 
@@ -46,6 +46,11 @@ static bench_g431_can_t *s_port;
  * d'arbitrage ne serait pas discernable.
  */
 static void dwt_init(void) {
+    /* Une seule fois : open() est rappelée par les modes de faute, et remettre
+     * le compteur à zéro ferait reculer les horodatages en cours de test. */
+    if ((DWT->CTRL & DWT_CTRL_CYCCNTENA_Msk) != 0u) {
+        return;
+    }
     CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
     DWT->CYCCNT = 0u;
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
@@ -93,11 +98,17 @@ static void gpio_init(void) {
 /* ------------------------------------------------------------------ ouverture */
 
 static bool port_open(void *ctx, const bench_can_config_t *config) {
-    bench_g431_can_t *port = (bench_g431_can_t *)ctx;
+    bench_port_can_t *port = (bench_port_can_t *)ctx;
 
     dwt_init();
     gpio_init();
     __HAL_RCC_FDCAN_CLK_ENABLE();
+
+    /* open() peut être rappelée contrôleur démarré (modes de faute « débit
+     * erroné » et « bus-off maintenu ») : on l'arrête d'abord. */
+    if (port->hfdcan.State == HAL_FDCAN_STATE_BUSY) {
+        (void)HAL_FDCAN_Stop(&port->hfdcan);
+    }
 
     port->hfdcan.Instance = FDCAN1;
     port->hfdcan.Init.ClockDivider = FDCAN_CLOCK_DIV1;
@@ -161,7 +172,7 @@ static bool port_open(void *ctx, const bench_can_config_t *config) {
 
     /* Sur FDCAN la reprise après bus-off est logicielle : le matériel n'a pas
      * d'équivalent du bit ABOM de bxCAN. Le bit INIT est remis à zéro par
-     * bench_g431_can_poll() lorsque la politique est automatique. */
+     * bench_port_can_poll() lorsque la politique est automatique. */
     if (HAL_FDCAN_ActivateNotification(&port->hfdcan,
                                        FDCAN_IT_RX_FIFO0_NEW_MESSAGE |
                                            FDCAN_IT_RX_FIFO0_MESSAGE_LOST |
@@ -179,7 +190,7 @@ static bool port_open(void *ctx, const bench_can_config_t *config) {
 
 /* ------------------------------------------------------------------ émission */
 
-static bool tx_common(bench_g431_can_t *port, const bench_can_frame_t *frame) {
+static bool tx_common(bench_port_can_t *port, const bench_can_frame_t *frame) {
     FDCAN_TxHeaderTypeDef header = {0};
 
     /* Verrouillage CAN 2.0A classic, cote emission. Une trame hors specification
@@ -210,7 +221,7 @@ static bool tx_common(bench_g431_can_t *port, const bench_can_frame_t *frame) {
 }
 
 static bool port_send(void *ctx, const bench_can_frame_t *frame) {
-    return tx_common((bench_g431_can_t *)ctx, frame);
+    return tx_common((bench_port_can_t *)ctx, frame);
 }
 
 /**
@@ -220,13 +231,13 @@ static bool port_send(void *ctx, const bench_can_frame_t *frame) {
  * libre ; comme GO l'occupe encore, tous les contendants démarrent au même bit.
  */
 static bool port_arm(void *ctx, const bench_can_frame_t *frame) {
-    return tx_common((bench_g431_can_t *)ctx, frame);
+    return tx_common((bench_port_can_t *)ctx, frame);
 }
 
 /* --------------------------------------------------------------------- état */
 
 static void port_status(void *ctx, bench_can_status_t *status) {
-    bench_g431_can_t *port = (bench_g431_can_t *)ctx;
+    bench_port_can_t *port = (bench_port_can_t *)ctx;
 
     /* Lecture directe des registres : PSR pour l'état du protocole, ECR pour
      * les compteurs. PSR est à effacement à la lecture pour certains bits, on ne
@@ -254,7 +265,7 @@ static void port_status(void *ctx, bench_can_status_t *status) {
 }
 
 static bool port_recover(void *ctx) {
-    bench_g431_can_t *port = (bench_g431_can_t *)ctx;
+    bench_port_can_t *port = (bench_port_can_t *)ctx;
 
     if ((port->hfdcan.Instance->PSR & FDCAN_PSR_BO) == 0u) {
         return true;
@@ -266,7 +277,7 @@ static bool port_recover(void *ctx) {
 }
 
 static void port_set_silent(void *ctx, bool silent) {
-    bench_g431_can_t *port = (bench_g431_can_t *)ctx;
+    bench_port_can_t *port = (bench_port_can_t *)ctx;
 
     /* Le mode silencieux passe par le mode moniteur du contrôleur plutôt que par
      * la broche S du transceiver : sémantique identique sur G431 et F103, pas de
@@ -291,7 +302,7 @@ static const bench_can_ops_t s_ops = {
     .now_us = now_us,
 };
 
-void bench_g431_can_bind(bench_g431_can_t *port, bench_ring_t *rx_ring, bench_can_t *out) {
+void bench_port_can_bind(bench_port_can_t *port, bench_ring_t *rx_ring, bench_can_t *out) {
     port->rx_ring = rx_ring;
     port->rx_fifo_lost = 0u;
     port->non_classic_rx = 0u;
@@ -302,7 +313,7 @@ void bench_g431_can_bind(bench_g431_can_t *port, bench_ring_t *rx_ring, bench_ca
     out->ctx = port;
 }
 
-void bench_g431_can_poll(bench_g431_can_t *port) {
+void bench_port_can_poll(bench_port_can_t *port) {
     if (port->busoff_policy != BENCH_BUSOFF_AUTO) {
         return;
     }
@@ -316,6 +327,11 @@ void bench_g431_can_poll(bench_g431_can_t *port) {
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t interrupts) {
     FDCAN_RxHeaderTypeDef header;
     bench_can_frame_t frame;
+    /* La HAL recopie DLCtoBytes[DLC] octets, jusqu'à 64, sans regarder le format
+     * de la trame. Une trame classique de DLC 9 à 15, parfaitement légale en
+     * CAN 2.0, déborderait donc frame.data[8] depuis l'ISR : la HAL écrit ici,
+     * et seuls les 8 premiers octets sont conservés. */
+    uint8_t payload[64];
 
     if (s_port == NULL) {
         return;
@@ -334,7 +350,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t interrupts)
     }
 
     /* Tout ce que fait l'ISR : dater, recopier, compter, sortir. */
-    while (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &header, frame.data) == HAL_OK) {
+    while (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &header, payload) == HAL_OK) {
         /* Le bus est en CAN 2.0A classic : ces deux compteurs doivent rester
          * nuls. Ils sont remontes dans le heartbeat pour qu'une trame etrangere
          * au standard commun se voie, au lieu d'etre silencieusement ignoree.
@@ -356,7 +372,13 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t interrupts)
 
         frame.timestamp_us = now_us(NULL);
         frame.id = (uint16_t)header.Identifier;
-        frame.dlc = (uint8_t)header.DataLength;  /* FDCAN_DLC_BYTES_n == n */
+        /* FDCAN_DLC_BYTES_n == n. En CAN 2.0, un DLC de 9 à 15 signifie 8 octets :
+         * le tampon et tout le code commun supposent dlc <= 8. */
+        frame.dlc = (header.DataLength > BENCH_CLASSIC_MAX_DLC) ? (uint8_t)BENCH_CLASSIC_MAX_DLC
+                                                               : (uint8_t)header.DataLength;
+        for (uint8_t i = 0u; i < BENCH_CLASSIC_MAX_DLC; i++) {
+            frame.data[i] = (i < frame.dlc) ? payload[i] : 0u;  /* pas de reste de pile */
+        }
         (void)bench_ring_push(s_port->rx_ring, &frame);
     }
 }

@@ -100,7 +100,7 @@ const char *bench_clock_source_name(void) {
 #endif
 }
 
-uint32_t bench_clock_fdcan_hz(void) {
+uint32_t bench_clock_can_hz(void) {
     return HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN);
 }
 
@@ -132,6 +132,12 @@ void bench_fatal(const char *reason) {
         HAL_GPIO_TogglePin(BENCH_LED_TX_PORT, BENCH_LED_TX_PIN);
         busy_wait(400000u);  /* quelques Hz, que l'horloge soit a 16 ou 160 MHz */
     }
+}
+
+/** Appelée par HAL_Init() : horloges des blocs système utilisés par la HAL. */
+void HAL_MspInit(void) {
+    __HAL_RCC_PWR_CLK_ENABLE();
+    __HAL_RCC_SYSCFG_CLK_ENABLE();
 }
 
 void bench_clock_failure(void) {

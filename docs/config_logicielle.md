@@ -127,6 +127,17 @@ n'appartiennent pas à l'ICD.
 > conservé par précaution, mais **le signal principal d'une trame FD sur le bus reste
 > l'erreur de forme**. À retenir pour le dépouillement de T6.
 
+Sur le F103, `non_classic_rx` reste **toujours nul** : bxCAN ne connaît pas le CAN FD, et
+une telle trame n'y est jamais qu'une erreur de forme.
+
+> **DLC de 9 à 15.** En CAN 2.0, ces valeurs sont légales et signifient 8 octets. Les deux
+> ports ramènent donc le DLC reçu à 8 au plus, pour que tout le code commun puisse supposer
+> `dlc ≤ 8`. Sur le G431, c'est aussi une **protection mémoire** : la HAL G4 recopie
+> `DLCtoBytes[DLC]` octets — jusqu'à 64 — sans regarder le format de la trame. La réception
+> se fait donc dans un tampon de 64 octets, dont seuls les 8 premiers sont conservés. Sans
+> cela, une trame classique de DLC 15, émise par n'importe quel nœud étranger, écraserait la
+> pile depuis l'interruption.
+
 Côté PC, `canbench` ouvre l'interface en classic (`fd=False`) et signale toute trame FD ou
 étendue reçue.
 
@@ -205,6 +216,10 @@ finesse de rattrapage d'un déphasage, pas sur l'écart d'horloge tolérable.
 | Trames standard non filtrées | `FDCAN_ACCEPT_IN_RX_FIFO0` |
 | Trames étendues non filtrées | `FDCAN_ACCEPT_IN_RX_FIFO0` |
 | Trames distantes | `FDCAN_FILTER_REMOTE` |
+| bxCAN (F103) | banc 0 en mode masque 32 bits, identifiant et masque nuls, vers la FIFO 0 |
+
+Sur bxCAN, « aucun filtre » ne veut pas dire « tout accepter » : **sans banc de filtres
+actif, rien n'est reçu**. Un masque nul est la façon d'accepter toutes les trames.
 
 C'est un choix, pas un oubli. Un banc de test doit voir **tout** le trafic, y compris les
 trames qu'il n'attend pas : c'est ce qui permet de détecter un *babbling idiot*, un
@@ -229,6 +244,11 @@ démontrerait rien.
 |---|---|
 | FDCAN | `Init.AutoRetransmission = ENABLE` (soit `CCCR.DAR = 0`) |
 | bxCAN | `NART = 0` |
+
+L'**ordre d'émission** des trames en attente est aussi aligné : par identifiant, sur les
+deux contrôleurs. FDCAN est en mode file d'attente (`TFQM = 1`), bxCAN en priorité par
+identifiant (`TXFP = 0`). Le mode file du FDCAN écarte en outre l'erratum ES0431 §2.15.2,
+qui ne touche que le mode FIFO.
 
 Le champ est exposé dans `bench_can_config_t.auto_retransmit` afin de pouvoir le désactiver
 volontairement lors d'un test de robustesse, jamais en fonctionnement nominal.
@@ -257,7 +277,7 @@ dossier :
   entièrement gérée par le périphérique.
 - **FDCAN n'a pas d'équivalent.** La reprise est **logicielle** : il faut remettre à zéro le
   bit `CCCR.INIT` pour lancer la séquence de reprise. C'est fait par
-  `bench_g431_can_poll()`, appelée depuis la boucle principale.
+  `bench_port_can_poll()`, appelée depuis la boucle principale.
 
 Le comportement observable est identique ; seule l'implémentation diffère.
 
@@ -290,9 +310,17 @@ La broche `S` reste pilotable si `board.h` la définit, en complément.
 
 ## 8. Mode bouclage interne
 
-`FDCAN_MODE_INTERNAL_LOOPBACK`, exposé par `bench_can_config_t.loopback`. Le contrôleur se
-reçoit lui-même sans rien émettre sur les broches : **ni transceiver ni bus câblé ne sont
-nécessaires**.
+Exposé par `bench_can_config_t.loopback`. Le contrôleur se reçoit lui-même sans rien émettre
+sur les broches : **ni transceiver ni bus câblé ne sont nécessaires**.
+
+| Contrôleur | Réglage |
+|---|---|
+| FDCAN | `FDCAN_MODE_INTERNAL_LOOPBACK` |
+| bxCAN | `CAN_MODE_SILENT_LOOPBACK` (`LBKM` + `SILM`) |
+
+Le piège est côté bxCAN : en bouclage **simple**, il émet quand même ses trames sur CANTX
+(RM0008, § modes de test). Seul le bouclage **combiné au mode silencieux** maintient CANTX
+récessive et laisse le bus intact.
 
 C'est la base de la phase 1 de l'autotest de mise en route ([bringup.md](bringup.md) §3).
 
