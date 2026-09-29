@@ -114,8 +114,26 @@ démontre pas. Les rapports produits portent la mention correspondante.
 
 ### Interface graphique
 
-Pour une démonstration, ou simplement pour piloter le banc sans ligne de commande :
-**double-cliquer sur `lancer_banc.bat`** à la racine du dépôt. Le navigateur s'ouvre sur
+Pour une démonstration, ou simplement pour piloter le banc sans ligne de commande, il
+existe un **logiciel Windows**, `BancCAN.exe`. Il s'ouvre dans sa propre fenêtre, se
+connecte depuis le bouton « Connexion » (simulation ou CANable), et s'arrête quand on
+ferme la fenêtre. Le bouton « Aide » explique chaque indicateur, chaque test et chaque
+faute. L'exécutable n'est pas versionné ; il se reconstruit en une minute :
+
+```bash
+python -m pip install pyinstaller
+```
+
+```bash
+python pc/build_exe.py
+```
+
+Le fichier produit est `dist/BancCAN.exe`. Pour que le logiciel pilote un CANable réel,
+installer le pilote python-can correspondant **avant** de le construire
+(`python -m pip install -e "pc[slcan]"` ou `"pc[gs-usb]"`) : il est alors embarqué.
+
+Sans construire l'exécutable, **double-cliquer sur `lancer_banc.bat`** donne la même
+interface dans le navigateur. Le navigateur s'ouvre sur
 <http://127.0.0.1:8765> et affiche le bus en direct, l'état des nœuds tiré de leurs
 heartbeats, les trames décodées par l'ICD, les tests T3, T4 et T6 avec leur rapport
 téléchargeable, et l'injection de fautes par `BENCH_CFG`.

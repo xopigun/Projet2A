@@ -11,7 +11,7 @@ from http.server import ThreadingHTTPServer
 
 import pytest
 
-from canbench.gui.server import BenchService, make_handler
+from canbench.gui.server import Application, BenchService, make_handler
 
 
 @pytest.fixture
@@ -82,3 +82,21 @@ def test_api_http_et_page(service: BenchService) -> None:
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_changement_de_connexion_et_repli_en_simulation(service: BenchService) -> None:
+    app = Application(service)
+    try:
+        # Interface inexistante : refus explicite, la connexion courante reste.
+        assert not app.connect("inexistante", None)
+        assert app.service is service
+
+        # Échec d'ouverture (canal slcan sur un port absent) : retour à la simulation.
+        assert not app.connect("slcan", "COM_ABSENT_99")
+        assert app.connect_error
+        assert app.service.virtual and app.service.simulator is not None
+
+        assert app.connect("virtual", None)
+        assert app.connect_error is None
+    finally:
+        app.close()

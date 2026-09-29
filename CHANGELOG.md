@@ -41,6 +41,10 @@ du dépôt correspond au dossier `v0.1`.
 - **Interface graphique** (`canbench gui`, `lancer_banc.bat`) : bus en direct, état des
   nœuds, trames décodées, tests T3, T4 et T6 avec rapport, injection de fautes. Sans
   dépendance supplémentaire ; simulation signalée en permanence.
+- **Logiciel Windows `BancCAN.exe`** (`pc/build_exe.py`, PyInstaller) : fenêtre
+  d'application dédiée, connexion choisie depuis l'interface avec repli en simulation,
+  aide intégrée (TEC/REC, états CAN, tests T1 à T7, fautes), arrêt à la fermeture, perte
+  de connexion signalée au lieu d'une page figée.
 
 ### Corrigé (écarts relevés par rapport au dossier v0.1)
 

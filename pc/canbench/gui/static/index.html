@@ -24,6 +24,7 @@
   }
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body { margin: 0; background: var(--bg); color: var(--ink);
   font: 15px/1.45 "Segoe UI", system-ui, -apple-system, sans-serif; }
 header { background: var(--panel); border-bottom: 1px solid var(--line); padding: 14px 24px;
@@ -118,6 +119,25 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; 
 .spinner { width: 16px; height: 16px; border: 3px solid var(--accent-soft); border-top-color: var(--accent);
   border-radius: 50%; animation: spin .8s linear infinite; display: inline-block; vertical-align: middle; }
 @keyframes spin { to { transform: rotate(360deg); } }
+.hbtn { background: var(--accent-soft); color: var(--accent); padding: 6px 12px; font-size: 13px; }
+.overlay { position: fixed; inset: 0; background: rgba(8,12,20,.55); display: flex;
+  align-items: center; justify-content: center; z-index: 50; padding: 16px; }
+.overlay[hidden] { display: none; }
+.modal { background: var(--panel); color: var(--ink); border-radius: 14px; border: 1px solid var(--line);
+  max-width: 820px; width: 100%; max-height: 88vh; overflow: auto; padding: 22px 26px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+.modal h3 { margin: 0 0 6px; font-size: 20px; }
+.modal h4 { margin: 20px 0 6px; font-size: 15px; color: var(--accent); }
+.modal p, .modal li { font-size: 14px; }
+.modal .close { float: right; }
+.modal table td:first-child { font-weight: 600; white-space: nowrap; }
+.lost { position: fixed; left: 0; right: 0; top: 0; z-index: 60; background: var(--bad); color: #fff;
+  text-align: center; padding: 12px; font-weight: 600; }
+.lost[hidden] { display: none; }
+.help-dot { display: inline-flex; width: 16px; height: 16px; border-radius: 50%; align-items: center;
+  justify-content: center; font-size: 11px; font-weight: 800; background: var(--accent-soft);
+  color: var(--accent); cursor: help; margin-left: 4px; }
+.err { color: var(--bad); font-size: 13px; margin-top: 8px; }
 footer { text-align: center; color: var(--muted); font-size: 12px; padding-bottom: 20px; }
 </style>
 </head>
@@ -132,8 +152,12 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding-botto
     <span class="badge">CAN 2.0A · 500 kbit/s</span>
     <span class="badge" id="b-profile">profil</span>
     <span class="badge" id="b-up">0 s</span>
+    <button class="hbtn" id="open-connect">Connexion</button>
+    <button class="hbtn" id="open-help">Aide</button>
   </div>
 </header>
+<div class="lost" id="lost" hidden>Connexion au logiciel perdue : le serveur du banc est arrêté.
+  Les données affichées sont figées. Relancer BancCAN.</div>
 
 <main>
   <div class="banner" id="banner" hidden>
@@ -224,6 +248,78 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding-botto
     </div>
   </section>
 </main>
+<div class="overlay" id="connect" hidden>
+  <div class="modal" style="max-width:560px">
+    <button class="ghost close" data-close="connect">Fermer</button>
+    <h3>Connexion au bus</h3>
+    <p class="note">La simulation ne demande aucun matériel. Pour le banc réel, brancher le CANable
+      au PC avant de se connecter.</p>
+    <div id="c-list"></div>
+    <div class="row" id="c-port-row" style="margin-top:10px" hidden>
+      <label>Port série <select id="c-port"></select></label>
+    </div>
+    <div class="row" style="margin-top:14px"><button id="c-go">Se connecter</button>
+      <span class="note" id="c-msg"></span></div>
+    <div class="err" id="c-err"></div>
+  </div>
+</div>
+
+<div class="overlay" id="help" hidden>
+  <div class="modal">
+    <button class="ghost close" data-close="help">Fermer</button>
+    <h3>Comprendre le banc</h3>
+    <p>Quatre nœuds partagent un même bus CAN à 500 kbit/s. Le PC y est relié par un
+      adaptateur (CANable) : il écoute tout, envoie des commandes et mesure.</p>
+
+    <h4>L'état d'un nœud : TEC, REC et les quatre états</h4>
+    <p>Chaque contrôleur CAN tient deux compteurs d'erreurs, imposés par la norme ISO 11898-1 et
+      lus directement dans ses registres :</p>
+    <table>
+      <tr><td>TEC</td><td>erreurs en <b>émission</b> : +8 à chaque trame émise en erreur, −1 à chaque trame réussie.</td></tr>
+      <tr><td>REC</td><td>erreurs en <b>réception</b> : +1 (parfois +8) par erreur détectée, −1 par trame bien reçue.</td></tr>
+    </table>
+    <p>Selon ces compteurs, le nœud change d'état : c'est ce qui empêche un nœud défaillant de
+      paralyser tout le bus.</p>
+    <table>
+      <tr><td><span class="state s0">error-active</span></td><td>normal (TEC et REC &lt; 96). Il signale activement les erreurs qu'il voit.</td></tr>
+      <tr><td><span class="state s1">error-warning</span></td><td>avertissement : un compteur a dépassé 96.</td></tr>
+      <tr><td><span class="state s2">error-passive</span></td><td>un compteur a atteint 128. Le nœud continue, mais ne peut plus perturber les autres en signalant une erreur.</td></tr>
+      <tr><td><span class="state s3">BUS-OFF</span></td><td>TEC au-delà de 255 : le nœud se <b>déconnecte</b> de lui-même. Il ne revient qu'après 128 × 11 bits de silence.</td></tr>
+    </table>
+    <p><b>Pertes</b> : trames arrivées au nœud mais qu'il n'a pas pu garder (mémoire pleine).
+      Elles doivent rester à zéro ; sinon, c'est le nœud qui est trop lent, pas le bus qui est en faute.</p>
+
+    <h4>Les tests du protocole de validation</h4>
+    <table>
+      <tr><td>T1</td><td><b>Signal et terminaisons</b> : 60 Ω entre CAN_H et CAN_L, niveaux à l'oscilloscope. Manuel.</td></tr>
+      <tr><td>T2</td><td><b>Débit</b> : un bit doit durer 2,000 µs, mesuré à l'oscilloscope contre une référence indépendante. Manuel.</td></tr>
+      <tr><td>T3</td><td><b>Arbitrage</b> : le PC envoie ARM (« préparez-vous ») puis GO (« partez »). N1, N2 et N3 émettent au même instant ; la règle du CAN veut que l'identifiant le plus faible gagne sans que rien ne soit perdu. Attendu : N1 1er, N2 2e, N3 3e, à chaque cycle.</td></tr>
+      <tr><td>T4</td><td><b>Encodage</b> : chaque trame reçue est décodée avec l'ICD (le document qui décrit chaque signal) et comparée octet par octet à ce qui était attendu.</td></tr>
+      <tr><td>T5</td><td><b>Fautes physiques</b> : interrupteurs SW1 (retrait d'une terminaison), SW2 (court-circuit CAN_H–CAN_L), SW3 (débranchement à chaud). Guidé, sur le banc réel.</td></tr>
+      <tr><td>T6</td><td><b>Fautes logicielles</b> : un nœud reçoit l'ordre de mal se comporter ; on vérifie l'effet, puis le retour à la normale.</td></tr>
+      <tr><td>T7</td><td><b>Isolation galvanique</b> : prévu pour un nœud isolé, pas encore réalisé.</td></tr>
+    </table>
+    <p>Un test donne <b>Réussite</b>, <b>Échec</b>, ou <b>Non concluant</b> quand la mesure ne peut pas
+      faire preuve : en simulation, ou si un nœud tourne sur une horloge imprécise (HSI).</p>
+
+    <h4>Les fautes injectables</h4>
+    <p>Le PC envoie une trame <code>BENCH_CFG</code> au nœud visé. Toute faute a une durée
+      maximale et peut être révoquée : le nœud revient seul à la normale.</p>
+    <table>
+      <tr><td>Babbling idiot</td><td>le nœud inonde le bus d'une même trame (0x400) sans arrêt. On vérifie que les trames prioritaires des autres passent toujours.</td></tr>
+      <tr><td>Débit erroné</td><td>le nœud passe à 250 kbit/s : les autres ne le comprennent plus et voient des erreurs. <i>Non simulé.</i></td></tr>
+      <tr><td>DLC incohérent</td><td>le nœud émet des trames de 4 octets là où l'ICD en prévoit 8 : le décodeur doit le signaler.</td></tr>
+      <tr><td>Silencieux</td><td>le nœud écoute sans jamais répondre ni acquitter. Seul sur le bus avec un émetteur, celui-ci ne recevrait plus d'acquittement.</td></tr>
+      <tr><td>Bus-off maintenu</td><td>une fois en bus-off, le nœud y reste jusqu'à la révocation, pour laisser le temps d'observer. <i>Non simulé.</i></td></tr>
+    </table>
+
+    <h4>Simulation et banc réel</h4>
+    <p>En simulation, un programme joue le rôle des quatre cartes sur un bus virtuel. Il montre que
+      toute la chaîne logicielle fonctionne, mais il <b>reproduit</b> le comportement attendu : il ne
+      démontre rien sur le bus. Sur le banc réel, la même fenêtre pilote les vraies cartes.</p>
+  </div>
+</div>
+
 <footer>Samuel GOMRI · Dylan KIATI · Hugo MATHOUX — ENSEA, projet de 2e année</footer>
 
 <script>
@@ -273,11 +369,11 @@ function renderNodes(nodes) {
       <div class="top"><span class="nm">${n.name}</span><span class="role">${esc(n.role)}</span></div>
       <div class="role">${esc(n.board)}${n.contender ? " · contendant" : ""}</div>
       ${st}
-      <div class="kv"><span>TEC</span><span>${hb ? hb.tec : "—"}</span></div>
+      <div class="kv"><span>TEC <span class="help-dot" title="Compteur d'erreurs en émission. +8 par trame émise en erreur, −1 par trame réussie. 128 : error-passive ; au-delà de 255 : bus-off.">?</span></span><span>${hb ? hb.tec : "—"}</span></div>
       <div class="bar"><i style="width:${hb ? hb.tec / 2.55 : 0}%"></i></div>
-      <div class="kv"><span>REC</span><span>${hb ? hb.rec : "—"}</span></div>
+      <div class="kv"><span>REC <span class="help-dot" title="Compteur d'erreurs en réception. +1 (ou +8) par erreur détectée en recevant, −1 par trame bien reçue. 128 : error-passive.">?</span></span><span>${hb ? hb.rec : "—"}</span></div>
       <div class="bar"><i style="width:${hb ? hb.rec / 2.55 : 0}%"></i></div>
-      <div class="kv"><span>Pertes (FIFO + tampon)</span><span>${hb ? losses : "—"}</span></div>
+      <div class="kv"><span>Pertes <span class="help-dot" title="Trames reçues mais perdues par le nœud lui-même : FIFO matérielle du contrôleur pleine, ou tampon logiciel plein. Doit rester à 0.">?</span></span><span>${hb ? losses : "—"}</span></div>
       ${flags.join("")}
     </div>`;
   }).join("");
@@ -410,11 +506,49 @@ async function tick() {
     setBusy(s.busy);
     if (wasBusy && !s.busy) renderResult(await (await fetch("/api/result")).json());
     wasBusy = s.busy;
+    $("lost").hidden = true;
+    virtual = s.virtual;
+    if (s.connect_error && !$("connect").hidden) $("c-err").textContent = s.connect_error;
   } catch (e) {
     $("b-mode").textContent = "serveur arrêté"; $("b-mode").className = "badge sim";
+    $("lost").hidden = false;
   }
   setTimeout(tick, 300);
 }
+
+// ---- fenêtres : aide et connexion ---------------------------------------
+let virtual = true;
+document.querySelectorAll("[data-close]").forEach((b) => b.onclick = () => $(b.dataset.close).hidden = true);
+document.querySelectorAll(".overlay").forEach((o) => o.onclick = (e) => { if (e.target === o) o.hidden = true; });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") document.querySelectorAll(".overlay").forEach((o) => o.hidden = true); });
+$("open-help").onclick = () => $("help").hidden = false;
+$("open-connect").onclick = async () => {
+  const info = await (await fetch("/api/interfaces")).json();
+  $("c-list").innerHTML = info.interfaces.map((i) => `<label class="test" style="margin-bottom:8px;cursor:pointer">
+    <input type="radio" name="iface" value="${i.name}" ${i.name === info.current ? "checked" : ""} ${i.available ? "" : "disabled"}>
+    <span class="desc">${esc(i.label)}${i.available ? "" : "<small>pilote non inclus dans cette version</small>"}</span></label>`).join("");
+  $("c-port").innerHTML = info.ports.length ? info.ports.map((p) => `<option>${esc(p)}</option>`).join("")
+                                            : "<option value=''>aucun port détecté</option>";
+  const sync = () => {
+    const sel = document.querySelector("input[name=iface]:checked");
+    $("c-port-row").hidden = !sel || sel.value !== "slcan";
+  };
+  document.querySelectorAll("input[name=iface]").forEach((r) => r.onchange = sync);
+  sync();
+  $("c-err").textContent = ""; $("c-msg").textContent = "";
+  $("connect").hidden = false;
+};
+$("c-go").onclick = async () => {
+  const sel = document.querySelector("input[name=iface]:checked");
+  if (!sel) return;
+  $("c-msg").innerHTML = `<span class="spinner"></span> connexion…`;
+  const body = {interface: sel.value, channel: sel.value === "slcan" ? $("c-port").value : null};
+  const r = await (await fetch("/api/connect", {method: "POST", body: JSON.stringify(body)})).json();
+  $("c-msg").textContent = r.ok ? "Connecté." : "";
+  $("c-err").textContent = r.ok ? "" : `Échec : ${r.error || "inconnu"}. Retour à la simulation.`;
+  built = false; lastTop = null; $("result").hidden = true;
+  if (r.ok) setTimeout(() => $("connect").hidden = true, 600);
+};
 
 document.querySelectorAll("[data-run]").forEach((b) => b.onclick = async () => {
   const params = {cycles: +$("p-cycles").value, node: +$("p-node").value};
@@ -433,7 +567,7 @@ $("f-stop").onclick = () => fault(0);
 
 fetch("/api/icd").then((r) => r.json()).then((icd) => {
   $("f-mode").innerHTML = Object.entries(icd.modes).filter(([k]) => k !== "0")
-    .map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("");
+    .map(([k, v]) => `<option value="${k}">${esc(v)}${["2", "5"].includes(k) ? " (sans effet en simulation)" : ""}</option>`).join("");
 });
 tick();
 </script>

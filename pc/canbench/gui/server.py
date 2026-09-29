@@ -410,11 +410,96 @@ def _round(value):
 
 
 # ---------------------------------------------------------------------------
+#  Application : connexion courante, changement de connexion, veille
+# ---------------------------------------------------------------------------
+
+#: Interfaces proposées dans la fenêtre, avec le module python-can requis.
+INTERFACES = {
+    "virtual": {"label": "Simulation (aucun matériel)", "module": None, "channel": False},
+    "gs_usb": {
+        "label": "CANable 2.0 — firmware candleLight (gs_usb)",
+        "module": "gs_usb",
+        "channel": False,
+    },
+    "slcan": {"label": "CANable — firmware slcan (port COM)", "module": "serial", "channel": True},
+}
+
+
+def interface_available(name: str) -> bool:
+    """Vrai si le pilote python-can de cette interface est importable."""
+    module = INTERFACES[name]["module"]
+    if module is None:
+        return True
+    try:
+        __import__(module)
+    except ImportError:
+        return False
+    return True
+
+
+def serial_ports() -> list[str]:
+    """Ports série présents, pour le CANable en slcan ; vide sans pyserial."""
+    try:
+        from serial.tools import list_ports
+    except ImportError:
+        return []
+    return [port.device for port in list_ports.comports()]
+
+
+class Application:
+    """Tient le service courant ; permet d'en changer depuis la fenêtre."""
+
+    def __init__(self, service: BenchService) -> None:
+        self.service = service
+        self._lock = threading.Lock()
+        self.last_poll: float | None = None
+        self.connect_error: str | None = None
+
+    def connect(self, interface: str, channel: str | None) -> bool:
+        """Ferme la connexion courante et en ouvre une autre.
+
+        En cas d'échec — CANable absent, pilote manquant — on revient à la
+        simulation plutôt que de laisser la fenêtre sans rien à afficher, et
+        l'erreur est affichée telle quelle.
+        """
+        if interface not in INTERFACES:
+            self.connect_error = f"interface inconnue : {interface}"
+            return False
+        with self._lock:
+            previous = self.service
+            if previous.busy is not None:
+                self.connect_error = "un test est en cours"
+                return False
+            previous.close()
+            try:
+                self.service = BenchService(
+                    interface=interface,
+                    channel=channel or None,
+                    bitrate=previous.bitrate,
+                    profile=previous.profile,
+                    simulate=interface == "virtual",
+                )
+                self.connect_error = None
+                return True
+            except Exception as error:  # noqa: BLE001 — l'erreur est affichée telle quelle
+                self.connect_error = f"{type(error).__name__} : {error}"
+                self.service = BenchService(
+                    bitrate=previous.bitrate, profile=previous.profile, simulate=True
+                )
+                return False
+
+    def close(self) -> None:
+        self.service.close()
+
+
+# ---------------------------------------------------------------------------
 #  HTTP
 # ---------------------------------------------------------------------------
 
 
-def make_handler(service: BenchService):
+def make_handler(target: BenchService | Application):
+    app = target if isinstance(target, Application) else Application(target)
+
     class Handler(BaseHTTPRequestHandler):
         server_version = "canbench-gui"
 
@@ -442,11 +527,15 @@ def make_handler(service: BenchService):
                 return {}
 
         def do_GET(self) -> None:  # noqa: N802 — nom imposé par http.server
+            service = app.service
             if self.path in ("/", "/index.html"):
                 page = (STATIC_DIR / "index.html").read_bytes()
                 self._send(HTTPStatus.OK, page, "text/html; charset=utf-8")
             elif self.path == "/api/state":
-                self._json(service.state())
+                app.last_poll = time.monotonic()
+                state = service.state()
+                state["connect_error"] = app.connect_error
+                self._json(state)
             elif self.path == "/api/result":
                 self._json(service.last_result or {})
             elif self.path == "/api/icd":
@@ -456,11 +545,28 @@ def make_handler(service: BenchService):
                         "contenders": icd_gen.CONTENDERS,
                     }
                 )
+            elif self.path == "/api/interfaces":
+                self._json(
+                    {
+                        "interfaces": [
+                            {
+                                "name": name,
+                                "label": spec["label"],
+                                "channel": spec["channel"],
+                                "available": interface_available(name),
+                            }
+                            for name, spec in INTERFACES.items()
+                        ],
+                        "ports": serial_ports(),
+                        "current": service.interface,
+                    }
+                )
             else:
                 self._send(HTTPStatus.NOT_FOUND, b"introuvable", "text/plain")
 
         def do_POST(self) -> None:  # noqa: N802
             body = self._body()
+            service = app.service
             if self.path.startswith("/api/run/"):
                 started = service.run_test(self.path.rsplit("/", 1)[-1], body)
                 self._json({"started": started}, HTTPStatus.OK if started else HTTPStatus.CONFLICT)
@@ -476,10 +582,32 @@ def make_handler(service: BenchService):
                     self._json({"error": str(error)}, HTTPStatus.BAD_REQUEST)
                     return
                 self._json({"ok": True})
+            elif self.path == "/api/connect":
+                ok = app.connect(str(body.get("interface", "virtual")), body.get("channel"))
+                self._json({"ok": ok, "error": app.connect_error})
             else:
                 self._send(HTTPStatus.NOT_FOUND, b"introuvable", "text/plain")
 
+    Handler.app = app
     return Handler
+
+
+def start_server(
+    interface: str = "virtual",
+    channel: str | None = None,
+    bitrate: int = icd_gen.BITRATE,
+    profile: str = icd_gen.DEFAULT_PROFILE,
+    simulate: bool = True,
+    port: int = DEFAULT_PORT,
+) -> tuple[ThreadingHTTPServer, Application]:
+    """Crée le service et le serveur HTTP ; le port 0 en choisit un libre."""
+    app = Application(BenchService(interface, channel, bitrate, profile, simulate))
+    try:
+        server = ThreadingHTTPServer(("127.0.0.1", port), make_handler(app))
+    except OSError:
+        # Port déjà pris (une autre instance ouverte) : on en prend un libre.
+        server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(app))
+    return server, app
 
 
 def serve(
@@ -492,10 +620,9 @@ def serve(
     open_browser: bool = True,
 ) -> None:
     """Démarre le service et le serveur HTTP local, jusqu'à Ctrl-C."""
-    service = BenchService(interface, channel, bitrate, profile, simulate)
-    server = ThreadingHTTPServer(("127.0.0.1", port), make_handler(service))
-    url = f"http://127.0.0.1:{port}/"
-    mode = "SIMULATION (bus virtuel)" if service.virtual else f"banc réel ({interface})"
+    server, app = start_server(interface, channel, bitrate, profile, simulate, port)
+    url = f"http://127.0.0.1:{server.server_address[1]}/"
+    mode = "SIMULATION (bus virtuel)" if app.service.virtual else f"banc réel ({interface})"
     print(f"Interface du banc CAN : {url}")
     print(f"Mode : {mode}")
     print("Fermer cette fenêtre, ou Ctrl-C, pour arrêter.")
@@ -507,7 +634,7 @@ def serve(
         print("\nArrêt.")
     finally:
         server.server_close()
-        service.close()
+        app.close()
 
 
-__all__ = ["BenchService", "serve"]
+__all__ = ["Application", "BenchService", "serve", "start_server"]
