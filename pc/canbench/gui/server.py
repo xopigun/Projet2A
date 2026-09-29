@@ -22,6 +22,7 @@ nœuds, il ne démontre rien sur le bus (voir `simulator.py`).
 from __future__ import annotations
 
 import json
+import os
 import threading
 import time
 import webbrowser
@@ -425,16 +426,49 @@ INTERFACES = {
 }
 
 
-def interface_available(name: str) -> bool:
-    """Vrai si le pilote python-can de cette interface est importable."""
+def usb_backend():
+    """Moteur libusb pour pyusb, ou None.
+
+    gs_usb passe par pyusb, qui n'embarque pas la bibliothèque système libusb :
+    sous Windows elle est fournie par le paquet ``libusb-package`` s'il est
+    installé. Sans elle, toute ouverture du CANable en candleLight échoue.
+    """
+    try:
+        import usb.backend.libusb1 as libusb1
+    except ImportError:
+        return None
+    try:
+        import libusb_package
+    except ImportError:
+        return libusb1.get_backend()
+    # python-can ouvre le CANable par usb.core.find() sans préciser de moteur :
+    # pyusb cherche alors libusb dans le PATH. On y ajoute donc le dossier de la
+    # bibliothèque fournie par libusb-package.
+    library = getattr(libusb_package, "get_library_path", lambda: None)()
+    if library is not None:
+        folder = str(Path(library).parent)
+        if folder not in os.environ.get("PATH", ""):
+            os.environ["PATH"] = folder + os.pathsep + os.environ.get("PATH", "")
+    return libusb1.get_backend(find_library=libusb_package.find_library)
+
+
+def interface_status(name: str) -> tuple[bool, str]:
+    """Disponibilité d'une interface et, sinon, la raison à afficher."""
     module = INTERFACES[name]["module"]
     if module is None:
-        return True
+        return True, ""
     try:
         __import__(module)
     except ImportError:
-        return False
-    return True
+        return False, "pilote non inclus dans cette version"
+    if name == "gs_usb" and usb_backend() is None:
+        return False, "bibliothèque libusb absente de ce PC"
+    return True, ""
+
+
+def interface_available(name: str) -> bool:
+    """Vrai si le pilote python-can de cette interface est utilisable."""
+    return interface_status(name)[0]
 
 
 def serial_ports() -> list[str]:
@@ -553,9 +587,11 @@ def make_handler(target: BenchService | Application):
                                 "name": name,
                                 "label": spec["label"],
                                 "channel": spec["channel"],
-                                "available": interface_available(name),
+                                "available": status[0],
+                                "reason": status[1],
                             }
                             for name, spec in INTERFACES.items()
+                            for status in (interface_status(name),)
                         ],
                         "ports": serial_ports(),
                         "current": service.interface,

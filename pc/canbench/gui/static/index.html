@@ -526,7 +526,7 @@ $("open-connect").onclick = async () => {
   const info = await (await fetch("/api/interfaces")).json();
   $("c-list").innerHTML = info.interfaces.map((i) => `<label class="test" style="margin-bottom:8px;cursor:pointer">
     <input type="radio" name="iface" value="${i.name}" ${i.name === info.current ? "checked" : ""} ${i.available ? "" : "disabled"}>
-    <span class="desc">${esc(i.label)}${i.available ? "" : "<small>pilote non inclus dans cette version</small>"}</span></label>`).join("");
+    <span class="desc">${esc(i.label)}${i.available ? "" : `<small>${esc(i.reason)}</small>`}</span></label>`).join("");
   $("c-port").innerHTML = info.ports.length ? info.ports.map((p) => `<option>${esc(p)}</option>`).join("")
                                             : "<option value=''>aucun port détecté</option>";
   const sync = () => {

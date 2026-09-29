@@ -2,7 +2,7 @@
 
 Usage, depuis la racine du dépôt ou depuis ``pc/`` :
 
-    python pc/build_exe.py
+    python pc/build_exe.py [dossier de sortie, dist/ par défaut]
 
 Prérequis : ``python -m pip install pyinstaller``. Pour piloter un CANable réel,
 installer aussi son pilote python-can **avant** la construction, pour qu'il soit
@@ -96,7 +96,11 @@ def write_icon(path: Path) -> Path:
 # ---------------------------------------------------------------------------
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    argv = sys.argv[1:] if argv is None else argv
+    # Dossier de sortie optionnel : utile quand BancCAN.exe est ouvert, et donc
+    # verrouillé par Windows, dans dist/.
+    dist = Path(argv[0]).resolve() if argv else DIST
     try:
         import PyInstaller  # noqa: F401
     except ImportError:
@@ -131,7 +135,7 @@ def main() -> int:
         "--collect-submodules",
         "can.interfaces",
         "--distpath",
-        str(DIST),
+        str(dist),
         "--workpath",
         str(BUILD / "work"),
         "--specpath",
@@ -141,7 +145,7 @@ def main() -> int:
     print(" ".join(command))
     result = subprocess.run(command, cwd=PC_DIR, check=False)
     if result.returncode == 0:
-        print(f"\nLogiciel construit : {DIST / 'BancCAN.exe'}")
+        print(f"\nLogiciel construit : {dist / 'BancCAN.exe'}")
     return result.returncode
 
 
