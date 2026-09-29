@@ -1,11 +1,11 @@
 /*
  * Script d'édition de liens du STM32G431KBT6 (boîtier UFQFPN32).
  *
- * Cartographie mémoire — TODO(verif) V11 : à confirmer sur RM0440 § « Memory
- * organization » et sur DS12589. Le G431KB annonce 128 Ko de flash et 32 Ko de
- * SRAM ; les trois blocs SRAM1 (16 Ko), SRAM2 (6 Ko) et CCM SRAM (10 Ko) sont
- * contigus à partir de 0x20000000, ce qui permet de les traiter comme une seule
- * région. Le CCM est également accessible par son alias à 0x10000000.
+ * Cartographie mémoire (RM0440 Rev 9 §2.4, appareils de catégorie 2) : 128 Ko
+ * de flash et 32 Ko de SRAM. SRAM1 (16 Ko) est à 0x20000000, SRAM2 (6 Ko) à
+ * 0x20004000, et la CCM SRAM (10 Ko) est aliasée juste après, à 0x20005800 :
+ * l'espace est contigu, d'où une seule région. La CCM reste aussi accessible
+ * à 0x10000000.
  */
 
 ENTRY(Reset_Handler)

@@ -30,7 +30,7 @@ heartbeat, ce qui interdit tout verdict de réussite.
 
 | Fonction | Broche | Repère Nano | Connecteur | Remarque |
 |---|---|---|---|---|
-| `FDCAN1_RX` | PA11 | D10 | CN4-13 | AF9 — `TODO(verif) V1` (DS12589) |
+| `FDCAN1_RX` | PA11 | D10 | CN4-13 | AF9 (DS12589 Table 13) |
 | `FDCAN1_TX` | PA12 | D2 | CN4-5 | AF9 — **retirer HW1** |
 | `I2C1_SCL` | PA15 | D5 (= A5) | CN4-8 (= CN3-7) | SB3 fermé : le signal est sur les deux |
 | `I2C1_SDA` | PB7 | D4 (= A4) | CN4-7 (= CN3-8) | SB2 fermé : idem |

@@ -20,14 +20,15 @@ La tolérance d'écart d'horloge admissible à 500 kbit/s avec le temps de bit r
 | Source | Précision | Verdict |
 |---|---|---|
 | Quartz X2, 24 MHz | 20 ppm = **0,002 %** | marge d'un facteur 240 |
-| HSI16 | **±1 %** | **plus du double de ce qui est admissible** |
+| HSI16 | **±1 %** de dérive thermique (0–85 °C), plus −0,75 / +0,5 % d'étalonnage d'usine | **plus du double de ce qui est admissible** |
 
 Le HSI est donc exclu comme référence CAN. Ce n'est pas une marge de confort : deux nœuds
 sur HSI peuvent dériver l'un de l'autre de 2 % dans le pire cas, soit quatre fois la
 tolérance, et les erreurs de trame deviennent aléatoires — c'est-à-dire indiscernables d'un
 défaut du bus, ce qui ruine la valeur de preuve du banc.
 
-> La précision de ±1 % du HSI16 reste à confirmer sur **DS12589** — `TODO(verif) V4`.
+> Source : **DS12589** Rev 6, Table 42. L'étalonnage d'usine (15,88 à 16,08 MHz à 30 °C)
+> et la dérive thermique se cumulent : ±1 % est donc un minimum, pas un pire cas.
 
 ### 1.2 Contrainte matérielle
 
@@ -62,8 +63,9 @@ point d'échantillonnage exactement à 87,5 %, partagé avec le F103 : à 170 MH
 le meilleur candidat tombe à 88,24 %, qui ne s'aligne pas. 160 MHz reste très largement
 suffisant pour ce banc, dont la charge de calcul est négligeable.
 
-> Les plages `PLLM`/`PLLN`/`PLLQ`/`PLLR` et VCO restent à confirmer sur **RM0440** —
-> `TODO(verif) V3`.
+> Plages vérifiées : **DS12589** Rev 6, Table 45 (entrée PLL, VCO, sorties jusqu'à
+> 170 MHz en Range 1 Boost) et **RM0440** Rev 9, §7.4.4 (`8 ≤ PLLN ≤ 127`,
+> `1 ≤ PLLM ≤ 16`). Latence flash : RM0440 Table 9, 4 états d'attente jusqu'à 170 MHz.
 
 ---
 

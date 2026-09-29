@@ -84,7 +84,10 @@
 /** Quartz X2 monté sur la carte : 24 MHz, 20 ppm, 6 pF (UM2397 §6.5). */
 #define BENCH_HSE_HZ 24000000u
 
-/** HSI16 du STM32G4. Précision à confirmer sur DS12589 — TODO(verif) V4. */
+/**
+ * HSI16 du STM32G4 : 15,88 à 16,08 MHz à 30 °C et 3,0 V, puis ±1 % de dérive
+ * entre 0 et 85 °C (DS12589 Rev 6, Table 42). Les deux se cumulent.
+ */
 #define BENCH_HSI_HZ 16000000u
 
 /**
@@ -94,7 +97,11 @@
  * SYSCLK est volontairement à 160 MHz et non au maximum de 170 MHz : c'est le
  * prix d'un point d'échantillonnage exactement à 87,5 %, partagé avec le F103.
  * À 170 MHz le meilleur candidat tombe à 88,24 %, qui ne s'aligne pas.
- * Contraintes PLL à confirmer sur RM0440 — TODO(verif) V3.
+ *
+ * Contraintes vérifiées (DS12589 Rev 6 Table 45, RM0440 Rev 9 §7.4.4) :
+ * entrée PLL 8 MHz dans [2,66 ; 16], VCO 320 MHz dans [96 ; 344],
+ * PLLN 40 dans [8 ; 127], sorties R et Q au plus 170 MHz en Range 1 Boost.
+ * 4 états d'attente flash couvrent jusqu'à 170 MHz en Boost (RM0440 Table 9).
  */
 #define BENCH_PLL_M 3u
 #define BENCH_PLL_N 40u
@@ -130,8 +137,8 @@
  *  PA11 = CN4 broche 13 = ARD_D10
  *  PA12 = CN4 broche 5  = ARD_D2   <- retirer le cavalier HW1 !
  *
- *  UM2397 ne documente pas les fonctions alternées : l'affectation FDCAN1 en
- *  AF9 reste à confirmer sur DS12589 — TODO(verif) V1.
+ *  Fonction alternée AF9 : DS12589 Rev 6, Table 13 (PA11 = FDCAN1_RX,
+ *  PA12 = FDCAN1_TX). I2C1 en AF4 et USART2 en AF7 y sont confirmés aussi.
  * ========================================================================= */
 
 #define BENCH_CAN_RX_PORT GPIOA

@@ -132,6 +132,10 @@ static bool port_open(void *ctx, const bench_can_config_t *config) {
 
     port->hfdcan.Init.StdFiltersNbr = 0u;
     port->hfdcan.Init.ExtFiltersNbr = 0u;
+    /* Mode file d'attente (TFQM = 1) : l'erratum ES0431 §2.15.2, inversion de
+     * deux messages de la FIFO, ne concerne que le mode FIFO (TFQM = 0).
+     * L'erratum §2.15.1 exige le filtrage de front (CCCR.EFBI), que la HAL ne
+     * positionne jamais et qui vaut 0 au reset (RM0440 §44.4.6). */
     port->hfdcan.Init.TxFifoQueueMode = FDCAN_TX_QUEUE_OPERATION;
 
     /* Le peripherique s'appelle FDCAN mais le protocole retenu est CAN 2.0A

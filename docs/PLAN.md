@@ -284,7 +284,8 @@ de resynchronisation vaut 12,5 % du temps de bit contre 6,25 % sur le G431.
 
 **Justification de l'interdiction du HSI :** HSI16 est spécifié à **±1 %**, soit plus du
 double de la tolérance admissible de 0,485 %. Le quartz X2 (20 ppm) laisse une marge de
-facteur 240. `TODO(verif) V4` : ±1 % à confirmer sur DS12589.
+facteur 240. Vérifié (V4) : DS12589 Table 42 donne ±1 % de dérive entre 0 et 85 °C,
+**en plus** d'un étalonnage d'usine de −0,75 / +0,5 % : la conclusion est renforcée.
 
 ### 4.2 Arbre d'horloge G431
 
@@ -681,16 +682,16 @@ moniteur, qui n'acquitte pas.
 
 ## 10. Récapitulatif des `TODO(verif)`
 
-| # | Élément | Source à consulter | Bloque |
+| # | Élément | Source | Statut |
 |---|---|---|---|
-| V1 | FDCAN1_RX/TX = PA11/PA12, AF9 | DS12589, table des fonctions alternées | Lot 4 |
-| V2 | Mécanisme `nSWBOOT0`/`nBOOT0` sur PB8 | RM0440 § option bytes | doc |
-| V3 | Contraintes PLL G4 (M, N, Q, R, plages VCO) | RM0440 § RCC | Lot 4 |
-| V4 | Précision HSI16 (±1 %) | DS12589 § caractéristiques d'horloge | doc |
-| V5 | Brochage Blue Pill + remap bxCAN PB8/PB9 | RM0008 + DS5319 + schéma carte | **Lot 5** |
-| V6 | Pull-up USB sur PA12 de la Blue Pill, clones F103 | schéma carte | Lot 5 |
+| V1 | FDCAN1_RX/TX = PA11/PA12, AF9 | DS12589 Rev 6, Table 13 | ✅ confirmé ; I2C1 = AF4 et USART2 = AF7 aussi |
+| V2 | Mécanisme `nSWBOOT0`/`nBOOT0` sur PB8 | RM0440 Rev 9, §2.6 Table 5 et §5.7.8 | ✅ valeur usine de `FLASH_OPTR` = 0xFFEF F8AA : `nSWBOOT0 = 1` et `nBOOT1 = 1`, donc BOOT0 est **lu sur PB8** et un niveau haut au reset démarre le **chargeur système**. Aucune pull-up sur PB8 : c'est déjà la règle |
+| V3 | Contraintes PLL G4 (M, N, Q, R, plages VCO) | DS12589 Table 45, RM0440 §7.4.4 et Table 9 | ✅ toutes respectées (voir `board.h`) |
+| V4 | Précision HSI16 | DS12589 Table 42 | ✅ ±1 % en thermique **plus** −0,75 / +0,5 % d'étalonnage : pire que supposé |
+| V5 | Brochage Blue Pill + remap bxCAN PB8/PB9 | RM0008 Rev 21, §9.3.4 Table 34 ; DS5319 | remap confirmé (`CAN_REMAP = 10`, absent du boîtier 36 broches seulement) ; brochage complet au lot 5 |
+| V6 | Pull-up USB sur PA12 de la Blue Pill, clones F103 | mesure à l'ohmmètre sur la carte reçue | **non bloquant** : avec le remap, PA12 ne porte plus le CAN. RM0008 (§ bxCAN) : USB et CAN partagent 512 o de SRAM et ne peuvent pas fonctionner en même temps, donc N4 n'utilise pas l'USB |
 | V7 | Horodatage matériel du firmware candleLight | doc candleLight / gs_usb | Lot 7 |
 | V8 | Tolérance du MCO ST-LINK (option B, §3.2) | UM2448 | si option B |
 | V9 | Présence/valeur des terminaisons sur les modules | inspection visuelle | T1, Q5b |
-| V10 | Errata G431 (ES) : anomalies FDCAN éventuelles | ES G431 | Lot 4 |
-| V11 | Cartographie mémoire du G431KB (128 Ko flash, 32 Ko RAM contigus) | RM0440 § Memory organization, DS12589 | script d'édition de liens |
+| V10 | Errata G431 : anomalies FDCAN | ES0431 Rev 9, §2.15 | ✅ sans effet : §2.15.1 exige `CCCR.EFBI`, jamais positionné (0 au reset) ; §2.15.2 exige le mode FIFO, or on utilise le mode file (`TFQM = 1`) |
+| V11 | Cartographie mémoire du G431KB | RM0440 Rev 9, §2.4 | ✅ SRAM1 + SRAM2 + CCM aliasée à 0x20005800 : 32 Ko contigus |
