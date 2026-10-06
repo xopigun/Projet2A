@@ -1,12 +1,14 @@
 # Documents de référence
 
-Les PDF ne sont **pas versionnés** (`docs/references/*.pdf` est dans `.gitignore`) :
-ils pèsent ensemble environ 25 Mo, sont redistribués par leurs éditeurs et évoluent
-indépendamment du dépôt. Ce fichier tient lieu d'index : il indique où les retrouver et
-ce que l'on en a réellement utilisé.
+Les PDF sont **versionnés dans ce répertoire** depuis le 06/10/2026, pour que toute
+l'équipe dispose des mêmes révisions sans avoir à les retrouver (environ 82 Mo). Ce
+fichier reste l'index : il donne pour chacun la révision, le lien officiel et ce que
+l'on en a réellement utilisé. Aucun outil du dépôt n'en dépend à la compilation.
 
-Placer les fichiers téléchargés dans ce répertoire pour reproduire l'environnement de
-travail. Aucun outil du dépôt n'en dépend à la compilation.
+> **Droits.** Les documents ST, NXP et TI appartiennent à leurs éditeurs, qui les
+> diffusent librement sur leurs sites. Les garder dans un dépôt **privé** pour l'équipe
+> ne pose pas de difficulté ; si le dépôt devenait public, mieux vaudrait les retirer
+> et ne garder que les liens officiels ci-dessous.
 
 ## Dossier du projet
 
@@ -16,8 +18,8 @@ travail. Aucun outil du dépôt n'en dépend à la compilation.
 
 Nom attendu ici : `Dossier_Banc_Test_CAN_v0_1.pdf`.
 
-> **Le dossier a son propre cycle de vie.** Il n'est ni versionné ici, ni modifié depuis ce
-> dépôt : sa source LaTeX vit en dehors (`Projet 2A/Banc de Test/`) et c'est elle qui fait
+> **Le dossier a son propre cycle de vie.** Seul son PDF v0.1 est conservé ici, comme
+> référence figée ; il n'est jamais modifié depuis ce dépôt : sa source LaTeX vit en dehors (`Projet 2A/Banc de Test/`) et c'est elle qui fait
 > foi pour les tableaux. Le dépôt ne fait que **référencer une version**, ici la **v0.1**.
 > Les écarts relevés par rapport à cette version sont consignés dans
 > [PLAN.md](../PLAN.md), section « Corrections à reporter dans le dossier v0.2 », à charge

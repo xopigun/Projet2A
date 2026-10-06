@@ -468,8 +468,9 @@ Les cibles `flash_<node>` **cherchent** les deux exécutables (PATH puis chemins
   consommés par le test C et par le test Python — plus portable en CI que `ctypes`.
 - **`.ioc` indicatif** sous `docs/`, jamais référencé par le build.
 - **Licence MIT** (Q7), avec mention des licences BSD-3-Clause des sous-modules ST.
-- **PDF hors dépôt** (Q6) : `docs/references/*.pdf` dans `.gitignore`, remplacés par
-  `docs/references/README.md` (référence, révision, lien officiel, sections utilisées).
+- **PDF de référence** (Q6) : d'abord hors dépôt, puis **versionnés** dans
+  `docs/references/` à la demande de l'équipe (06/10/2026, dépôt privé). L'index
+  `docs/references/README.md` donne révision, lien officiel et sections utilisées.
 
 ---
 
@@ -588,7 +589,7 @@ gestionnaire : la compilation échoue avec un message explicite.
 | Q5a | Modèle de transceiver | **résolu par le dossier** : TJA1051T/3 (§3.3) |
 | Q5b | 120 Ω soudé sur les modules ? | **ouvert** — champ resté entre crochets (§3.7) |
 | Q5c | Retrait du 120 Ω : sur 4 nœuds et non 3 ? | **ouvert** — voir §3.7 |
-| Q6 | PDF hors dépôt | **résolu** |
+| Q6 | PDF de référence | **résolu** — versionnés depuis le 06/10/2026 (dépôt privé) |
 | Q7 | Licence MIT | **résolu** (sous réserve encadrants) |
 
 ---

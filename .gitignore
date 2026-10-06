@@ -11,10 +11,6 @@
 *.su
 *.lst
 
-# Documents de reference : hors depot (voir docs/references/README.md)
-docs/references/*.pdf
-docs/references/*.PDF
-
 # Python
 __pycache__/
 *.py[cod]
