@@ -1,0 +1,640 @@
+% =====================================================================
+%  ICD — Interface Control Document — Bus CAN
+%  Groupe 69 : Conception d'une Électronique Modulaire (Bus CAN) — ENSEA 2A
+%
+%  FORMULAIRE PDF REMPLISSABLE — v2
+%  Compiler avec pdflatex (PAS xelatex/lualatex : les champs ne seraient pas générés).
+%  Le PDF produit se remplit dans Acrobat Reader, Firefox, Edge, Aperçu (macOS)…
+%
+%  Un exemplaire par projet partenaire : modifier \Projet et \NumGroupe ci-dessous,
+%  compiler, puis diffuser le PDF.
+% =====================================================================
+\documentclass[10pt,a4paper]{article}
+
+% ---------- Encodage et langue ----------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+
+% ---------- Mise en page ----------
+\usepackage[margin=1.8cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{parskip}
+\usepackage{needspace}
+
+% ---------- Tableaux ----------
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{colortbl}
+
+% ---------- Couleurs, schémas ----------
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,calc}
+
+% ---------- Formulaire PDF ----------
+\usepackage{hyperref}
+\usepackage{amssymb}   % \square, \boxtimes dans les lignes d'exemple
+
+% =====================================================================
+%  À MODIFIER POUR CHAQUE PROJET
+% =====================================================================
+\newcommand{\Projet}{[Nom du projet partenaire]}
+\newcommand{\NumGroupe}{[N\textsuperscript{o}]}
+\newcommand{\Version}{0.1}
+\newcommand{\DateVersion}{17 septembre 2026}
+\newcommand{\Statut}{Brouillon — première séance}
+
+% ---------- Couleurs ----------
+\definecolor{canblue}{HTML}{1F3864}
+\definecolor{canamber}{HTML}{FFB627}
+\definecolor{rowgrey}{HTML}{F2F2F2}
+\definecolor{exgrey}{HTML}{666666}
+
+\hypersetup{colorlinks=true, linkcolor=canblue, urlcolor=canblue}
+
+% ---------- Macros de champs de formulaire ----------
+% charsize=0pt : taille de police automatique, le texte rétrécit pour tenir dans la case.
+\newcommand{\champ}[1]{%
+  \TextField[name=#1, width=\linewidth, height=12pt, charsize=0pt,
+    bordercolor={0.72 0.72 0.72}, backgroundcolor={0.965 0.965 0.965},
+    borderwidth=0.4]{}}
+
+% Champ sur deux lignes, pour le texte libre.
+\newcommand{\champML}[1]{%
+  \TextField[name=#1, multiline=true, width=\linewidth, height=24pt, charsize=7.5pt,
+    bordercolor={0.72 0.72 0.72}, backgroundcolor={0.965 0.965 0.965},
+    borderwidth=0.4]{}}
+
+% Grand champ de commentaire libre.
+\newcommand{\champBig}[2]{%
+  \TextField[name=#1, multiline=true, width=\linewidth, height=#2, charsize=8pt,
+    bordercolor={0.72 0.72 0.72}, backgroundcolor={0.965 0.965 0.965},
+    borderwidth=0.4]{}}
+
+\newcommand{\coche}[1]{%
+  \CheckBox[name=#1, width=9pt, height=9pt,
+    bordercolor={0.35 0.35 0.35}, backgroundcolor={0.965 0.965 0.965},
+    borderwidth=0.5]{}}
+
+% Texte des lignes d'exemple
+\newcommand{\ex}[1]{\textcolor{exgrey}{\textit{#1}}}
+
+% ---------- Bascule portrait / paysage SANS rotation de page ----------
+% (une page tournée par pdflscape fait apparaître le texte des champs à 90°)
+\newcommand{\paysage}{%
+  \clearpage
+  \pdfpagewidth=297mm \pdfpageheight=210mm
+  \newgeometry{layoutwidth=297mm, layoutheight=210mm, margin=1.8cm}%
+  \fancyhfoffset{0pt}}
+\newcommand{\portrait}{%
+  \clearpage
+  \pdfpagewidth=210mm \pdfpageheight=297mm
+  \restoregeometry
+  \fancyhfoffset{0pt}}
+
+% ---------- En-tête / pied ----------
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small ICD Bus CAN — \Projet}
+\rhead{\small v\Version{} — \DateVersion}
+\cfoot{\small Page \thepage\ / \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+% Un titre de section ne doit jamais être séparé de son contenu
+\let\oldsection\section
+\renewcommand{\section}{\Needspace*{10\baselineskip}\oldsection}
+\let\oldsubsection\subsection
+\renewcommand{\subsection}{\Needspace*{8\baselineskip}\oldsubsection}
+
+% =====================================================================
+\begin{document}
+\begin{Form}
+
+
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+  {\color{canblue}\Huge\bfseries Interface Control Document\par}
+  \vspace{0.4cm}
+  {\Large Bus CAN — \Projet\par}
+  \vspace{0.3cm}
+  {\color{canamber}\rule{0.5\textwidth}{2pt}\par}
+  \vspace{2cm}
+
+  \begin{tabular}{@{}r l@{}}
+    \textbf{Version} & \Version \\[3pt]
+    \textbf{Date} & \DateVersion \\[3pt]
+    \textbf{Statut} & \Statut \\[3pt]
+    \textbf{Projet partenaire} & \Projet{} (groupe \NumGroupe) \\[3pt]
+    \textbf{Rédigé par} & Groupe 69 — Électronique Modulaire (Bus CAN) \\[3pt]
+    & Samuel Gomri · Dylan Kiati · Hugo Mathoux \\[3pt]
+    \textbf{Contact} & hugo.mathoux@ensea.fr \\[3pt]
+    \textbf{Encadrants} & Yves Heckel · Julien Seigneurbieux \\
+  \end{tabular}
+
+  \vfill
+  \begin{minipage}{0.88\textwidth}
+    \small
+    \textbf{Comment remplir ce document.} Les cases grisées sont des champs de saisie :
+    cliquez dedans et tapez, puis \textbf{enregistrez} le PDF. Chaque section commence par
+    un tableau d'exemples (en gris italique) montrant le niveau de détail attendu — il n'est
+    pas modifiable, il sert uniquement de repère.
+
+    \medskip
+    Ce document est \textbf{vivant}. Il est normal qu'il soit incomplet en début de projet :
+    remplissez ce que vous savez, laissez le reste vide. Chaque évolution donne lieu à une
+    nouvelle version datée, tracée en section~\ref{sec:historique}.
+  \end{minipage}
+
+  \vspace{1.5cm}
+  {\small ENSEA — Projets 2\textsuperscript{e} année — Module MANAGEMENT\_PROJET\_S7 — 2026--2027\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+
+\section{Historique des versions et des rencontres}
+\label{sec:historique}
+
+Une ligne par rencontre entre le groupe 69 et l'équipe \Projet{}, et une ligne par version
+diffusée. Si une rencontre produit une nouvelle version, la colonne Version l'indique ; sinon
+elle reste vide. Ne jamais effacer une ligne : ce tableau sert de trace des décisions.
+
+\subsection*{Exemple}
+\begin{tabularx}{\textwidth}{L{2.2cm} C{1.4cm} L{3.4cm} X}
+  \toprule
+  \textbf{Date} & \textbf{Version} & \textbf{Participants} & \textbf{Décisions / modifications} \\
+  \midrule
+  \ex{29/09/2026} & \ex{0.2} & \ex{H. Mathoux, A. Dupont, B. Martin} & \ex{Ajout du capteur de température batterie (ID 0x301) ; débit confirmé à 500 kbit/s.} \\
+  \ex{06/10/2026} & \ex{—} & \ex{H. Mathoux, A. Dupont} & \ex{Point d'avancement, pas de changement.} \\
+  \bottomrule
+\end{tabularx}
+
+\subsection*{À remplir}
+\begin{tabularx}{\textwidth}{L{2.2cm} C{1.4cm} L{3.4cm} X}
+  \toprule
+  \textbf{Date} & \textbf{Version} & \textbf{Participants} & \textbf{Décisions / modifications} \\
+  \midrule
+  \DateVersion & 0.1 & Groupe 69 + \Projet & Remise de la trame vierge, présentation du bus CAN. \\
+
+  \champML{h1d} & \champML{h1v} & \champML{h1p} & \champML{h1m} \\
+  \champML{h2d} & \champML{h2v} & \champML{h2p} & \champML{h2m} \\
+  \champML{h3d} & \champML{h3v} & \champML{h3p} & \champML{h3m} \\
+  \champML{h4d} & \champML{h4v} & \champML{h4p} & \champML{h4m} \\
+  \champML{h5d} & \champML{h5v} & \champML{h5p} & \champML{h5m} \\
+  \champML{h6d} & \champML{h6v} & \champML{h6p} & \champML{h6m} \\
+  \champML{h7d} & \champML{h7v} & \champML{h7p} & \champML{h7m} \\
+  \champML{h8d} & \champML{h8v} & \champML{h8p} & \champML{h8m} \\
+  \champML{h9d} & \champML{h9v} & \champML{h9p} & \champML{h9m} \\
+  \champML{h10d} & \champML{h10v} & \champML{h10p} & \champML{h10m} \\
+  \champML{h11d} & \champML{h11v} & \champML{h11p} & \champML{h11m} \\
+  \champML{h12d} & \champML{h12v} & \champML{h12p} & \champML{h12m} \\
+  \bottomrule
+\end{tabularx}
+
+
+\section{Objet et périmètre}
+
+\subsection{Objet du document}
+
+Cet ICD définit l'interface CAN entre les sous-systèmes du projet \Projet{}. Pour chaque message
+qui circule sur le bus, il précise : l'identifiant, l'émetteur, les récepteurs, le contenu et son
+codage, la fréquence d'émission et la criticité. C'est la référence commune : une donnée non décrite
+ici n'est pas censée circuler sur le bus.
+
+\subsection{Ce que ce document n'est pas}
+
+\begin{itemize}
+  \item Ce n'est pas un contrat figé. Les besoins évoluent en cours de projet, c'est attendu.
+        On met à jour, on incrémente la version, on prévient les personnes concernées.
+  \item Ce n'est pas un cahier des charges technique du véhicule ou du robot : seul ce qui
+        transite sur le bus CAN est décrit.
+  \item Ce n'est pas un document du groupe 69 seul : il appartient aux deux équipes.
+\end{itemize}
+
+\subsection{Contacts de l'équipe \Projet}
+
+Les membres de votre équipe et, si vous l'avez déjà décidé, qui s'occupe de quoi.
+Le rôle peut rester vide.
+
+\subsubsection*{Exemple}
+\begin{tabularx}{\textwidth}{L{4.2cm} L{5cm} X}
+  \toprule
+  \textbf{Nom} & \textbf{Rôle dans le projet} & \textbf{Email} \\
+  \midrule
+  \ex{A. Dupont} & \ex{Électronique de puissance} & \ex{a.dupont@ensea.fr} \\
+  \bottomrule
+\end{tabularx}
+
+\subsubsection*{À remplir}
+\begin{tabularx}{\textwidth}{L{4.2cm} L{5cm} X}
+  \toprule
+  \textbf{Nom} & \textbf{Rôle dans le projet} & \textbf{Email} \\
+  \midrule
+
+  \champ{c1n} & \champ{c1r} & \champ{c1e} \\
+  \champ{c2n} & \champ{c2r} & \champ{c2e} \\
+  \champ{c3n} & \champ{c3r} & \champ{c3e} \\
+  \champ{c4n} & \champ{c4r} & \champ{c4e} \\
+  \champ{c5n} & \champ{c5r} & \champ{c5e} \\
+  \champ{c6n} & \champ{c6r} & \champ{c6e} \\
+  \bottomrule
+\end{tabularx}
+
+
+\section{Paramètres du bus}
+
+Valeurs proposées par défaut par le groupe 69, identiques pour tous les projets. Cochez « OK » si
+la proposition vous convient, sinon indiquez ce que vous préférez dans la dernière colonne.
+En cas de doute, laissez notre proposition.
+
+\begin{tabularx}{\textwidth}{L{4.0cm} L{6.6cm} C{1.0cm} X}
+  \toprule
+  \textbf{Paramètre} & \textbf{Notre proposition} & \textbf{OK} & \textbf{Si différent, préciser} \\
+  \midrule
+
+  \rowcolor{rowgrey} Version du protocole & CAN 2.0A (classique) & \coche{parok1} & \champ{parc1} \\
+   Format des identifiants & 11 bits (standard) & \coche{parok2} & \champ{parc2} \\
+  \rowcolor{rowgrey} Débit & 500 kbit/s & \coche{parok3} & \champ{parc3} \\
+   Terminaisons & 120\,$\Omega$ aux deux extrémités du bus & \coche{parok4} & \champ{parc4} \\
+  \rowcolor{rowgrey} Longueur max. de dérivation & 30 cm par nœud & \coche{parok5} & \champ{parc5} \\
+   Câble & Paire torsadée 120\,$\Omega$ & \coche{parok6} & \champ{parc6} \\
+  \rowcolor{rowgrey} Transceiver & Conforme ISO 11898-2 (interopérabilité garantie) & \coche{parok7} & \champ{parc7} \\
+   Niveau logique TXD / RXD & \textbf{3,3 V} — la plupart des µC (STM32, ESP32) y sont & \coche{parok8} & \champ{parc8} \\
+  \rowcolor{rowgrey} Alimentation du transceiver & 5 V + broche VIO en 3,3 V si le 5 V est dispo (MCP2562, TJA1051T/3) ; sinon transceiver 3,3 V (SN65HVD230) & \coche{parok9} & \champ{parc9} \\
+  \bottomrule
+\end{tabularx}
+
+\medskip
+\noindent\footnotesize\textbf{Pourquoi ces deux cas d'alimentation ?} Le bus CAN est interopérable
+quelle que soit la tension d'alimentation du transceiver : un nœud 3,3 V et un nœud 5 V cohabitent
+sans adaptateur sur le même bus, car la norme définit des seuils de détection très en dessous des
+niveaux produits par les deux familles. Ce qui doit être commun, c'est le \textbf{niveau logique
+TXD/RXD à 3,3 V}, pour ne pas envoyer 5 V dans une broche de microcontrôleur prévue pour 3,3 V.
+Les anciens transceivers TJA1050 et MCP2551 ne conviennent pas : ils n'ont pas de broche VIO.
+\normalsize
+
+\medskip
+\noindent\footnotesize\textit{Commentaire libre sur les paramètres du bus :}\\[2pt]
+\champBig{parlibre}{40pt}
+\normalsize
+
+
+\section{Topologie et inventaire des nœuds}
+
+\subsection{Schéma de principe}
+
+Schéma générique : deux fils partagés, chaque nœud branché en dérivation, une terminaison
+120\,$\Omega$ à chaque extrémité. À adapter au nombre réel de nœuds de votre projet.
+
+\begin{center}
+\begin{tikzpicture}[
+    nd/.style={draw, rounded corners=2pt, fill=canblue, text=white, minimum width=2.1cm,
+                 minimum height=0.75cm, font=\footnotesize\bfseries, align=center},
+    term/.style={draw, fill=canamber, minimum width=0.22cm, minimum height=0.7cm, inner sep=0},
+    bus/.style={line width=2pt},
+    stub/.style={line width=1pt},
+  ]
+  \draw[bus, canamber] (0,0.3) -- (12,0.3);
+  \draw[bus, canblue]  (0,0)   -- (12,0);
+  \node[left, font=\footnotesize\bfseries] at (0,0.3) {CAN\_H};
+  \node[left, font=\footnotesize\bfseries] at (0,0)   {CAN\_L};
+  \node[term] at (0.12,0.15) {};
+  \node[term] at (11.88,0.15) {};
+  \node[above, font=\scriptsize] at (0.12,0.55) {120\,$\Omega$};
+  \node[above, font=\scriptsize] at (11.88,0.55) {120\,$\Omega$};
+  \foreach \x/\name in {1.6/{Nœud 1}, 4.2/{Nœud 2}, 6.8/{Nœud 3}, 9.4/{Nœud 4}} {
+    \draw[stub, canblue] (\x,0) -- (\x,-0.6);
+    \node[nd] at (\x,-1.0) {\name};
+  }
+\end{tikzpicture}
+\end{center}
+
+\subsection{Inventaire des nœuds}
+
+Un nœud = tout équipement qui émet ou reçoit sur le bus. Un capteur qui ne parle pas CAN
+nativement (analogique, I\textsuperscript{2}C, SPI…) passe par un microcontrôleur pont :
+c'est ce microcontrôleur qui est le nœud. Un nœud peut à la fois émettre et recevoir :
+cochez les deux cases.
+
+\subsubsection*{Exemples}
+\begin{tabularx}{\textwidth}{C{0.7cm} L{3.4cm} L{3.4cm} C{1.1cm} C{1.2cm} L{2.6cm} X}
+  \toprule
+  \textbf{N\textsuperscript{o}} & \textbf{Nœud} & \textbf{µC / transceiver} & \textbf{Émet} & \textbf{Reçoit} & \textbf{Responsable} & \textbf{Statut} \\
+  \midrule
+  \ex{1} & \ex{BMS batterie} & \ex{STM32F103 + MCP2562} & \ex{$\boxtimes$} & \ex{$\square$} & \ex{A. Dupont} & \ex{À faire} \\
+  \ex{2} & \ex{Carte moteur} & \ex{STM32G431 + TJA1051T/3} & \ex{$\boxtimes$} & \ex{$\boxtimes$} & \ex{B. Martin} & \ex{En cours} \\
+  \ex{3} & \ex{Tableau de bord} & \ex{ESP32 + SN65HVD230} & \ex{$\square$} & \ex{$\boxtimes$} & \ex{C. Durand} & \ex{Fait} \\
+  \bottomrule
+\end{tabularx}
+
+\subsubsection*{À remplir}
+\begin{tabularx}{\textwidth}{C{0.7cm} L{3.4cm} L{3.4cm} C{1.1cm} C{1.2cm} L{2.6cm} X}
+  \toprule
+  \textbf{N\textsuperscript{o}} & \textbf{Nœud} & \textbf{µC / transceiver} & \textbf{Émet} & \textbf{Reçoit} & \textbf{Responsable} & \textbf{Statut} \\
+  \midrule
+
+  1 & \champ{nd1n} & \champ{nd1u} & \coche{nd1e} & \coche{nd1r} & \champ{nd1p} & \champ{nd1s} \\
+  2 & \champ{nd2n} & \champ{nd2u} & \coche{nd2e} & \coche{nd2r} & \champ{nd2p} & \champ{nd2s} \\
+  3 & \champ{nd3n} & \champ{nd3u} & \coche{nd3e} & \coche{nd3r} & \champ{nd3p} & \champ{nd3s} \\
+  4 & \champ{nd4n} & \champ{nd4u} & \coche{nd4e} & \coche{nd4r} & \champ{nd4p} & \champ{nd4s} \\
+  5 & \champ{nd5n} & \champ{nd5u} & \coche{nd5e} & \coche{nd5r} & \champ{nd5p} & \champ{nd5s} \\
+  6 & \champ{nd6n} & \champ{nd6u} & \coche{nd6e} & \coche{nd6r} & \champ{nd6p} & \champ{nd6s} \\
+  7 & \champ{nd7n} & \champ{nd7u} & \coche{nd7e} & \coche{nd7r} & \champ{nd7p} & \champ{nd7s} \\
+  8 & \champ{nd8n} & \champ{nd8u} & \coche{nd8e} & \coche{nd8r} & \champ{nd8p} & \champ{nd8s} \\
+  9 & \champ{nd9n} & \champ{nd9u} & \coche{nd9e} & \coche{nd9r} & \champ{nd9p} & \champ{nd9s} \\
+  10 & \champ{nd10n} & \champ{nd10u} & \coche{nd10e} & \coche{nd10r} & \champ{nd10p} & \champ{nd10s} \\
+  11 & \champ{nd11n} & \champ{nd11u} & \coche{nd11e} & \coche{nd11r} & \champ{nd11p} & \champ{nd11s} \\
+  12 & \champ{nd12n} & \champ{nd12u} & \coche{nd12e} & \coche{nd12r} & \champ{nd12p} & \champ{nd12s} \\
+  \bottomrule
+\end{tabularx}
+
+
+\clearpage
+\section{Plan d'allocation des identifiants}
+\label{sec:ids}
+
+Rien à remplir ici. Rappel : sur un bus CAN, \textbf{l'identifiant le plus faible a la priorité
+la plus haute} lors de l'arbitrage. Ce découpage réserve les ID les plus bas aux messages critiques
+et laisse de la marge dans chaque plage pour les ajouts futurs. Il sert à choisir les identifiants
+de la section~\ref{sec:catalogue} — que le groupe 69 attribuera avec vous.
+
+\begin{tabularx}{\textwidth}{C{2.6cm} L{3.8cm} X L{2.2cm}}
+  \toprule
+  \textbf{Plage (hex)} & \textbf{Catégorie} & \textbf{Exemples} & \textbf{Priorité} \\
+  \midrule
+  \rowcolor{rowgrey}
+  0x000 -- 0x07F & Sécurité / urgence & Arrêt d'urgence, défaut batterie, perte de contrôle & Critique \\
+  0x080 -- 0x0FF & Commandes temps réel & Consigne moteur, freinage & Très haute \\
+  \rowcolor{rowgrey}
+  0x100 -- 0x1FF & Mesures rapides & Vitesse, courant, IMU & Haute \\
+  0x200 -- 0x2FF & Mesures lentes & Températures, tensions, niveaux & Moyenne \\
+  \rowcolor{rowgrey}
+  0x300 -- 0x3FF & États et diagnostics & État des nœuds, compteurs d'erreurs & Basse \\
+  0x400 -- 0x4FF & IHM / affichage & Données pour le tableau de bord & Basse \\
+  \rowcolor{rowgrey}
+  0x500 -- 0x7FF & Réservé & Extensions futures, debug & --- \\
+  \bottomrule
+\end{tabularx}
+
+
+\paysage
+\setlength{\tabcolsep}{2.5pt}
+\section{Catalogue des messages}
+\label{sec:catalogue}
+
+Une ligne par information qui doit circuler sur le bus. Commencez par « Information transportée »
+et « Émetteur », puis Min / Max / Précision utile : ce sont ces trois colonnes qui permettent de
+choisir le codage et le nombre d'octets. La colonne \textbf{ID} est remplie par le groupe 69, pour
+éviter les collisions d'identifiants. Un message a \textbf{un seul émetteur}.
+
+\subsection*{Exemples}
+\begin{longtable}{C{1.3cm} L{2.9cm} L{2.3cm} L{2.3cm} L{3.4cm} L{1.7cm} C{1.3cm} C{1.3cm} L{1.9cm} C{1.5cm} L{1.7cm}}
+  \toprule
+  \textbf{ID} & \textbf{Nom du message} & \textbf{Émetteur} & \textbf{Récepteur(s)} & \textbf{Information transportée} & \textbf{Unité physique} & \textbf{Min} & \textbf{Max} & \textbf{Précision utile} & \textbf{Période} & \textbf{Criticité} \\
+  \midrule
+  \endhead
+  \ex{0x010} & \ex{EMERG\_STOP} & \ex{BMS} & \ex{Tous} & \ex{Arrêt d'urgence} & \ex{---} & \ex{0} & \ex{1} & \ex{booléen} & \ex{100 ms} & \ex{Critique} \\
+  \ex{0x100} & \ex{WHEEL\_SPEED} & \ex{Capteur vitesse} & \ex{IHM} & \ex{Vitesse roue} & \ex{km/h} & \ex{0} & \ex{80} & \ex{0,01 km/h} & \ex{50 ms} & \ex{Haute} \\
+  \ex{0x200} & \ex{MOTOR\_TEMP} & \ex{Carte puissance} & \ex{IHM} & \ex{Température moteur} & \ex{$^\circ$C} & \ex{-20} & \ex{150} & \ex{0,1 $^\circ$C} & \ex{1 s} & \ex{Moyenne} \\
+  \bottomrule
+\end{longtable}
+
+\subsection*{À remplir}
+\begin{longtable}{C{1.3cm} L{2.9cm} L{2.3cm} L{2.3cm} L{3.4cm} L{1.7cm} C{1.3cm} C{1.3cm} L{1.9cm} C{1.5cm} L{1.7cm}}
+  \toprule
+  \textbf{ID} & \textbf{Nom du message} & \textbf{Émetteur} & \textbf{Récepteur(s)} & \textbf{Information transportée} & \textbf{Unité physique} & \textbf{Min} & \textbf{Max} & \textbf{Précision utile} & \textbf{Période} & \textbf{Criticité} \\
+  \midrule
+  \endhead
+
+  \champ{m1id} & \champ{m1nom} & \champ{m1em} & \champ{m1re} & \champML{m1inf} & \champ{m1un} & \champ{m1min} & \champ{m1max} & \champ{m1pre} & \champ{m1per} & \champ{m1cri} \\
+  \champ{m2id} & \champ{m2nom} & \champ{m2em} & \champ{m2re} & \champML{m2inf} & \champ{m2un} & \champ{m2min} & \champ{m2max} & \champ{m2pre} & \champ{m2per} & \champ{m2cri} \\
+  \champ{m3id} & \champ{m3nom} & \champ{m3em} & \champ{m3re} & \champML{m3inf} & \champ{m3un} & \champ{m3min} & \champ{m3max} & \champ{m3pre} & \champ{m3per} & \champ{m3cri} \\
+  \champ{m4id} & \champ{m4nom} & \champ{m4em} & \champ{m4re} & \champML{m4inf} & \champ{m4un} & \champ{m4min} & \champ{m4max} & \champ{m4pre} & \champ{m4per} & \champ{m4cri} \\
+  \champ{m5id} & \champ{m5nom} & \champ{m5em} & \champ{m5re} & \champML{m5inf} & \champ{m5un} & \champ{m5min} & \champ{m5max} & \champ{m5pre} & \champ{m5per} & \champ{m5cri} \\
+  \champ{m6id} & \champ{m6nom} & \champ{m6em} & \champ{m6re} & \champML{m6inf} & \champ{m6un} & \champ{m6min} & \champ{m6max} & \champ{m6pre} & \champ{m6per} & \champ{m6cri} \\
+  \champ{m7id} & \champ{m7nom} & \champ{m7em} & \champ{m7re} & \champML{m7inf} & \champ{m7un} & \champ{m7min} & \champ{m7max} & \champ{m7pre} & \champ{m7per} & \champ{m7cri} \\
+  \champ{m8id} & \champ{m8nom} & \champ{m8em} & \champ{m8re} & \champML{m8inf} & \champ{m8un} & \champ{m8min} & \champ{m8max} & \champ{m8pre} & \champ{m8per} & \champ{m8cri} \\
+  \champ{m9id} & \champ{m9nom} & \champ{m9em} & \champ{m9re} & \champML{m9inf} & \champ{m9un} & \champ{m9min} & \champ{m9max} & \champ{m9pre} & \champ{m9per} & \champ{m9cri} \\
+  \champ{m10id} & \champ{m10nom} & \champ{m10em} & \champ{m10re} & \champML{m10inf} & \champ{m10un} & \champ{m10min} & \champ{m10max} & \champ{m10pre} & \champ{m10per} & \champ{m10cri} \\
+  \champ{m11id} & \champ{m11nom} & \champ{m11em} & \champ{m11re} & \champML{m11inf} & \champ{m11un} & \champ{m11min} & \champ{m11max} & \champ{m11pre} & \champ{m11per} & \champ{m11cri} \\
+  \champ{m12id} & \champ{m12nom} & \champ{m12em} & \champ{m12re} & \champML{m12inf} & \champ{m12un} & \champ{m12min} & \champ{m12max} & \champ{m12pre} & \champ{m12per} & \champ{m12cri} \\
+  \champ{m13id} & \champ{m13nom} & \champ{m13em} & \champ{m13re} & \champML{m13inf} & \champ{m13un} & \champ{m13min} & \champ{m13max} & \champ{m13pre} & \champ{m13per} & \champ{m13cri} \\
+  \champ{m14id} & \champ{m14nom} & \champ{m14em} & \champ{m14re} & \champML{m14inf} & \champ{m14un} & \champ{m14min} & \champ{m14max} & \champ{m14pre} & \champ{m14per} & \champ{m14cri} \\
+  \champ{m15id} & \champ{m15nom} & \champ{m15em} & \champ{m15re} & \champML{m15inf} & \champ{m15un} & \champ{m15min} & \champ{m15max} & \champ{m15pre} & \champ{m15per} & \champ{m15cri} \\
+  \champ{m16id} & \champ{m16nom} & \champ{m16em} & \champ{m16re} & \champML{m16inf} & \champ{m16un} & \champ{m16min} & \champ{m16max} & \champ{m16pre} & \champ{m16per} & \champ{m16cri} \\
+  \champ{m17id} & \champ{m17nom} & \champ{m17em} & \champ{m17re} & \champML{m17inf} & \champ{m17un} & \champ{m17min} & \champ{m17max} & \champ{m17pre} & \champ{m17per} & \champ{m17cri} \\
+  \champ{m18id} & \champ{m18nom} & \champ{m18em} & \champ{m18re} & \champML{m18inf} & \champ{m18un} & \champ{m18min} & \champ{m18max} & \champ{m18pre} & \champ{m18per} & \champ{m18cri} \\
+  \champ{m19id} & \champ{m19nom} & \champ{m19em} & \champ{m19re} & \champML{m19inf} & \champ{m19un} & \champ{m19min} & \champ{m19max} & \champ{m19pre} & \champ{m19per} & \champ{m19cri} \\
+  \champ{m20id} & \champ{m20nom} & \champ{m20em} & \champ{m20re} & \champML{m20inf} & \champ{m20un} & \champ{m20min} & \champ{m20max} & \champ{m20pre} & \champ{m20per} & \champ{m20cri} \\
+  \champ{m21id} & \champ{m21nom} & \champ{m21em} & \champ{m21re} & \champML{m21inf} & \champ{m21un} & \champ{m21min} & \champ{m21max} & \champ{m21pre} & \champ{m21per} & \champ{m21cri} \\
+  \champ{m22id} & \champ{m22nom} & \champ{m22em} & \champ{m22re} & \champML{m22inf} & \champ{m22un} & \champ{m22min} & \champ{m22max} & \champ{m22pre} & \champ{m22per} & \champ{m22cri} \\
+  \champ{m23id} & \champ{m23nom} & \champ{m23em} & \champ{m23re} & \champML{m23inf} & \champ{m23un} & \champ{m23min} & \champ{m23max} & \champ{m23pre} & \champ{m23per} & \champ{m23cri} \\
+  \champ{m24id} & \champ{m24nom} & \champ{m24em} & \champ{m24re} & \champML{m24inf} & \champ{m24un} & \champ{m24min} & \champ{m24max} & \champ{m24pre} & \champ{m24per} & \champ{m24cri} \\
+  \champ{m25id} & \champ{m25nom} & \champ{m25em} & \champ{m25re} & \champML{m25inf} & \champ{m25un} & \champ{m25min} & \champ{m25max} & \champ{m25pre} & \champ{m25per} & \champ{m25cri} \\
+  \champ{m26id} & \champ{m26nom} & \champ{m26em} & \champ{m26re} & \champML{m26inf} & \champ{m26un} & \champ{m26min} & \champ{m26max} & \champ{m26pre} & \champ{m26per} & \champ{m26cri} \\
+  \champ{m27id} & \champ{m27nom} & \champ{m27em} & \champ{m27re} & \champML{m27inf} & \champ{m27un} & \champ{m27min} & \champ{m27max} & \champ{m27pre} & \champ{m27per} & \champ{m27cri} \\
+  \champ{m28id} & \champ{m28nom} & \champ{m28em} & \champ{m28re} & \champML{m28inf} & \champ{m28un} & \champ{m28min} & \champ{m28max} & \champ{m28pre} & \champ{m28per} & \champ{m28cri} \\
+  \champ{m29id} & \champ{m29nom} & \champ{m29em} & \champ{m29re} & \champML{m29inf} & \champ{m29un} & \champ{m29min} & \champ{m29max} & \champ{m29pre} & \champ{m29per} & \champ{m29cri} \\
+  \champ{m30id} & \champ{m30nom} & \champ{m30em} & \champ{m30re} & \champML{m30inf} & \champ{m30un} & \champ{m30min} & \champ{m30max} & \champ{m30pre} & \champ{m30per} & \champ{m30cri} \\
+  \bottomrule
+\end{longtable}
+
+\noindent\footnotesize\textbf{Légende.} \textit{Période} : intervalle entre deux émissions, ou « événementiel » si le message n'est émis que sur changement.
+\textit{Min / Max} : plage de valeurs physiques attendue. \textit{Précision utile} : plus petit écart qu'il faut pouvoir distinguer (ex. 0,1 $^\circ$C).
+\textit{Criticité} : Critique / Haute / Moyenne / Basse — doit rester cohérente avec la plage d'ID (section~\ref{sec:ids}).
+\normalsize
+
+
+\clearpage
+\section{Codage des messages}
+\label{sec:codage}
+
+C'est ici qu'on fixe le codage exact de chaque octet de chaque message : sans cette étape, deux
+équipes peuvent être d'accord sur « vitesse en km/h » et pourtant coder l'une en dixièmes, l'autre
+en centièmes. \textbf{À remplir dans un second temps, avec le groupe 69}, une fois le catalogue
+(section~\ref{sec:catalogue}) stabilisé. Une ligne par signal ; un message qui transporte plusieurs
+signaux occupe plusieurs lignes consécutives. Le nombre d'octets d'un message (DLC) se déduit de
+la dernière ligne qui le concerne.
+
+\subsection*{Conventions de codage}
+
+Proposées par le groupe 69. Cochez « OK » ou précisez ce que vous préférez.
+
+\begin{tabularx}{0.8\textwidth}{L{4.4cm} L{7.2cm} C{1.1cm} X}
+  \toprule
+  \textbf{Convention} & \textbf{Notre proposition} & \textbf{OK} & \textbf{Si différent, préciser} \\
+  \midrule
+  \rowcolor{rowgrey} Ordre des octets & Little-endian (octet de poids faible en premier) & \coche{cvok1} & \champ{cvc1} \\
+  Entiers signés & Complément à deux & \coche{cvok2} & \champ{cvc2} \\
+  \rowcolor{rowgrey} Valeur invalide / capteur HS & 0xFF (uint8), 0xFFFF (uint16), 0x7FFF (int16) & \coche{cvok3} & \champ{cvc3} \\
+  Bits non utilisés & Forcés à 0 & \coche{cvok4} & \champ{cvc4} \\
+  \bottomrule
+\end{tabularx}
+
+\subsection*{Exemples}
+\begin{longtable}{L{3.2cm} C{1.7cm} C{1.4cm} L{4.2cm} L{2.0cm} L{3.6cm} L{5.4cm}}
+  \toprule
+  \textbf{Message} & \textbf{Octet(s)} & \textbf{Bits} & \textbf{Signal} & \textbf{Type} & \textbf{Codage (unité $\times$ facteur)} & \textbf{Plage, valeur invalide} \\
+  \midrule
+  \endhead
+  \ex{WHEEL\_SPEED} & \ex{0 -- 1} & \ex{0 -- 15} & \ex{Vitesse roue} & \ex{uint16} & \ex{km/h $\times$ 100} & \ex{0 à 655,35 ; 0xFFFF = invalide} \\
+  \ex{IMU\_DATA} & \ex{0 -- 1} & \ex{0 -- 15} & \ex{Accélération X} & \ex{int16} & \ex{g $\times$ 1000} & \ex{$\pm$32,7 g ; 0x7FFF = invalide} \\
+  \ex{IMU\_DATA} & \ex{2 -- 3} & \ex{0 -- 15} & \ex{Accélération Y} & \ex{int16} & \ex{g $\times$ 1000} & \ex{$\pm$32,7 g ; 0x7FFF = invalide} \\
+  \ex{IMU\_DATA} & \ex{4 -- 5} & \ex{0 -- 15} & \ex{Vitesse angulaire Z} & \ex{int16} & \ex{$^\circ$/s $\times$ 10} & \ex{$\pm$3276 $^\circ$/s} \\
+  \ex{NODE\_STATUS} & \ex{0} & \ex{0} & \ex{Capteur vitesse OK} & \ex{bit} & \ex{1 = OK} & \ex{---} \\
+  \ex{NODE\_STATUS} & \ex{0} & \ex{1} & \ex{Capteur température OK} & \ex{bit} & \ex{1 = OK} & \ex{---} \\
+  \bottomrule
+\end{longtable}
+
+\noindent\footnotesize\textit{Comment on arrive au codage de WHEEL\_SPEED : plage 0 à 80 km/h, précision 0,01 km/h
+$\rightarrow$ 8000 valeurs distinctes $\rightarrow$ 13 bits nécessaires $\rightarrow$ arrondi à 16 bits (2 octets), uint16 car toujours positif.}
+\normalsize
+
+\clearpage
+\subsection*{À remplir}
+\begin{longtable}{L{3.2cm} C{1.7cm} C{1.4cm} L{4.2cm} L{2.0cm} L{3.6cm} L{5.4cm}}
+  \toprule
+  \textbf{Message} & \textbf{Octet(s)} & \textbf{Bits} & \textbf{Signal} & \textbf{Type} & \textbf{Codage (unité $\times$ facteur)} & \textbf{Plage, valeur invalide} \\
+  \midrule
+  \endhead
+
+  \champ{k1msg} & \champ{k1oct} & \champ{k1bit} & \champ{k1sig} & \champ{k1typ} & \champ{k1cod} & \champ{k1pl} \\
+  \champ{k2msg} & \champ{k2oct} & \champ{k2bit} & \champ{k2sig} & \champ{k2typ} & \champ{k2cod} & \champ{k2pl} \\
+  \champ{k3msg} & \champ{k3oct} & \champ{k3bit} & \champ{k3sig} & \champ{k3typ} & \champ{k3cod} & \champ{k3pl} \\
+  \champ{k4msg} & \champ{k4oct} & \champ{k4bit} & \champ{k4sig} & \champ{k4typ} & \champ{k4cod} & \champ{k4pl} \\
+  \champ{k5msg} & \champ{k5oct} & \champ{k5bit} & \champ{k5sig} & \champ{k5typ} & \champ{k5cod} & \champ{k5pl} \\
+  \champ{k6msg} & \champ{k6oct} & \champ{k6bit} & \champ{k6sig} & \champ{k6typ} & \champ{k6cod} & \champ{k6pl} \\
+  \champ{k7msg} & \champ{k7oct} & \champ{k7bit} & \champ{k7sig} & \champ{k7typ} & \champ{k7cod} & \champ{k7pl} \\
+  \champ{k8msg} & \champ{k8oct} & \champ{k8bit} & \champ{k8sig} & \champ{k8typ} & \champ{k8cod} & \champ{k8pl} \\
+  \champ{k9msg} & \champ{k9oct} & \champ{k9bit} & \champ{k9sig} & \champ{k9typ} & \champ{k9cod} & \champ{k9pl} \\
+  \champ{k10msg} & \champ{k10oct} & \champ{k10bit} & \champ{k10sig} & \champ{k10typ} & \champ{k10cod} & \champ{k10pl} \\
+  \champ{k11msg} & \champ{k11oct} & \champ{k11bit} & \champ{k11sig} & \champ{k11typ} & \champ{k11cod} & \champ{k11pl} \\
+  \champ{k12msg} & \champ{k12oct} & \champ{k12bit} & \champ{k12sig} & \champ{k12typ} & \champ{k12cod} & \champ{k12pl} \\
+  \champ{k13msg} & \champ{k13oct} & \champ{k13bit} & \champ{k13sig} & \champ{k13typ} & \champ{k13cod} & \champ{k13pl} \\
+  \champ{k14msg} & \champ{k14oct} & \champ{k14bit} & \champ{k14sig} & \champ{k14typ} & \champ{k14cod} & \champ{k14pl} \\
+  \champ{k15msg} & \champ{k15oct} & \champ{k15bit} & \champ{k15sig} & \champ{k15typ} & \champ{k15cod} & \champ{k15pl} \\
+  \champ{k16msg} & \champ{k16oct} & \champ{k16bit} & \champ{k16sig} & \champ{k16typ} & \champ{k16cod} & \champ{k16pl} \\
+  \champ{k17msg} & \champ{k17oct} & \champ{k17bit} & \champ{k17sig} & \champ{k17typ} & \champ{k17cod} & \champ{k17pl} \\
+  \champ{k18msg} & \champ{k18oct} & \champ{k18bit} & \champ{k18sig} & \champ{k18typ} & \champ{k18cod} & \champ{k18pl} \\
+  \champ{k19msg} & \champ{k19oct} & \champ{k19bit} & \champ{k19sig} & \champ{k19typ} & \champ{k19cod} & \champ{k19pl} \\
+  \champ{k20msg} & \champ{k20oct} & \champ{k20bit} & \champ{k20sig} & \champ{k20typ} & \champ{k20cod} & \champ{k20pl} \\
+  \champ{k21msg} & \champ{k21oct} & \champ{k21bit} & \champ{k21sig} & \champ{k21typ} & \champ{k21cod} & \champ{k21pl} \\
+  \champ{k22msg} & \champ{k22oct} & \champ{k22bit} & \champ{k22sig} & \champ{k22typ} & \champ{k22cod} & \champ{k22pl} \\
+  \champ{k23msg} & \champ{k23oct} & \champ{k23bit} & \champ{k23sig} & \champ{k23typ} & \champ{k23cod} & \champ{k23pl} \\
+  \champ{k24msg} & \champ{k24oct} & \champ{k24bit} & \champ{k24sig} & \champ{k24typ} & \champ{k24cod} & \champ{k24pl} \\
+  \champ{k25msg} & \champ{k25oct} & \champ{k25bit} & \champ{k25sig} & \champ{k25typ} & \champ{k25cod} & \champ{k25pl} \\
+  \champ{k26msg} & \champ{k26oct} & \champ{k26bit} & \champ{k26sig} & \champ{k26typ} & \champ{k26cod} & \champ{k26pl} \\
+  \champ{k27msg} & \champ{k27oct} & \champ{k27bit} & \champ{k27sig} & \champ{k27typ} & \champ{k27cod} & \champ{k27pl} \\
+  \champ{k28msg} & \champ{k28oct} & \champ{k28bit} & \champ{k28sig} & \champ{k28typ} & \champ{k28cod} & \champ{k28pl} \\
+  \champ{k29msg} & \champ{k29oct} & \champ{k29bit} & \champ{k29sig} & \champ{k29typ} & \champ{k29cod} & \champ{k29pl} \\
+  \champ{k30msg} & \champ{k30oct} & \champ{k30bit} & \champ{k30sig} & \champ{k30typ} & \champ{k30cod} & \champ{k30pl} \\
+  \champ{k31msg} & \champ{k31oct} & \champ{k31bit} & \champ{k31sig} & \champ{k31typ} & \champ{k31cod} & \champ{k31pl} \\
+  \champ{k32msg} & \champ{k32oct} & \champ{k32bit} & \champ{k32sig} & \champ{k32typ} & \champ{k32cod} & \champ{k32pl} \\
+  \champ{k33msg} & \champ{k33oct} & \champ{k33bit} & \champ{k33sig} & \champ{k33typ} & \champ{k33cod} & \champ{k33pl} \\
+  \champ{k34msg} & \champ{k34oct} & \champ{k34bit} & \champ{k34sig} & \champ{k34typ} & \champ{k34cod} & \champ{k34pl} \\
+  \champ{k35msg} & \champ{k35oct} & \champ{k35bit} & \champ{k35sig} & \champ{k35typ} & \champ{k35cod} & \champ{k35pl} \\
+  \champ{k36msg} & \champ{k36oct} & \champ{k36bit} & \champ{k36sig} & \champ{k36typ} & \champ{k36cod} & \champ{k36pl} \\
+  \champ{k37msg} & \champ{k37oct} & \champ{k37bit} & \champ{k37sig} & \champ{k37typ} & \champ{k37cod} & \champ{k37pl} \\
+  \champ{k38msg} & \champ{k38oct} & \champ{k38bit} & \champ{k38sig} & \champ{k38typ} & \champ{k38cod} & \champ{k38pl} \\
+  \champ{k39msg} & \champ{k39oct} & \champ{k39bit} & \champ{k39sig} & \champ{k39typ} & \champ{k39cod} & \champ{k39pl} \\
+  \champ{k40msg} & \champ{k40oct} & \champ{k40bit} & \champ{k40sig} & \champ{k40typ} & \champ{k40cod} & \champ{k40pl} \\
+  \champ{k41msg} & \champ{k41oct} & \champ{k41bit} & \champ{k41sig} & \champ{k41typ} & \champ{k41cod} & \champ{k41pl} \\
+  \champ{k42msg} & \champ{k42oct} & \champ{k42bit} & \champ{k42sig} & \champ{k42typ} & \champ{k42cod} & \champ{k42pl} \\
+  \champ{k43msg} & \champ{k43oct} & \champ{k43bit} & \champ{k43sig} & \champ{k43typ} & \champ{k43cod} & \champ{k43pl} \\
+  \champ{k44msg} & \champ{k44oct} & \champ{k44bit} & \champ{k44sig} & \champ{k44typ} & \champ{k44cod} & \champ{k44pl} \\
+  \champ{k45msg} & \champ{k45oct} & \champ{k45bit} & \champ{k45sig} & \champ{k45typ} & \champ{k45cod} & \champ{k45pl} \\
+  \champ{k46msg} & \champ{k46oct} & \champ{k46bit} & \champ{k46sig} & \champ{k46typ} & \champ{k46cod} & \champ{k46pl} \\
+  \champ{k47msg} & \champ{k47oct} & \champ{k47bit} & \champ{k47sig} & \champ{k47typ} & \champ{k47cod} & \champ{k47pl} \\
+  \champ{k48msg} & \champ{k48oct} & \champ{k48bit} & \champ{k48sig} & \champ{k48typ} & \champ{k48cod} & \champ{k48pl} \\
+  \champ{k49msg} & \champ{k49oct} & \champ{k49bit} & \champ{k49sig} & \champ{k49typ} & \champ{k49cod} & \champ{k49pl} \\
+  \champ{k50msg} & \champ{k50oct} & \champ{k50bit} & \champ{k50sig} & \champ{k50typ} & \champ{k50cod} & \champ{k50pl} \\
+  \champ{k51msg} & \champ{k51oct} & \champ{k51bit} & \champ{k51sig} & \champ{k51typ} & \champ{k51cod} & \champ{k51pl} \\
+  \champ{k52msg} & \champ{k52oct} & \champ{k52bit} & \champ{k52sig} & \champ{k52typ} & \champ{k52cod} & \champ{k52pl} \\
+  \champ{k53msg} & \champ{k53oct} & \champ{k53bit} & \champ{k53sig} & \champ{k53typ} & \champ{k53cod} & \champ{k53pl} \\
+  \champ{k54msg} & \champ{k54oct} & \champ{k54bit} & \champ{k54sig} & \champ{k54typ} & \champ{k54cod} & \champ{k54pl} \\
+  \champ{k55msg} & \champ{k55oct} & \champ{k55bit} & \champ{k55sig} & \champ{k55typ} & \champ{k55cod} & \champ{k55pl} \\
+  \champ{k56msg} & \champ{k56oct} & \champ{k56bit} & \champ{k56sig} & \champ{k56typ} & \champ{k56cod} & \champ{k56pl} \\
+  \bottomrule
+\end{longtable}
+\setlength{\tabcolsep}{6pt}
+\portrait
+
+
+\section{Contraintes électriques et sécurité}
+
+Si vous ne savez pas encore, écrivez « à voir » — c'est une réponse utile.
+
+\begin{tabularx}{\textwidth}{L{5.6cm} X}
+  \toprule
+  \textbf{Question} & \textbf{Votre réponse} \\
+  \midrule
+
+  Tension du réseau de bord\newline{\footnotesize\textit{5 V / 12 V / 24 V / autre}} & \champML{cn1} \\
+  Un 5 V est-il disponible sur vos cartes ?\newline{\footnotesize\textit{conditionne le choix du transceiver (voir section 3)}} & \champML{cn2} \\
+  Électronique de puissance présente ?\newline{\footnotesize\textit{onduleur, variateur, gros moteur}} & \champML{cn3} \\
+  Sources de bruit CEM identifiées\newline{\footnotesize\textit{commutation, alimentation à découpage}} & \champML{cn4} \\
+  Isolation galvanique nécessaire ?\newline{\footnotesize\textit{entre quels sous-systèmes ?}} & \champML{cn5} \\
+  Système d'arrêt d'urgence\newline{\footnotesize\textit{existe-t-il ? passe-t-il par le bus ?}} & \champML{cn6} \\
+  Comportement attendu si le bus tombe\newline{\footnotesize\textit{mode dégradé, arrêt sécurisé, valeurs par défaut}} & \champML{cn7} \\
+  Timeout de perte d'un message critique\newline{\footnotesize\textit{ex. absence pendant 500 ms = arrêt}} & \champML{cn8} \\
+  Longueur approximative du bus\newline{\footnotesize\textit{en mètres, d'un bout à l'autre}} & \champML{cn9} \\
+  Connecteur souhaité ou imposé\newline{\footnotesize\textit{si vous avez déjà une contrainte}} & \champML{cn10} \\
+  Contraintes mécaniques\newline{\footnotesize\textit{place, vibrations, étanchéité}} & \champML{cn11} \\
+  Précautions de routage / blindage & \champML{cn12} \\
+  \bottomrule
+\end{tabularx}
+
+
+\clearpage
+\section{Points ouverts}
+
+Questions sans réponse à la date de cette version. C'est normal d'en avoir : mieux vaut un point
+ouvert écrit qu'une hypothèse silencieuse.
+
+\subsection*{Exemple}
+\begin{tabularx}{\textwidth}{C{0.8cm} X L{2.8cm} L{2.0cm} L{1.8cm}}
+  \toprule
+  \textbf{N\textsuperscript{o}} & \textbf{Question} & \textbf{Qui répond} & \textbf{Échéance} & \textbf{Statut} \\
+  \midrule
+  \ex{1} & \ex{Le flux des caméras passe-t-il par le bus ou par une liaison dédiée ?} & \ex{Équipe vision} & \ex{Séance 3} & \ex{Ouvert} \\
+  \bottomrule
+\end{tabularx}
+
+\subsection*{À remplir}
+\begin{tabularx}{\textwidth}{C{0.8cm} X L{2.8cm} L{2.0cm} L{1.8cm}}
+  \toprule
+  \textbf{N\textsuperscript{o}} & \textbf{Question} & \textbf{Qui répond} & \textbf{Échéance} & \textbf{Statut} \\
+  \midrule
+
+  1 & \champML{op1q} & \champML{op1w} & \champML{op1e} & \champML{op1s} \\
+  2 & \champML{op2q} & \champML{op2w} & \champML{op2e} & \champML{op2s} \\
+  3 & \champML{op3q} & \champML{op3w} & \champML{op3e} & \champML{op3s} \\
+  4 & \champML{op4q} & \champML{op4w} & \champML{op4e} & \champML{op4s} \\
+  5 & \champML{op5q} & \champML{op5w} & \champML{op5e} & \champML{op5s} \\
+  6 & \champML{op6q} & \champML{op6w} & \champML{op6e} & \champML{op6s} \\
+  7 & \champML{op7q} & \champML{op7w} & \champML{op7e} & \champML{op7s} \\
+  8 & \champML{op8q} & \champML{op8w} & \champML{op8e} & \champML{op8s} \\
+  9 & \champML{op9q} & \champML{op9w} & \champML{op9e} & \champML{op9s} \\
+  10 & \champML{op10q} & \champML{op10w} & \champML{op10e} & \champML{op10s} \\
+  11 & \champML{op11q} & \champML{op11w} & \champML{op11e} & \champML{op11s} \\
+  12 & \champML{op12q} & \champML{op12w} & \champML{op12e} & \champML{op12s} \\
+  \bottomrule
+\end{tabularx}
+
+\vfill
+\noindent\footnotesize\textit{Merci d'avoir rempli ce document, même partiellement.
+Enregistrez le PDF et renvoyez-le à hugo.mathoux@ensea.fr.}
+\normalsize
+
+\end{Form}
+\end{document}

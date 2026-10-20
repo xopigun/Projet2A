@@ -1,0 +1,381 @@
+% =====================================================================
+%  Planning projet — Groupe 69 « Conception d'une Électronique Modulaire (Bus CAN) »
+%  ENSEA 2A — MANAGEMENT_PROJET_S7 — 2026-2027
+%  Version 3.0 — 22 septembre 2026
+%  Compiler avec pdflatex.
+% =====================================================================
+\documentclass[10pt,a4paper,landscape]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage[margin=1.2cm]{geometry}
+\usepackage{pgfgantt}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{colortbl}
+\usepackage{amssymb}
+
+\definecolor{canblue}{HTML}{1F3864}
+\definecolor{canamber}{HTML}{FFB627}
+\definecolor{greyrow}{HTML}{F2F2F2}
+
+% ---------- Une couleur par personne ----------
+\definecolor{cHugo}{HTML}{2E5E8C}
+\definecolor{cDylan}{HTML}{C2661F}
+\definecolor{cSamuel}{HTML}{3F8F6B}
+\definecolor{cTous}{HTML}{808080}
+
+\newcommand{\bH}[3]{\ganttbar[bar/.append style={fill=cHugo}]{#1}{#2}{#3}}
+\newcommand{\bD}[3]{\ganttbar[bar/.append style={fill=cDylan}]{#1}{#2}{#3}}
+\newcommand{\bS}[3]{\ganttbar[bar/.append style={fill=cSamuel}]{#1}{#2}{#3}}
+\newcommand{\bT}[3]{\ganttbar[bar/.append style={fill=cTous}]{#1}{#2}{#3}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small Planning projet — Groupe 69 — Bus CAN}
+\rhead{\small v3.0 — 22 septembre 2026}
+\cfoot{\small \thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+\begin{document}
+
+% =====================================================================
+\begin{center}
+  {\color{canblue}\Large\bfseries Planning prévisionnel du projet\par}
+  \vspace{1pt}
+  {\small Groupe 69 — Conception d'une Électronique Modulaire (Bus CAN) — Samuel Gomri · Dylan Kiati · Hugo Mathoux\par}
+  {\color{canamber}\rule{0.4\textwidth}{1.2pt}\par}
+\end{center}
+
+\vspace{-10pt}
+\noindent\scriptsize
+Séances le mardi après-midi (4 h) — semaine 1 = semaine du 22 septembre 2026 (séance n\textsuperscript{o}2), rendu final le 10 janvier 2027.
+Semaines 6, 14 et 15 supposées non travaillées : \textbf{à confirmer}.
+\normalsize
+
+\vspace{1pt}
+
+% =====================================================================
+%  GANTT — PARTIE 1 : pilotage, ICD, banc de test
+% =====================================================================
+\begin{center}
+\begin{ganttchart}[
+    hgrid, vgrid,
+    x unit=1.22cm,
+    y unit title=0.48cm,
+    y unit chart=0.325cm,
+    title height=1,
+    title label font=\scriptsize\bfseries,
+    bar label font=\scriptsize,
+    group label font=\scriptsize\bfseries,
+    milestone label font=\scriptsize\bfseries,
+    bar height=0.56,
+    group/.append style={draw=none, fill=black!65},
+    group left shift=0, group right shift=0, group top shift=0.38, group height=0.16,
+    bar/.append style={draw=none},
+    milestone/.append style={fill=canamber, draw=none},
+    bar label node/.append style={text width=5.8cm, align=right},
+    group label node/.append style={text width=5.8cm, align=right},
+    milestone label node/.append style={text width=5.8cm, align=right},
+  ]{1}{16}
+
+  \gantttitle{Sept.}{1}
+  \gantttitle{Octobre}{4}
+  \gantttitle{Novembre}{4}
+  \gantttitle{Décembre}{4}
+  \gantttitle{Janvier}{3} \\
+  \gantttitlelist{1,...,16}{1} \\
+
+  % ---------- LOT 0 : pilotage ----------
+  \ganttgroup{L0 — Pilotage projet}{1}{16} \\
+  \bH{Dépôt partagé : Git + Drive}{1}{1} \\
+  \bH{Matrice RACI}{1}{2} \\
+  \bH{Registre de risques}{2}{3} \\
+  \bD{Nomenclature et suivi des coûts}{1}{4} \\
+  \bT{Compte rendu de séance (tournant)}{1}{16} \\
+  \bH{Mise à jour du planning}{1}{16} \\
+  \bT{Revues d'avancement (encadrants)}{5}{5} \bT{}{9}{9} \bT{}{13}{13} \\
+  \bS{Carnet de bord DD et ACV}{9}{12} \\
+
+  % ---------- LOT 1 : standard et ICD ----------
+  \ganttgroup{L1 — Standard \& ICD}{1}{13} \\
+  \bS{Diffusion des ICD vierges}{1}{1} \\
+  \bS{Relances et collecte des retours}{2}{9} \\
+  \bH{ICD Ecomarathon v1}{4}{12} \\
+  \bH{ICD Gyropode v1}{4}{12} \\
+  \bD{ICD Formula Student v1}{4}{12} \\
+  \bS{ICD COBOT v1}{4}{12} \\
+  \bS{ICD MIR1000 v1}{4}{12} \\
+  \bT{Accompagnement des groupes prêts à intégrer}{11}{13} \\
+
+  % ---------- LOT 2 : banc de test ----------
+  \ganttgroup{L2 — Banc de test (matériel)}{1}{11} \\
+  \bD{Inventaire et réservation du matériel}{1}{1} \\
+  \bD{Commande du complément}{2}{4} \\
+  \bD{Alimentation et masse commune}{2}{3} \\
+  \bD{Câblage bus, bornier, terminaisons}{2}{4} \\
+  \bD{Points de test oscilloscope}{4}{5} \\
+  \bD{Schéma électrique du banc}{5}{7} \\
+  \bS{Plaque de montage}{4}{7} \\
+  \bH{Nœud 1 : STM32 + capteurs}{3}{5} \\
+  \bH{Nœud 2 : STM32 récepteur}{3}{5} \\
+  \bD{Nœud 3 : ESP32}{5}{8} \\
+  \bS{Nœud 4 : Arduino + MCP2515}{7}{10} \\
+  \bD{Nœud défaillant (injection de fautes)}{9}{11} \\
+  \bS{IHM, écran de contrôle}{7}{11} \\
+  \bS{Analyseur USB-CAN + SavvyCAN}{5}{8}
+
+\end{ganttchart}
+\end{center}
+
+\vspace{2pt}
+\noindent\footnotesize
+\textcolor{cHugo}{$\blacksquare$} Hugo \quad
+\textcolor{cDylan}{$\blacksquare$} Dylan \quad
+\textcolor{cSamuel}{$\blacksquare$} Samuel \quad
+\textcolor{cTous}{$\blacksquare$} Ensemble \quad
+\textcolor{canamber}{$\blacklozenge$} Jalon
+\normalsize
+
+\clearpage
+
+% =====================================================================
+%  GANTT — PARTIE 2 : logiciel, mesures, livrables
+% =====================================================================
+\begin{center}
+\begin{ganttchart}[
+    hgrid, vgrid,
+    x unit=1.22cm,
+    y unit title=0.48cm,
+    y unit chart=0.325cm,
+    title height=1,
+    title label font=\scriptsize\bfseries,
+    bar label font=\scriptsize,
+    group label font=\scriptsize\bfseries,
+    milestone label font=\scriptsize\bfseries,
+    bar height=0.56,
+    group/.append style={draw=none, fill=black!65},
+    group left shift=0, group right shift=0, group top shift=0.38, group height=0.16,
+    bar/.append style={draw=none},
+    milestone/.append style={fill=canamber, draw=none},
+    bar label node/.append style={text width=5.8cm, align=right},
+    group label node/.append style={text width=5.8cm, align=right},
+    milestone label node/.append style={text width=5.8cm, align=right},
+  ]{1}{16}
+
+  \gantttitle{Sept.}{1}
+  \gantttitle{Octobre}{4}
+  \gantttitle{Novembre}{4}
+  \gantttitle{Décembre}{4}
+  \gantttitle{Janvier}{3} \\
+  \gantttitlelist{1,...,16}{1} \\
+
+  % ---------- LOT 3 : logiciel ----------
+  \ganttgroup{L3 — Briques logicielles}{2}{13} \\
+  \bH{Calcul du bit timing 500 kbit/s}{2}{4} \\
+  \bH{Réglage du point d'échantillonnage}{3}{5} \\
+  \bH{Filtres de réception}{5}{7} \\
+  \bH{Bibliothèque encodage / décodage}{3}{8} \\
+  \bH{Tests unitaires de la bibliothèque (PC)}{6}{8} \\
+  \bD{Portage ESP32 et Arduino}{7}{10} \\
+  \bH{Générateur de code depuis l'ICD}{7}{11} \\
+  \bH{Export DBC}{9}{11} \\
+  \bS{Notice d'utilisation}{11}{13} \\
+
+  % ---------- LOT 4 : mesures et validation ----------
+  \ganttgroup{L4 — Mesures \& validation}{6}{13} \\
+  \bH{Cahier de recette (procédure de test)}{6}{8} \\
+  \bD{Oscillo : signal différentiel}{8}{10} \\
+  \bD{Effet d'une terminaison manquante}{8}{10} \\
+  \bD{Arbitrage à l'analyseur logique}{9}{11} \\
+  \bD{Analyse sécurité et réglementaire du banc}{9}{10} \\
+  \bD{Injection de fautes, bus-off}{10}{12} \\
+  \bH{Mesure de charge du bus}{11}{13} \\
+  \bT{Exécution de la recette}{12}{13} \\
+  \bS{Dossier de mesures}{10}{13} \\
+
+  % ---------- LOT 5 : livrables évalués ----------
+  \ganttgroup{L5 — Livrables évalués}{10}{16} \\
+  \bT{Rapport écrit}{10}{16} \\
+  \bS{Support oral}{12}{16} \\
+  \bT{Répétition de la soutenance}{16}{16} \\
+  \bT{Bilan de clôture, écart prévu / réalisé}{16}{16} \\
+
+  % ---------- JALONS ----------
+  \ganttmilestone{J1 — Matériel réservé, dépôt en place}{1} \\
+  \ganttmilestone{J2 — 1\textsuperscript{re} trame échangée}{5} \\
+  \ganttmilestone{J3 — 3 familles de µC dialoguent}{8} \\
+  \ganttmilestone{J4 — Banc complet + IHM}{11} \\
+  \ganttmilestone{J5 — Recette passée, 5 ICD v1}{13} \\
+  \ganttmilestone{J6 — Rendu final}{16}
+
+\end{ganttchart}
+\end{center}
+
+\vspace{2pt}
+\noindent\footnotesize
+\textcolor{cHugo}{$\blacksquare$} Hugo \quad
+\textcolor{cDylan}{$\blacksquare$} Dylan \quad
+\textcolor{cSamuel}{$\blacksquare$} Samuel \quad
+\textcolor{cTous}{$\blacksquare$} Ensemble \quad
+\textcolor{canamber}{$\blacklozenge$} Jalon
+\normalsize
+
+\clearpage
+
+% =====================================================================
+%  CE QUE CONTIENT LE BANC
+% =====================================================================
+\section*{Composition du banc de test}
+
+\noindent\small
+Quatre nœuds de trois familles de microcontrôleurs différentes sur un même bus : c'est
+l'hétérogénéité qui démontre que le standard est réutilisable. Chaque nœud est une brique
+que les autres groupes peuvent reprendre telle quelle.
+\normalsize
+
+\vspace{6pt}
+\noindent
+\begin{tabularx}{\textwidth}{L{2.0cm} L{3.4cm} L{3.4cm} L{3.0cm} X}
+  \toprule
+  \textbf{Nœud} & \textbf{Microcontrôleur} & \textbf{Transceiver} & \textbf{Rôle} & \textbf{Ce qu'il démontre} \\
+  \midrule
+  \rowcolor{greyrow}
+  1 & STM32 Nucleo (CAN intégré) & MCP2562 (5 V, VIO 3,3 V) & Émetteur : potentiomètre (vitesse) + thermistance (température) & Le cas typique des groupes partenaires \\
+  2 & STM32 Nucleo & MCP2562 & Récepteur + relais vers l'IHM & Réception filtrée, décodage \\
+  \rowcolor{greyrow}
+  3 & ESP32 (CAN intégré, TWAI) & SN65HVD230 (3,3 V natif) & Émetteur / récepteur & Interopérabilité 3,3 V $\leftrightarrow$ 5 V sans adaptateur \\
+  4 & Arduino Uno (pas de CAN intégré) & Module MCP2515 (SPI) & Émetteur basique & Que le standard marche aussi avec un contrôleur externe à 5 euros \\
+  \rowcolor{greyrow}
+  — & PC + CANable & — & Analyseur (SavvyCAN) & Observation et mesure du trafic réel \\
+  \bottomrule
+\end{tabularx}
+
+\vspace{10pt}
+
+\noindent
+\begin{tabularx}{\textwidth}{L{5.0cm} X}
+  \toprule
+  \textbf{Infrastructure du banc} & \textbf{Pourquoi c'est indispensable} \\
+  \midrule
+  \rowcolor{greyrow}
+  Masse commune à tous les nœuds &
+  Le CAN est différentiel mais tolère au maximum $\pm$12 V de mode commun. Sans masse reliée entre les cartes, la communication échoue de façon erratique. Cause d'échec n\textsuperscript{o}1 sur un banc improvisé. \\
+  Alimentation unique 5 V / 3,3 V &
+  Évite d'alimenter chaque carte par un PC différent, ce qui créerait justement des masses flottantes. \\
+  \rowcolor{greyrow}
+  Terminaisons 120\,$\Omega$ sur jumper &
+  Permet de les retirer volontairement pour filmer les réflexions à l'oscilloscope (mesure L4). Une terminaison soudée en dur interdit cette démonstration. \\
+  Bornier de dérivation &
+  Brancher ou débrancher un nœud en 10 secondes, sans redémonter le bus — nécessaire pour l'injection de fautes. \\
+  \rowcolor{greyrow}
+  Points de test CAN\_H / CAN\_L &
+  Sonde d'oscilloscope accessible sans débrancher quoi que ce soit. \\
+  Plaque de montage &
+  Le banc survit d'une séance à l'autre et se transporte. Sans support, tout est à recâbler chaque mardi. \\
+  \rowcolor{greyrow}
+  Schéma électrique et nomenclature &
+  Sans eux, le banc n'est pas reproductible par un autre groupe — et ce n'est donc pas une brique réutilisable. \\
+  \bottomrule
+\end{tabularx}
+
+\clearpage
+
+% =====================================================================
+%  CALENDRIER
+% =====================================================================
+\section*{Calendrier des séances}
+
+\noindent
+\begin{tabularx}{\textwidth}{C{1.5cm} C{2.4cm} C{1.6cm} X}
+  \toprule
+  \textbf{Semaine} & \textbf{Date (mardi)} & \textbf{Séance} & \textbf{Objectif principal} \\
+  \midrule
+  \rowcolor{greyrow} 1 & 22 sept. 2026 & 2 & \textbf{J1} — réserver le matériel, vérifier les transceivers ; créer le dépôt partagé ; diffuser les ICD \\
+  2 & 29 sept. 2026 & 3 & Alimentation, masse commune, câblage du bus ; calcul du bit timing ; nomenclature \\
+  \rowcolor{greyrow} 3 & 6 oct. 2026 & 4 & Firmware des nœuds 1 et 2 ; démarrage de la bibliothèque \\
+  4 & 13 oct. 2026 & 5 & Points de test ; réglage du point d'échantillonnage ; plaque de montage \\
+  \rowcolor{greyrow} 5 & 20 oct. 2026 & 6 & \textbf{J2} — une trame circule entre 2 STM32 et est décodée ; 1\textsuperscript{re} revue encadrants \\
+  6 & 27 oct. 2026 & — & \textit{Vacances (à confirmer)} \\
+  \rowcolor{greyrow} 7 & 3 nov. 2026 & 7 & Intégrer l'ESP32 ; analyseur USB-CAN ; schéma électrique ; démarrer l'IHM \\
+  8 & 10 nov. 2026 & 8 & \textbf{J3} — 3 familles de µC dialoguent ; tests unitaires passés ; premières mesures oscillo \\
+  \rowcolor{greyrow} 9 & 17 nov. 2026 & 9 & Nœud Arduino ; export DBC ; mesures d'arbitrage ; analyse sécurité ; 2\textsuperscript{e} revue \\
+  10 & 24 nov. 2026 & 10 & Nœud défaillant ; injection de fautes ; démarrage du rapport \\
+  \rowcolor{greyrow} 11 & 1\textsuperscript{er} déc. 2026 & 11 & \textbf{J4} — banc complet 4 nœuds + IHM ; accompagnement des groupes prêts \\
+  12 & 8 déc. 2026 & 12 & Consolidation des 5 ICD ; mesure de charge ; exécution de la recette \\
+  \rowcolor{greyrow} 13 & 15 déc. 2026 & 13 & \textbf{J5} — recette passée, 5 ICD en v1 ; 3\textsuperscript{e} revue encadrants \\
+  14--15 & 22--29 déc. 2026 & — & \textit{Vacances} — rédaction du rapport à distance \\
+  \rowcolor{greyrow} 16 & 5 janv. 2027 & 14 & \textbf{J6} — finalisation du rapport, répétition de l'oral, bilan de clôture \\
+  \multicolumn{4}{@{}l}{\textbf{Rendu final : 10 janvier 2027}} \\
+  \bottomrule
+\end{tabularx}
+
+\vspace{10pt}
+
+% =====================================================================
+%  RISQUES
+% =====================================================================
+\section*{Risques sur le planning}
+
+\noindent
+\begin{tabularx}{\textwidth}{L{5.4cm} C{1.5cm} C{1.5cm} X}
+  \toprule
+  \textbf{Risque} & \textbf{Probab.} & \textbf{Impact} & \textbf{Parade intégrée au planning} \\
+  \midrule
+  \rowcolor{greyrow}
+  Matériel pris par un autre groupe & Élevée & Fort &
+  Réservation en semaine 1, avant toute autre tâche. Jalon J1 dès la séance 2. \\
+  Transceivers inadaptés (5 V sans VIO) & Moyenne & Moyen &
+  Vérification des références à l'inventaire ; commande du complément semaines 2 à 4, avant J2. \\
+  \rowcolor{greyrow}
+  Bit timing incohérent entre familles de µC & Moyenne & Fort &
+  Tâche isolée dès la semaine 2, avant tout firmware. Point d'échantillonnage à 87,5 \% imposé à tous les nœuds. \\
+  Masses non reliées entre les cartes & Élevée & Fort &
+  Alimentation unique et masse commune en semaine 2, avant le premier essai de communication. \\
+  \rowcolor{greyrow}
+  Retard des groupes partenaires sur les ICD & Élevée & Faible &
+  Le chemin critique passe par L2 et L3, qui ne dépendent d'aucun groupe externe. \\
+  Concentration des tâches logicielles critiques sur une seule personne & Moyenne & Fort &
+  Portage ESP32/Arduino et notice délégués ; la bibliothèque et ses tests unitaires peuvent avancer à distance, sans matériel. \\
+  \rowcolor{greyrow}
+  Sous-estimation du développement logiciel & Moyenne & Fort &
+  Bibliothèque démarrée en semaine 3, en parallèle du banc, avec 6 semaines de marge avant J3. \\
+  Dérive du périmètre (demandes des groupes hors standard) & Moyenne & Moyen &
+  Tout ajout passe par une nouvelle version de l'ICD concerné et une ligne dans le registre de risques ; rien n'est accepté oralement. \\
+  \bottomrule
+\end{tabularx}
+
+\vspace{10pt}
+
+% =====================================================================
+%  SUIVI
+% =====================================================================
+\section*{Comment tenir ce planning à jour}
+
+\noindent
+\begin{minipage}{\textwidth}
+\small
+\textbf{En fin de chaque séance}, cinq minutes suffisent :
+
+\begin{enumerate}\itemsep2pt
+  \item Noter ce qui a réellement été fait, et ce qui a glissé.
+  \item Corriger les dates dans ce fichier en \textbf{conservant l'ancienne version} (v3.0, v3.1\ldots) — c'est l'écart entre le prévu et le réalisé qui démontre la maîtrise du projet.
+  \item Reporter tout nouveau risque dans le tableau ci-dessus.
+  \item Mettre à jour le journal de l'ICD du groupe rencontré.
+\end{enumerate}
+
+\medskip
+\textbf{Chemin critique} : réservation du matériel $\rightarrow$ masse et câblage $\rightarrow$ bit timing $\rightarrow$ firmware nœuds 1-2 $\rightarrow$ bibliothèque $\rightarrow$ banc complet $\rightarrow$ recette $\rightarrow$ rapport.
+Tout retard sur cette chaîne décale la fin. Les ICD (L1) ont volontairement de la marge : ils ne doivent jamais bloquer le reste.
+\normalsize
+\end{minipage}
+
+\end{document}
