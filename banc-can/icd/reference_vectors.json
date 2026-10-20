@@ -1,0 +1,6550 @@
+{
+  "_comment": "FICHIER GÉNÉRÉ — produit par tools/codegen à partir de icd/bench_icd.yaml. Lu par les tests C natifs et par les tests Python pour vérifier que les deux implémentations de l'encodage produisent les mêmes octets.",
+  "profile": "bench",
+  "bitrate": 500000,
+  "frames": [
+    {
+      "name": "ARM",
+      "can_id": 16,
+      "dlc": 8,
+      "cases": [
+        {
+          "label": "valeurs par défaut",
+          "values": {},
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {}
+        }
+      ]
+    },
+    {
+      "name": "GO",
+      "can_id": 17,
+      "dlc": 8,
+      "cases": [
+        {
+          "label": "valeurs par défaut",
+          "values": {},
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {}
+        }
+      ]
+    },
+    {
+      "name": "BENCH_CFG",
+      "can_id": 18,
+      "dlc": 8,
+      "cases": [
+        {
+          "label": "valeurs par défaut",
+          "values": {},
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            232,
+            3,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "target_node = 0",
+          "values": {
+            "target_node": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            232,
+            3,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "target_node = 1",
+          "values": {
+            "target_node": 1.0
+          },
+          "data": [
+            1,
+            0,
+            0,
+            0,
+            232,
+            3,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 1,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "target_node = 254",
+          "values": {
+            "target_node": 254.0
+          },
+          "data": [
+            254,
+            0,
+            0,
+            0,
+            232,
+            3,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 254,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "target_node = 255",
+          "values": {
+            "target_node": 255.0
+          },
+          "data": [
+            255,
+            0,
+            0,
+            0,
+            232,
+            3,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 255,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "target_node = 0",
+          "values": {
+            "target_node": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            232,
+            3,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "mode = 0",
+          "values": {
+            "mode": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            232,
+            3,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "mode = 1",
+          "values": {
+            "mode": 1.0
+          },
+          "data": [
+            0,
+            1,
+            0,
+            0,
+            232,
+            3,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 1,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "mode = 254",
+          "values": {
+            "mode": 254.0
+          },
+          "data": [
+            0,
+            254,
+            0,
+            0,
+            232,
+            3,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 254,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "mode = 255",
+          "values": {
+            "mode": 255.0
+          },
+          "data": [
+            0,
+            255,
+            0,
+            0,
+            232,
+            3,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 255,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "mode = 0",
+          "values": {
+            "mode": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            232,
+            3,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "param_u16 = 0",
+          "values": {
+            "param_u16": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            232,
+            3,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "param_u16 = 1",
+          "values": {
+            "param_u16": 1.0
+          },
+          "data": [
+            0,
+            0,
+            1,
+            0,
+            232,
+            3,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 1,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "param_u16 = 65534",
+          "values": {
+            "param_u16": 65534.0
+          },
+          "data": [
+            0,
+            0,
+            254,
+            255,
+            232,
+            3,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 65534,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "param_u16 = 65535",
+          "values": {
+            "param_u16": 65535.0
+          },
+          "data": [
+            0,
+            0,
+            255,
+            255,
+            232,
+            3,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 65535,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "param_u16 = 0",
+          "values": {
+            "param_u16": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            232,
+            3,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "duration_ms = 0",
+          "values": {
+            "duration_ms": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 0,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "duration_ms = 1",
+          "values": {
+            "duration_ms": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 1,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "duration_ms = 65534",
+          "values": {
+            "duration_ms": 65534.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            254,
+            255,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 65534,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "duration_ms = 65535",
+          "values": {
+            "duration_ms": 65535.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            255,
+            255,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 65535,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "duration_ms = 1000",
+          "values": {
+            "duration_ms": 1000.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            232,
+            3,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "heartbeat_period_ms = 0",
+          "values": {
+            "heartbeat_period_ms": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            232,
+            3,
+            0,
+            0
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 0
+          }
+        },
+        {
+          "label": "heartbeat_period_ms = 1",
+          "values": {
+            "heartbeat_period_ms": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            232,
+            3,
+            1,
+            0
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 1
+          }
+        },
+        {
+          "label": "heartbeat_period_ms = 65534",
+          "values": {
+            "heartbeat_period_ms": 65534.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            232,
+            3,
+            254,
+            255
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 65534
+          }
+        },
+        {
+          "label": "heartbeat_period_ms = 65535",
+          "values": {
+            "heartbeat_period_ms": 65535.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            232,
+            3,
+            255,
+            255
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 65535
+          }
+        },
+        {
+          "label": "heartbeat_period_ms = 500",
+          "values": {
+            "heartbeat_period_ms": 500.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            232,
+            3,
+            244,
+            1
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 1000,
+            "heartbeat_period_ms": 500
+          }
+        },
+        {
+          "label": "tous les signaux au maximum",
+          "values": {
+            "target_node": 255.0,
+            "mode": 255.0,
+            "param_u16": 65535.0,
+            "duration_ms": 65535.0,
+            "heartbeat_period_ms": 65535.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            255,
+            255,
+            255,
+            255
+          ],
+          "raw": {
+            "target_node": 255,
+            "mode": 255,
+            "param_u16": 65535,
+            "duration_ms": 65535,
+            "heartbeat_period_ms": 65535
+          }
+        },
+        {
+          "label": "tous les signaux au minimum",
+          "values": {
+            "target_node": 0.0,
+            "mode": 0.0,
+            "param_u16": 0.0,
+            "duration_ms": 0.0,
+            "heartbeat_period_ms": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "target_node": 0,
+            "mode": 0,
+            "param_u16": 0,
+            "duration_ms": 0,
+            "heartbeat_period_ms": 0
+          }
+        },
+        {
+          "label": "motif alterné min/max",
+          "values": {
+            "target_node": 255.0,
+            "mode": 0.0,
+            "param_u16": 65535.0,
+            "duration_ms": 0.0,
+            "heartbeat_period_ms": 65535.0
+          },
+          "data": [
+            255,
+            0,
+            255,
+            255,
+            0,
+            0,
+            255,
+            255
+          ],
+          "raw": {
+            "target_node": 255,
+            "mode": 0,
+            "param_u16": 65535,
+            "duration_ms": 0,
+            "heartbeat_period_ms": 65535
+          }
+        }
+      ]
+    },
+    {
+      "name": "BENCH_RESULT",
+      "can_id": 19,
+      "dlc": 8,
+      "cases": [
+        {
+          "label": "valeurs par défaut",
+          "values": {},
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "node_id = 0",
+          "values": {
+            "node_id": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "node_id = 1",
+          "values": {
+            "node_id": 1.0
+          },
+          "data": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 1,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "node_id = 254",
+          "values": {
+            "node_id": 254.0
+          },
+          "data": [
+            254,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 254,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "node_id = 255",
+          "values": {
+            "node_id": 255.0
+          },
+          "data": [
+            255,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 255,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "node_id = 0",
+          "values": {
+            "node_id": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "mode = 0",
+          "values": {
+            "mode": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "mode = 1",
+          "values": {
+            "mode": 1.0
+          },
+          "data": [
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 1,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "mode = 254",
+          "values": {
+            "mode": 254.0
+          },
+          "data": [
+            0,
+            254,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 254,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "mode = 255",
+          "values": {
+            "mode": 255.0
+          },
+          "data": [
+            0,
+            255,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 255,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "mode = 0",
+          "values": {
+            "mode": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "status = 0",
+          "values": {
+            "status": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "status = 1",
+          "values": {
+            "status": 1.0
+          },
+          "data": [
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 1,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "status = 254",
+          "values": {
+            "status": 254.0
+          },
+          "data": [
+            0,
+            0,
+            254,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 254,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "status = 255",
+          "values": {
+            "status": 255.0
+          },
+          "data": [
+            0,
+            0,
+            255,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 255,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "status = 0",
+          "values": {
+            "status": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "arm_rx = 0",
+          "values": {
+            "arm_rx": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "arm_rx = 1",
+          "values": {
+            "arm_rx": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 1,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "arm_rx = 254",
+          "values": {
+            "arm_rx": 254.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            254,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 254,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "arm_rx = 255",
+          "values": {
+            "arm_rx": 255.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 255,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "arm_rx = 0",
+          "values": {
+            "arm_rx": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "frames_sent = 0",
+          "values": {
+            "frames_sent": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "frames_sent = 1",
+          "values": {
+            "frames_sent": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 1,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "frames_sent = 65534",
+          "values": {
+            "frames_sent": 65534.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            254,
+            255,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 65534,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "frames_sent = 65535",
+          "values": {
+            "frames_sent": 65535.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            255,
+            255,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 65535,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "frames_sent = 0",
+          "values": {
+            "frames_sent": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "frames_lost = 0",
+          "values": {
+            "frames_lost": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "frames_lost = 1",
+          "values": {
+            "frames_lost": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 1
+          }
+        },
+        {
+          "label": "frames_lost = 65534",
+          "values": {
+            "frames_lost": 65534.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            254,
+            255
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 65534
+          }
+        },
+        {
+          "label": "frames_lost = 65535",
+          "values": {
+            "frames_lost": 65535.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            255,
+            255
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 65535
+          }
+        },
+        {
+          "label": "frames_lost = 0",
+          "values": {
+            "frames_lost": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "tous les signaux au maximum",
+          "values": {
+            "node_id": 255.0,
+            "mode": 255.0,
+            "status": 255.0,
+            "arm_rx": 255.0,
+            "frames_sent": 65535.0,
+            "frames_lost": 65535.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            255,
+            255,
+            255,
+            255
+          ],
+          "raw": {
+            "node_id": 255,
+            "mode": 255,
+            "status": 255,
+            "arm_rx": 255,
+            "frames_sent": 65535,
+            "frames_lost": 65535
+          }
+        },
+        {
+          "label": "tous les signaux au minimum",
+          "values": {
+            "node_id": 0.0,
+            "mode": 0.0,
+            "status": 0.0,
+            "arm_rx": 0.0,
+            "frames_sent": 0.0,
+            "frames_lost": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 0,
+            "mode": 0,
+            "status": 0,
+            "arm_rx": 0,
+            "frames_sent": 0,
+            "frames_lost": 0
+          }
+        },
+        {
+          "label": "motif alterné min/max",
+          "values": {
+            "node_id": 255.0,
+            "mode": 0.0,
+            "status": 255.0,
+            "arm_rx": 0.0,
+            "frames_sent": 65535.0,
+            "frames_lost": 0.0
+          },
+          "data": [
+            255,
+            0,
+            255,
+            0,
+            255,
+            255,
+            0,
+            0
+          ],
+          "raw": {
+            "node_id": 255,
+            "mode": 0,
+            "status": 255,
+            "arm_rx": 0,
+            "frames_sent": 65535,
+            "frames_lost": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "HEARTBEAT",
+      "can_id": 1921,
+      "dlc": 8,
+      "cases": [
+        {
+          "label": "valeurs par défaut",
+          "values": {},
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "ctrl_state = 0",
+          "values": {
+            "ctrl_state": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "ctrl_state = 1",
+          "values": {
+            "ctrl_state": 1.0
+          },
+          "data": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 1,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "ctrl_state = 2",
+          "values": {
+            "ctrl_state": 2.0
+          },
+          "data": [
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 2,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "ctrl_state = 3",
+          "values": {
+            "ctrl_state": 3.0
+          },
+          "data": [
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 3,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "ctrl_state = 0",
+          "values": {
+            "ctrl_state": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "last_error_code = 0",
+          "values": {
+            "last_error_code": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "last_error_code = 1",
+          "values": {
+            "last_error_code": 1.0
+          },
+          "data": [
+            4,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 1,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "last_error_code = 6",
+          "values": {
+            "last_error_code": 6.0
+          },
+          "data": [
+            24,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 6,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "last_error_code = 7",
+          "values": {
+            "last_error_code": 7.0
+          },
+          "data": [
+            28,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 7,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "last_error_code = 0",
+          "values": {
+            "last_error_code": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "clock_not_qualified = 0",
+          "values": {
+            "clock_not_qualified": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "clock_not_qualified = 1",
+          "values": {
+            "clock_not_qualified": 1.0
+          },
+          "data": [
+            32,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 1,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "clock_not_qualified = 0",
+          "values": {
+            "clock_not_qualified": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "fault_mode_active = 0",
+          "values": {
+            "fault_mode_active": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "fault_mode_active = 1",
+          "values": {
+            "fault_mode_active": 1.0
+          },
+          "data": [
+            64,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 1,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "fault_mode_active = 0",
+          "values": {
+            "fault_mode_active": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "silent_mode = 0",
+          "values": {
+            "silent_mode": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "silent_mode = 1",
+          "values": {
+            "silent_mode": 1.0
+          },
+          "data": [
+            128,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 1,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "silent_mode = 0",
+          "values": {
+            "silent_mode": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "tec = 0",
+          "values": {
+            "tec": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "tec = 1",
+          "values": {
+            "tec": 1.0
+          },
+          "data": [
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 1,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "tec = 254",
+          "values": {
+            "tec": 254.0
+          },
+          "data": [
+            0,
+            254,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 254,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "tec = 255",
+          "values": {
+            "tec": 255.0
+          },
+          "data": [
+            0,
+            255,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 255,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "tec = 0",
+          "values": {
+            "tec": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "rec = 0",
+          "values": {
+            "rec": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "rec = 1",
+          "values": {
+            "rec": 1.0
+          },
+          "data": [
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 1,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "rec = 254",
+          "values": {
+            "rec": 254.0
+          },
+          "data": [
+            0,
+            0,
+            254,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 254,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "rec = 255",
+          "values": {
+            "rec": 255.0
+          },
+          "data": [
+            0,
+            0,
+            255,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 255,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "rec = 0",
+          "values": {
+            "rec": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "current_mode = 0",
+          "values": {
+            "current_mode": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "current_mode = 1",
+          "values": {
+            "current_mode": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 1,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "current_mode = 14",
+          "values": {
+            "current_mode": 14.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            14,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 14,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "current_mode = 15",
+          "values": {
+            "current_mode": 15.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            15,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 15,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "current_mode = 0",
+          "values": {
+            "current_mode": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "reserved = 0",
+          "values": {
+            "reserved": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "reserved = 1",
+          "values": {
+            "reserved": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            16,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 1,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "reserved = 14",
+          "values": {
+            "reserved": 14.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            224,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 14,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "reserved = 15",
+          "values": {
+            "reserved": 15.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            240,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 15,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "reserved = 0",
+          "values": {
+            "reserved": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "rx_fifo_lost = 0",
+          "values": {
+            "rx_fifo_lost": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "rx_fifo_lost = 1",
+          "values": {
+            "rx_fifo_lost": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 1,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "rx_fifo_lost = 254",
+          "values": {
+            "rx_fifo_lost": 254.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            254,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 254,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "rx_fifo_lost = 255",
+          "values": {
+            "rx_fifo_lost": 255.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            255,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 255,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "rx_fifo_lost = 0",
+          "values": {
+            "rx_fifo_lost": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "ring_overflow = 0",
+          "values": {
+            "ring_overflow": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "ring_overflow = 1",
+          "values": {
+            "ring_overflow": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 1,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "ring_overflow = 254",
+          "values": {
+            "ring_overflow": 254.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            254,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 254,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "ring_overflow = 255",
+          "values": {
+            "ring_overflow": 255.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            255,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 255,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "ring_overflow = 0",
+          "values": {
+            "ring_overflow": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "non_classic_rx = 0",
+          "values": {
+            "non_classic_rx": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "non_classic_rx = 1",
+          "values": {
+            "non_classic_rx": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 1,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "non_classic_rx = 254",
+          "values": {
+            "non_classic_rx": 254.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            254,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 254,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "non_classic_rx = 255",
+          "values": {
+            "non_classic_rx": 255.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            255,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 255,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "non_classic_rx = 0",
+          "values": {
+            "non_classic_rx": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "ext_id_rx = 0",
+          "values": {
+            "ext_id_rx": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "ext_id_rx = 1",
+          "values": {
+            "ext_id_rx": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 1
+          }
+        },
+        {
+          "label": "ext_id_rx = 254",
+          "values": {
+            "ext_id_rx": 254.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            254
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 254
+          }
+        },
+        {
+          "label": "ext_id_rx = 255",
+          "values": {
+            "ext_id_rx": 255.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            255
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 255
+          }
+        },
+        {
+          "label": "ext_id_rx = 0",
+          "values": {
+            "ext_id_rx": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "tous les signaux au maximum",
+          "values": {
+            "ctrl_state": 3.0,
+            "last_error_code": 7.0,
+            "clock_not_qualified": 1.0,
+            "fault_mode_active": 1.0,
+            "silent_mode": 1.0,
+            "tec": 255.0,
+            "rec": 255.0,
+            "current_mode": 15.0,
+            "reserved": 15.0,
+            "rx_fifo_lost": 255.0,
+            "ring_overflow": 255.0,
+            "non_classic_rx": 255.0,
+            "ext_id_rx": 255.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            255,
+            255,
+            255,
+            255
+          ],
+          "raw": {
+            "ctrl_state": 3,
+            "last_error_code": 7,
+            "clock_not_qualified": 1,
+            "fault_mode_active": 1,
+            "silent_mode": 1,
+            "tec": 255,
+            "rec": 255,
+            "current_mode": 15,
+            "reserved": 15,
+            "rx_fifo_lost": 255,
+            "ring_overflow": 255,
+            "non_classic_rx": 255,
+            "ext_id_rx": 255
+          }
+        },
+        {
+          "label": "tous les signaux au minimum",
+          "values": {
+            "ctrl_state": 0.0,
+            "last_error_code": 0.0,
+            "clock_not_qualified": 0.0,
+            "fault_mode_active": 0.0,
+            "silent_mode": 0.0,
+            "tec": 0.0,
+            "rec": 0.0,
+            "current_mode": 0.0,
+            "reserved": 0.0,
+            "rx_fifo_lost": 0.0,
+            "ring_overflow": 0.0,
+            "non_classic_rx": 0.0,
+            "ext_id_rx": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "ctrl_state": 0,
+            "last_error_code": 0,
+            "clock_not_qualified": 0,
+            "fault_mode_active": 0,
+            "silent_mode": 0,
+            "tec": 0,
+            "rec": 0,
+            "current_mode": 0,
+            "reserved": 0,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 0,
+            "non_classic_rx": 0,
+            "ext_id_rx": 0
+          }
+        },
+        {
+          "label": "motif alterné min/max",
+          "values": {
+            "ctrl_state": 3.0,
+            "last_error_code": 0.0,
+            "clock_not_qualified": 1.0,
+            "fault_mode_active": 0.0,
+            "silent_mode": 1.0,
+            "tec": 0.0,
+            "rec": 255.0,
+            "current_mode": 0.0,
+            "reserved": 15.0,
+            "rx_fifo_lost": 0.0,
+            "ring_overflow": 255.0,
+            "non_classic_rx": 0.0,
+            "ext_id_rx": 255.0
+          },
+          "data": [
+            163,
+            0,
+            255,
+            240,
+            0,
+            255,
+            0,
+            255
+          ],
+          "raw": {
+            "ctrl_state": 3,
+            "last_error_code": 0,
+            "clock_not_qualified": 1,
+            "fault_mode_active": 0,
+            "silent_mode": 1,
+            "tec": 0,
+            "rec": 255,
+            "current_mode": 0,
+            "reserved": 15,
+            "rx_fifo_lost": 0,
+            "ring_overflow": 255,
+            "non_classic_rx": 0,
+            "ext_id_rx": 255
+          }
+        }
+      ]
+    },
+    {
+      "name": "ENERGY_COMMAND",
+      "can_id": 256,
+      "dlc": 8,
+      "cases": [
+        {
+          "label": "valeurs par défaut",
+          "values": {},
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "torque_setpoint = -3276.8",
+          "values": {
+            "torque_setpoint": -3276.8
+          },
+          "data": [
+            0,
+            128,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": -32768,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "torque_setpoint = -3276.7",
+          "values": {
+            "torque_setpoint": -3276.7000000000003
+          },
+          "data": [
+            1,
+            128,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": -32767,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "torque_setpoint = -0.1",
+          "values": {
+            "torque_setpoint": -0.1
+          },
+          "data": [
+            255,
+            255,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": -1,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "torque_setpoint = 0",
+          "values": {
+            "torque_setpoint": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "torque_setpoint = 0.1",
+          "values": {
+            "torque_setpoint": 0.1
+          },
+          "data": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 1,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "torque_setpoint = 3276.6",
+          "values": {
+            "torque_setpoint": 3276.6000000000004
+          },
+          "data": [
+            254,
+            127,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 32766,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "torque_setpoint = 3276.7",
+          "values": {
+            "torque_setpoint": 3276.7000000000003
+          },
+          "data": [
+            255,
+            127,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 32767,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "torque_setpoint = 0",
+          "values": {
+            "torque_setpoint": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "speed_setpoint = -16384",
+          "values": {
+            "speed_setpoint": -16384.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            128,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": -32768,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "speed_setpoint = -16383.5",
+          "values": {
+            "speed_setpoint": -16383.5
+          },
+          "data": [
+            0,
+            0,
+            1,
+            128,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": -32767,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "speed_setpoint = -0.5",
+          "values": {
+            "speed_setpoint": -0.5
+          },
+          "data": [
+            0,
+            0,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": -1,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "speed_setpoint = 0",
+          "values": {
+            "speed_setpoint": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "speed_setpoint = 0.5",
+          "values": {
+            "speed_setpoint": 0.5
+          },
+          "data": [
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 1,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "speed_setpoint = 16383",
+          "values": {
+            "speed_setpoint": 16383.0
+          },
+          "data": [
+            0,
+            0,
+            254,
+            127,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 32766,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "speed_setpoint = 16383.5",
+          "values": {
+            "speed_setpoint": 16383.5
+          },
+          "data": [
+            0,
+            0,
+            255,
+            127,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 32767,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "speed_setpoint = 0",
+          "values": {
+            "speed_setpoint": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "current_limit = 0",
+          "values": {
+            "current_limit": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "current_limit = 0.05",
+          "values": {
+            "current_limit": 0.05
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 1,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "current_limit = 204.7",
+          "values": {
+            "current_limit": 204.70000000000002
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            254,
+            15,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 4094,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "current_limit = 204.75",
+          "values": {
+            "current_limit": 204.75
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            255,
+            15,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 4095,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "current_limit = 0",
+          "values": {
+            "current_limit": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "enable = 0",
+          "values": {
+            "enable": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "enable = 1",
+          "values": {
+            "enable": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            16,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 1,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "enable = 0",
+          "values": {
+            "enable": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "direction = 0",
+          "values": {
+            "direction": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "direction = 1",
+          "values": {
+            "direction": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            32,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 1,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "direction = 0",
+          "values": {
+            "direction": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "command_counter = 0",
+          "values": {
+            "command_counter": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "command_counter = 1",
+          "values": {
+            "command_counter": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 1,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "command_counter = 254",
+          "values": {
+            "command_counter": 254.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            254,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 254,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "command_counter = 255",
+          "values": {
+            "command_counter": 255.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            255,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 255,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "command_counter = 0",
+          "values": {
+            "command_counter": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "checksum = 0",
+          "values": {
+            "checksum": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "checksum = 1",
+          "values": {
+            "checksum": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 1
+          }
+        },
+        {
+          "label": "checksum = 254",
+          "values": {
+            "checksum": 254.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            254
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 254
+          }
+        },
+        {
+          "label": "checksum = 255",
+          "values": {
+            "checksum": 255.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            255
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 255
+          }
+        },
+        {
+          "label": "checksum = 0",
+          "values": {
+            "checksum": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": 0,
+            "speed_setpoint": 0,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "tous les signaux au maximum",
+          "values": {
+            "torque_setpoint": 3276.7000000000003,
+            "speed_setpoint": 16383.5,
+            "current_limit": 204.75,
+            "enable": 1.0,
+            "direction": 1.0,
+            "command_counter": 255.0,
+            "checksum": 255.0
+          },
+          "data": [
+            255,
+            127,
+            255,
+            127,
+            255,
+            63,
+            255,
+            255
+          ],
+          "raw": {
+            "torque_setpoint": 32767,
+            "speed_setpoint": 32767,
+            "current_limit": 4095,
+            "enable": 1,
+            "direction": 1,
+            "command_counter": 255,
+            "checksum": 255
+          }
+        },
+        {
+          "label": "tous les signaux au minimum",
+          "values": {
+            "torque_setpoint": -3276.8,
+            "speed_setpoint": -16384.0,
+            "current_limit": 0.0,
+            "enable": 0.0,
+            "direction": 0.0,
+            "command_counter": 0.0,
+            "checksum": 0.0
+          },
+          "data": [
+            0,
+            128,
+            0,
+            128,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "torque_setpoint": -32768,
+            "speed_setpoint": -32768,
+            "current_limit": 0,
+            "enable": 0,
+            "direction": 0,
+            "command_counter": 0,
+            "checksum": 0
+          }
+        },
+        {
+          "label": "motif alterné min/max",
+          "values": {
+            "torque_setpoint": 3276.7000000000003,
+            "speed_setpoint": -16384.0,
+            "current_limit": 204.75,
+            "enable": 0.0,
+            "direction": 1.0,
+            "command_counter": 0.0,
+            "checksum": 255.0
+          },
+          "data": [
+            255,
+            127,
+            0,
+            128,
+            255,
+            47,
+            0,
+            255
+          ],
+          "raw": {
+            "torque_setpoint": 32767,
+            "speed_setpoint": -32768,
+            "current_limit": 4095,
+            "enable": 0,
+            "direction": 1,
+            "command_counter": 0,
+            "checksum": 255
+          }
+        }
+      ]
+    },
+    {
+      "name": "IMU_SPEED",
+      "can_id": 512,
+      "dlc": 8,
+      "cases": [
+        {
+          "label": "valeurs par défaut",
+          "values": {},
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "accel_x = -32.768",
+          "values": {
+            "accel_x": -32.768
+          },
+          "data": [
+            0,
+            128,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": -32768,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "accel_x = -32.767",
+          "values": {
+            "accel_x": -32.767
+          },
+          "data": [
+            1,
+            128,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": -32767,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "accel_x = -0.001",
+          "values": {
+            "accel_x": -0.001
+          },
+          "data": [
+            255,
+            255,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": -1,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "accel_x = 0",
+          "values": {
+            "accel_x": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "accel_x = 0.001",
+          "values": {
+            "accel_x": 0.001
+          },
+          "data": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 1,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "accel_x = 32.766",
+          "values": {
+            "accel_x": 32.766
+          },
+          "data": [
+            254,
+            127,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 32766,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "accel_x = 32.767",
+          "values": {
+            "accel_x": 32.767
+          },
+          "data": [
+            255,
+            127,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 32767,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "accel_x = 0",
+          "values": {
+            "accel_x": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "accel_y = -32.768",
+          "values": {
+            "accel_y": -32.768
+          },
+          "data": [
+            0,
+            0,
+            0,
+            128,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": -32768,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "accel_y = -32.767",
+          "values": {
+            "accel_y": -32.767
+          },
+          "data": [
+            0,
+            0,
+            1,
+            128,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": -32767,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "accel_y = -0.001",
+          "values": {
+            "accel_y": -0.001
+          },
+          "data": [
+            0,
+            0,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": -1,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "accel_y = 0",
+          "values": {
+            "accel_y": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "accel_y = 0.001",
+          "values": {
+            "accel_y": 0.001
+          },
+          "data": [
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 1,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "accel_y = 32.766",
+          "values": {
+            "accel_y": 32.766
+          },
+          "data": [
+            0,
+            0,
+            254,
+            127,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 32766,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "accel_y = 32.767",
+          "values": {
+            "accel_y": 32.767
+          },
+          "data": [
+            0,
+            0,
+            255,
+            127,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 32767,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "accel_y = 0",
+          "values": {
+            "accel_y": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "gyro_z = -2048",
+          "values": {
+            "gyro_z": -2048.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            128,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": -32768,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "gyro_z = -2047.94",
+          "values": {
+            "gyro_z": -2047.9375
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            128,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": -32767,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "gyro_z = -0.0625",
+          "values": {
+            "gyro_z": -0.0625
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            255,
+            255,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": -1,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "gyro_z = 0",
+          "values": {
+            "gyro_z": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "gyro_z = 0.0625",
+          "values": {
+            "gyro_z": 0.0625
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 1,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "gyro_z = 2047.88",
+          "values": {
+            "gyro_z": 2047.875
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            254,
+            127,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 32766,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "gyro_z = 2047.94",
+          "values": {
+            "gyro_z": 2047.9375
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            255,
+            127,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 32767,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "gyro_z = 0",
+          "values": {
+            "gyro_z": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "wheel_speed = 0",
+          "values": {
+            "wheel_speed": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "wheel_speed = 0.25",
+          "values": {
+            "wheel_speed": 0.25
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 1,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "wheel_speed = 1023.5",
+          "values": {
+            "wheel_speed": 1023.5
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            254,
+            15
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 4094,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "wheel_speed = 1023.75",
+          "values": {
+            "wheel_speed": 1023.75
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            255,
+            15
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 4095,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "wheel_speed = 0",
+          "values": {
+            "wheel_speed": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "sensor_present = 0",
+          "values": {
+            "sensor_present": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "sensor_present = 1",
+          "values": {
+            "sensor_present": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            16
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 1,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "sensor_present = 0",
+          "values": {
+            "sensor_present": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "frame_counter = 0",
+          "values": {
+            "frame_counter": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "frame_counter = 1",
+          "values": {
+            "frame_counter": 1.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            32
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 1
+          }
+        },
+        {
+          "label": "frame_counter = 6",
+          "values": {
+            "frame_counter": 6.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            192
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 6
+          }
+        },
+        {
+          "label": "frame_counter = 7",
+          "values": {
+            "frame_counter": 7.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            224
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 7
+          }
+        },
+        {
+          "label": "frame_counter = 0",
+          "values": {
+            "frame_counter": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": 0,
+            "accel_y": 0,
+            "gyro_z": 0,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "tous les signaux au maximum",
+          "values": {
+            "accel_x": 32.767,
+            "accel_y": 32.767,
+            "gyro_z": 2047.9375,
+            "wheel_speed": 1023.75,
+            "sensor_present": 1.0,
+            "frame_counter": 7.0
+          },
+          "data": [
+            255,
+            127,
+            255,
+            127,
+            255,
+            127,
+            255,
+            255
+          ],
+          "raw": {
+            "accel_x": 32767,
+            "accel_y": 32767,
+            "gyro_z": 32767,
+            "wheel_speed": 4095,
+            "sensor_present": 1,
+            "frame_counter": 7
+          }
+        },
+        {
+          "label": "tous les signaux au minimum",
+          "values": {
+            "accel_x": -32.768,
+            "accel_y": -32.768,
+            "gyro_z": -2048.0,
+            "wheel_speed": 0.0,
+            "sensor_present": 0.0,
+            "frame_counter": 0.0
+          },
+          "data": [
+            0,
+            128,
+            0,
+            128,
+            0,
+            128,
+            0,
+            0
+          ],
+          "raw": {
+            "accel_x": -32768,
+            "accel_y": -32768,
+            "gyro_z": -32768,
+            "wheel_speed": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "motif alterné min/max",
+          "values": {
+            "accel_x": 32.767,
+            "accel_y": -32.768,
+            "gyro_z": 2047.9375,
+            "wheel_speed": 0.0,
+            "sensor_present": 1.0,
+            "frame_counter": 0.0
+          },
+          "data": [
+            255,
+            127,
+            0,
+            128,
+            255,
+            127,
+            0,
+            16
+          ],
+          "raw": {
+            "accel_x": 32767,
+            "accel_y": -32768,
+            "gyro_z": 32767,
+            "wheel_speed": 0,
+            "sensor_present": 1,
+            "frame_counter": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "TEMP_BATTERY",
+      "can_id": 768,
+      "dlc": 8,
+      "cases": [
+        {
+          "label": "valeurs par défaut",
+          "values": {},
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "temperature = -2048",
+          "values": {
+            "temperature": -2048.0
+          },
+          "data": [
+            0,
+            128,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": -32768,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "temperature = -2047.94",
+          "values": {
+            "temperature": -2047.9375
+          },
+          "data": [
+            1,
+            128,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": -32767,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "temperature = -0.0625",
+          "values": {
+            "temperature": -0.0625
+          },
+          "data": [
+            255,
+            255,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": -1,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "temperature = 0",
+          "values": {
+            "temperature": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 0,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "temperature = 0.0625",
+          "values": {
+            "temperature": 0.0625
+          },
+          "data": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 1,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "temperature = 2047.88",
+          "values": {
+            "temperature": 2047.875
+          },
+          "data": [
+            254,
+            127,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 32766,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "temperature = 2047.94",
+          "values": {
+            "temperature": 2047.9375
+          },
+          "data": [
+            255,
+            127,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 32767,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "temperature = 20",
+          "values": {
+            "temperature": 20.0
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "pack_voltage = 0",
+          "values": {
+            "pack_voltage": 0.0
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "pack_voltage = 0.01",
+          "values": {
+            "pack_voltage": 0.01
+          },
+          "data": [
+            64,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 1,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "pack_voltage = 655.34",
+          "values": {
+            "pack_voltage": 655.34
+          },
+          "data": [
+            64,
+            1,
+            254,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 65534,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "pack_voltage = 655.35",
+          "values": {
+            "pack_voltage": 655.35
+          },
+          "data": [
+            64,
+            1,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 65535,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "pack_voltage = 0",
+          "values": {
+            "pack_voltage": 0.0
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "pack_current = -327.68",
+          "values": {
+            "pack_current": -327.68
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            128,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": -32768,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "pack_current = -327.67",
+          "values": {
+            "pack_current": -327.67
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            1,
+            128,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": -32767,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "pack_current = -0.01",
+          "values": {
+            "pack_current": -0.01
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            255,
+            255,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": -1,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "pack_current = 0",
+          "values": {
+            "pack_current": 0.0
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "pack_current = 0.01",
+          "values": {
+            "pack_current": 0.01
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 1,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "pack_current = 327.66",
+          "values": {
+            "pack_current": 327.66
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            254,
+            127,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 32766,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "pack_current = 327.67",
+          "values": {
+            "pack_current": 327.67
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            255,
+            127,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 32767,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "pack_current = 0",
+          "values": {
+            "pack_current": 0.0
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "state_of_charge = 0",
+          "values": {
+            "state_of_charge": 0.0
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "state_of_charge = 1",
+          "values": {
+            "state_of_charge": 1.0
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 1,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "state_of_charge = 126",
+          "values": {
+            "state_of_charge": 126.0
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            126,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 126,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "state_of_charge = 127",
+          "values": {
+            "state_of_charge": 127.0
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            127,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 127,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "state_of_charge = 0",
+          "values": {
+            "state_of_charge": 0.0
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "sensor_present = 0",
+          "values": {
+            "sensor_present": 0.0
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "sensor_present = 1",
+          "values": {
+            "sensor_present": 1.0
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            128,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 1,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "sensor_present = 0",
+          "values": {
+            "sensor_present": 0.0
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "frame_counter = 0",
+          "values": {
+            "frame_counter": 0.0
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "frame_counter = 1",
+          "values": {
+            "frame_counter": 1.0
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 1
+          }
+        },
+        {
+          "label": "frame_counter = 254",
+          "values": {
+            "frame_counter": 254.0
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            254
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 254
+          }
+        },
+        {
+          "label": "frame_counter = 255",
+          "values": {
+            "frame_counter": 255.0
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            255
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 255
+          }
+        },
+        {
+          "label": "frame_counter = 0",
+          "values": {
+            "frame_counter": 0.0
+          },
+          "data": [
+            64,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": 320,
+            "pack_voltage": 0,
+            "pack_current": 0,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "tous les signaux au maximum",
+          "values": {
+            "temperature": 2047.9375,
+            "pack_voltage": 655.35,
+            "pack_current": 327.67,
+            "state_of_charge": 127.0,
+            "sensor_present": 1.0,
+            "frame_counter": 255.0
+          },
+          "data": [
+            255,
+            127,
+            255,
+            255,
+            255,
+            127,
+            255,
+            255
+          ],
+          "raw": {
+            "temperature": 32767,
+            "pack_voltage": 65535,
+            "pack_current": 32767,
+            "state_of_charge": 127,
+            "sensor_present": 1,
+            "frame_counter": 255
+          }
+        },
+        {
+          "label": "tous les signaux au minimum",
+          "values": {
+            "temperature": -2048.0,
+            "pack_voltage": 0.0,
+            "pack_current": -327.68,
+            "state_of_charge": 0.0,
+            "sensor_present": 0.0,
+            "frame_counter": 0.0
+          },
+          "data": [
+            0,
+            128,
+            0,
+            0,
+            0,
+            128,
+            0,
+            0
+          ],
+          "raw": {
+            "temperature": -32768,
+            "pack_voltage": 0,
+            "pack_current": -32768,
+            "state_of_charge": 0,
+            "sensor_present": 0,
+            "frame_counter": 0
+          }
+        },
+        {
+          "label": "motif alterné min/max",
+          "values": {
+            "temperature": 2047.9375,
+            "pack_voltage": 0.0,
+            "pack_current": 327.67,
+            "state_of_charge": 0.0,
+            "sensor_present": 1.0,
+            "frame_counter": 0.0
+          },
+          "data": [
+            255,
+            127,
+            0,
+            0,
+            255,
+            127,
+            128,
+            0
+          ],
+          "raw": {
+            "temperature": 32767,
+            "pack_voltage": 0,
+            "pack_current": 32767,
+            "state_of_charge": 0,
+            "sensor_present": 1,
+            "frame_counter": 0
+          }
+        }
+      ]
+    }
+  ],
+  "case_count": 248
+}

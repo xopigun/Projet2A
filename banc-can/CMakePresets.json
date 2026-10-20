@@ -1,0 +1,301 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 24,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "arm",
+      "hidden": true,
+      "inherits": "base",
+      "toolchainFile": "${sourceDir}/cmake/toolchain-arm-none-eabi.cmake"
+    },
+    {
+      "name": "host",
+      "inherits": "base",
+      "displayName": "Tests hote (natif)",
+      "description": "Compile et execute les tests unitaires du code commun, sans HAL.",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BENCH_NODE_ID": "0"
+      }
+    },
+    {
+      "name": "n1",
+      "inherits": "arm",
+      "displayName": "N1 - commande energie (Nucleo-G431KB)",
+      "cacheVariables": {
+        "BENCH_NODE_ID": "1"
+      }
+    },
+    {
+      "name": "n2",
+      "inherits": "arm",
+      "displayName": "N2 - IMU + vitesse (Nucleo-G431KB)",
+      "cacheVariables": {
+        "BENCH_NODE_ID": "2"
+      }
+    },
+    {
+      "name": "n3",
+      "inherits": "arm",
+      "displayName": "N3 - temperature + batterie (Nucleo-G431KB)",
+      "cacheVariables": {
+        "BENCH_NODE_ID": "3"
+      }
+    },
+    {
+      "name": "n4",
+      "inherits": "arm",
+      "displayName": "N4 - noeud fautif (Blue Pill STM32F103)",
+      "cacheVariables": {
+        "BENCH_NODE_ID": "4"
+      }
+    },
+    {
+      "name": "bridge",
+      "inherits": "arm",
+      "displayName": "Pont CAN-USB - Nucleo-L476RG (slcan)",
+      "description": "Adaptateur slcan sur le port COM virtuel : remplace un CANable pour canbench --interface slcan.",
+      "cacheVariables": {
+        "BENCH_NODE_ID": "5"
+      }
+    },
+    {
+      "name": "bridge-direct",
+      "inherits": "bridge",
+      "displayName": "Pont CAN-USB - bus direct sans transceiver",
+      "description": "Sorties a drain ouvert, pour un bus de cartes reliees fil a fil (essai sur table).",
+      "binaryDir": "${sourceDir}/build/bridge-direct",
+      "cacheVariables": {
+        "BENCH_CAN_DIRECT": "ON"
+      }
+    },
+    {
+      "name": "n1-selftest",
+      "inherits": "n1",
+      "displayName": "N1 - autotest de mise en route",
+      "description": "Bouclage interne FDCAN puis ping/pong ; sortie sur le VCP.",
+      "binaryDir": "${sourceDir}/build/n1-selftest",
+      "cacheVariables": {
+        "BENCH_SELFTEST": "ON"
+      }
+    },
+    {
+      "name": "n2-selftest",
+      "inherits": "n2",
+      "displayName": "N2 - autotest de mise en route",
+      "description": "Bouclage interne FDCAN puis ping/pong ; sortie sur le VCP.",
+      "binaryDir": "${sourceDir}/build/n2-selftest",
+      "cacheVariables": {
+        "BENCH_SELFTEST": "ON"
+      }
+    },
+    {
+      "name": "n3-selftest",
+      "inherits": "n3",
+      "displayName": "N3 - autotest de mise en route",
+      "description": "Bouclage interne FDCAN puis ping/pong ; sortie sur le VCP.",
+      "binaryDir": "${sourceDir}/build/n3-selftest",
+      "cacheVariables": {
+        "BENCH_SELFTEST": "ON"
+      }
+    },
+    {
+      "name": "n4-selftest",
+      "inherits": "n4",
+      "displayName": "N4 - autotest de mise en route",
+      "description": "Bouclage silencieux bxCAN puis ping/pong ; sortie sur USART1 (PA9).",
+      "binaryDir": "${sourceDir}/build/n4-selftest",
+      "cacheVariables": {
+        "BENCH_SELFTEST": "ON"
+      }
+    },
+    {
+      "name": "n1-selftest-hsi",
+      "inherits": "n1-selftest",
+      "displayName": "N1 - autotest sur HSI (avant soudure de SB9/SB10)",
+      "description": "Repli sans quartz : valide cablage et logique, JAMAIS le debit.",
+      "binaryDir": "${sourceDir}/build/n1-selftest-hsi",
+      "cacheVariables": {
+        "BENCH_CLOCK_SOURCE": "HSI"
+      }
+    },
+    {
+      "name": "n2-selftest-hsi",
+      "inherits": "n2-selftest",
+      "displayName": "N2 - autotest sur HSI (avant soudure de SB9/SB10)",
+      "description": "Repli sans quartz : valide cablage et logique, JAMAIS le debit.",
+      "binaryDir": "${sourceDir}/build/n2-selftest-hsi",
+      "cacheVariables": {
+        "BENCH_CLOCK_SOURCE": "HSI"
+      }
+    },
+    {
+      "name": "n3-selftest-hsi",
+      "inherits": "n3-selftest",
+      "displayName": "N3 - autotest sur HSI (avant soudure de SB9/SB10)",
+      "description": "Repli sans quartz : valide cablage et logique, JAMAIS le debit.",
+      "binaryDir": "${sourceDir}/build/n3-selftest-hsi",
+      "cacheVariables": {
+        "BENCH_CLOCK_SOURCE": "HSI"
+      }
+    },
+    {
+      "name": "n1-selftest-direct",
+      "inherits": "n1-selftest-hsi",
+      "displayName": "N1 - autotest, bus direct sans transceiver",
+      "description": "Deux Nucleo reliees fil a fil (TX a drain ouvert). Essai sur table uniquement.",
+      "binaryDir": "${sourceDir}/build/n1-selftest-direct",
+      "cacheVariables": {
+        "BENCH_CAN_DIRECT": "ON"
+      }
+    },
+    {
+      "name": "n2-selftest-direct",
+      "inherits": "n2-selftest-hsi",
+      "displayName": "N2 - autotest, bus direct sans transceiver",
+      "description": "Deux Nucleo reliees fil a fil (TX a drain ouvert). Essai sur table uniquement.",
+      "binaryDir": "${sourceDir}/build/n2-selftest-direct",
+      "cacheVariables": {
+        "BENCH_CAN_DIRECT": "ON"
+      }
+    },
+    {
+      "name": "n3-selftest-direct",
+      "inherits": "n3-selftest-hsi",
+      "displayName": "N3 - autotest, bus direct sans transceiver",
+      "description": "Deux Nucleo reliees fil a fil (TX a drain ouvert). Essai sur table uniquement.",
+      "binaryDir": "${sourceDir}/build/n3-selftest-direct",
+      "cacheVariables": {
+        "BENCH_CAN_DIRECT": "ON"
+      }
+    },
+    {
+      "name": "n1-scope-direct",
+      "inherits": "n1",
+      "displayName": "N1 - trames fixes pour oscilloscope, bus direct",
+      "description": "Trame fixe et periodique, reconnaissable a l'oscilloscope. HSI, sans transceiver : essai sur table uniquement.",
+      "binaryDir": "${sourceDir}/build/n1-scope-direct",
+      "cacheVariables": {
+        "BENCH_SCOPE": "ON",
+        "BENCH_CLOCK_SOURCE": "HSI",
+        "BENCH_CAN_DIRECT": "ON"
+      }
+    },
+    {
+      "name": "n2-scope-direct",
+      "inherits": "n2",
+      "displayName": "N2 - trames fixes pour oscilloscope, bus direct",
+      "description": "Trame fixe et periodique, reconnaissable a l'oscilloscope. HSI, sans transceiver : essai sur table uniquement.",
+      "binaryDir": "${sourceDir}/build/n2-scope-direct",
+      "cacheVariables": {
+        "BENCH_SCOPE": "ON",
+        "BENCH_CLOCK_SOURCE": "HSI",
+        "BENCH_CAN_DIRECT": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "host",
+      "configurePreset": "host"
+    },
+    {
+      "name": "n1",
+      "configurePreset": "n1"
+    },
+    {
+      "name": "n1-scope-direct",
+      "configurePreset": "n1-scope-direct"
+    },
+    {
+      "name": "n2-scope-direct",
+      "configurePreset": "n2-scope-direct"
+    },
+    {
+      "name": "n2",
+      "configurePreset": "n2"
+    },
+    {
+      "name": "n3",
+      "configurePreset": "n3"
+    },
+    {
+      "name": "n4",
+      "configurePreset": "n4"
+    },
+    {
+      "name": "bridge",
+      "configurePreset": "bridge"
+    },
+    {
+      "name": "bridge-direct",
+      "configurePreset": "bridge-direct"
+    },
+    {
+      "name": "n1-selftest",
+      "configurePreset": "n1-selftest"
+    },
+    {
+      "name": "n2-selftest",
+      "configurePreset": "n2-selftest"
+    },
+    {
+      "name": "n3-selftest",
+      "configurePreset": "n3-selftest"
+    },
+    {
+      "name": "n4-selftest",
+      "configurePreset": "n4-selftest"
+    },
+    {
+      "name": "n1-selftest-hsi",
+      "configurePreset": "n1-selftest-hsi"
+    },
+    {
+      "name": "n2-selftest-hsi",
+      "configurePreset": "n2-selftest-hsi"
+    },
+    {
+      "name": "n3-selftest-hsi",
+      "configurePreset": "n3-selftest-hsi"
+    },
+    {
+      "name": "n1-selftest-direct",
+      "configurePreset": "n1-selftest-direct"
+    },
+    {
+      "name": "n2-selftest-direct",
+      "configurePreset": "n2-selftest-direct"
+    },
+    {
+      "name": "n3-selftest-direct",
+      "configurePreset": "n3-selftest-direct"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "host",
+      "configurePreset": "host",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": false
+      }
+    }
+  ]
+}

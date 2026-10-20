@@ -1,0 +1,114 @@
+# Integration continue du banc de test CAN.
+#
+# Aucun materiel n'est necessaire : les outils PC sont testes sur le bus « virtual »
+# de python-can, et les firmwares sont seulement compiles.
+#
+# Le noeud N4 (Blue Pill / bxCAN) rejoindra la matrice de compilation au lot 5, une fois
+# RM0008, DS5319 et le schema de la carte disponibles.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  firmware:
+    name: Firmware ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [n1, n2, n3, n4, n1-selftest, n4-selftest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Installer la chaine de compilation ARM
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
+        with:
+          release: '13.3.Rel1'
+
+      - name: Installer Ninja
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+
+      - name: Configurer
+        run: cmake --preset ${{ matrix.node }}
+
+      - name: Compiler
+        run: cmake --build --preset ${{ matrix.node }}
+
+      - name: Tailles flash et RAM
+        run: arm-none-eabi-size --format=berkeley build/${{ matrix.node }}/firmware/*.elf
+
+      - name: Temps de bit corrects et alignes entre noeuds
+        run: python scripts/bit_timing.py --check
+
+  tests-hote:
+    name: Tests unitaires C (natif)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y ninja-build
+      - run: cmake --preset host
+      - run: cmake --build --preset host
+      - run: ctest --preset host
+
+  python:
+    name: Outils PC
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Installer canbench
+        run: python -m pip install --upgrade pip && python -m pip install -e "pc[dev]"
+
+      - name: Lint (ruff)
+        run: ruff check pc tools scripts
+
+      - name: Format (ruff)
+        run: ruff format --check pc tools scripts
+
+      - name: Tests (pytest, bus virtuel)
+        run: pytest pc/tests -v
+
+  icd-a-jour:
+    name: Code genere a jour
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --upgrade pip && python -m pip install -e "pc[dev]"
+
+      - name: Regenerer depuis l'ICD
+        run: python -m tools.codegen --check
+
+      - name: Verifier qu'aucun fichier genere n'a change
+        run: git diff --exit-code
+
+  format-c:
+    name: Format C (clang-format)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verifier le formatage
+        run: |
+          sudo apt-get update && sudo apt-get install -y clang-format
+          find firmware -path firmware/vendor -prune -o \
+               -name '*.c' -print -o -name '*.h' -print \
+            | xargs clang-format --dry-run --Werror

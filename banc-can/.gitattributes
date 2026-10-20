@@ -1,0 +1,21 @@
+# Normalisation des fins de ligne : LF dans le depot pour tout le texte.
+* text=auto eol=lf
+
+# Scripts Windows : CRLF obligatoire
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+# Binaires
+*.pdf  binary
+*.png  binary
+*.jpg  binary
+*.bin  binary
+*.hex  binary
+*.elf  binary
+
+# Le code genere depuis l'ICD est marque pour les statistiques de langage
+firmware/common/icd_gen/** linguist-generated=true
+pc/canbench/icd_gen.py     linguist-generated=true
+
+# Les sous-modules ST ne comptent pas comme du code du projet
+firmware/vendor/** linguist-vendored=true

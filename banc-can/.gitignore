@@ -1,0 +1,37 @@
+# Compilation
+/build/
+/build-*/
+**/CMakeUserPresets.json
+*.o
+*.d
+*.elf
+*.bin
+*.hex
+*.map
+*.su
+*.lst
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+dist/
+
+# LaTeX (sorties de compilation des extraits)
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+
+# Outils et systemes
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

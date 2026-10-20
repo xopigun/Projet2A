@@ -1,0 +1,886 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Banc de test CAN</title>
+<style>
+:root {
+  --bg: #f4f6f9; --panel: #ffffff; --ink: #172033; --muted: #5d6b82; --line: #dde3ec;
+  --accent: #2257d6; --accent-soft: #e6edff;
+  --ok: #178a4c; --ok-soft: #e3f5ea; --warn: #b7791f; --warn-soft: #fdf3dd;
+  --bad: #c53030; --bad-soft: #fde8e8; --orange: #d0641a;
+  --bus-h: #d64545; --bus-l: #2f6fdb; --shadow: 0 1px 2px rgba(20,30,50,.06), 0 4px 16px rgba(20,30,50,.05);
+  color-scheme: light dark;
+  --diff: #7a4fd0;
+  --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f141c; --panel: #171e29; --ink: #e6ebf3; --muted: #93a0b5; --line: #273142;
+    --accent: #6d9bff; --accent-soft: #1d2a45;
+    --ok: #4cc584; --ok-soft: #14301f; --warn: #e5b04b; --warn-soft: #33290f;
+    --bad: #f07070; --bad-soft: #3a1717; --orange: #f08a3c;
+    --shadow: none;
+    --diff: #b69cf2;
+  }
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.45 "Segoe UI", system-ui, -apple-system, sans-serif; }
+header { background: var(--panel); border-bottom: 1px solid var(--line); padding: 14px 24px;
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+header h1 { font-size: 20px; margin: 0; letter-spacing: -.01em; }
+header .sub { color: var(--muted); font-size: 13px; }
+.badges { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+.badge { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+.badge.sim { background: var(--warn-soft); color: var(--warn); }
+.badge.real { background: var(--ok-soft); color: var(--ok); }
+main { max-width: 1400px; margin: 0 auto; padding: 18px 24px 40px; display: grid; gap: 18px; }
+.banner { background: var(--warn-soft); color: var(--ink); border: 1px solid var(--warn);
+  border-radius: 10px; padding: 10px 14px; font-size: 14px; }
+.banner b { color: var(--warn); }
+.grid { display: grid; gap: 18px; }
+.g-bus { grid-template-columns: 2fr 1fr; }
+.g-nodes { grid-template-columns: repeat(4, 1fr); }
+.g-work { grid-template-columns: 1fr 1fr; }
+@media (max-width: 1000px) { .g-bus, .g-work { grid-template-columns: 1fr; }
+  .g-nodes { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .g-nodes { grid-template-columns: 1fr; } main { padding: 12px 16px; } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  padding: 16px 18px; box-shadow: var(--shadow); min-width: 0; }
+.panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+  margin: 0 0 12px; font-weight: 700; }
+svg text { fill: var(--ink); font-family: inherit; }
+.node-box { fill: var(--panel); stroke: var(--line); stroke-width: 2; transition: all .15s; }
+.node-g.tx .node-box { stroke: var(--accent); stroke-width: 4; filter: drop-shadow(0 0 8px var(--accent)); }
+.node-g.off .node-box { opacity: .45; }
+.drop { stroke: var(--muted); stroke-width: 2; }
+.node-g.tx .drop { stroke: var(--accent); stroke-width: 3; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.stat .v { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat .l { font-size: 12px; color: var(--muted); }
+canvas { width: 100%; height: 90px; display: block; margin-top: 10px; }
+.node-card { position: relative; }
+.node-card .top { display: flex; align-items: baseline; gap: 8px; }
+.node-card .nm { font-size: 22px; font-weight: 800; }
+.node-card .role { color: var(--muted); font-size: 13px; }
+.state { display: inline-block; margin: 8px 0 10px; padding: 3px 10px; border-radius: 6px;
+  font-weight: 700; font-size: 13px; }
+.s0 { background: var(--ok-soft); color: var(--ok); } .s1 { background: var(--warn-soft); color: var(--warn); }
+.s2 { background: #fde9dc; color: var(--orange); } .s3 { background: var(--bad-soft); color: var(--bad); }
+.soff { background: var(--line); color: var(--muted); }
+.bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin: 3px 0 8px; }
+.bar i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+.kv { display: flex; justify-content: space-between; font-size: 13px; }
+.kv span:last-child { font-variant-numeric: tabular-nums; font-weight: 600; }
+.flag { font-size: 12px; margin-top: 6px; padding: 4px 8px; border-radius: 6px; }
+.flag.warn { background: var(--warn-soft); color: var(--warn); }
+.flag.bad { background: var(--bad-soft); color: var(--bad); }
+.led { position: absolute; top: 16px; right: 16px; width: 12px; height: 12px; border-radius: 50%;
+  background: var(--line); transition: background .1s; }
+.led.on { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+.tests { display: grid; gap: 10px; }
+.test { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--line);
+  border-radius: 10px; }
+.test .code { font-weight: 800; color: var(--accent); width: 34px; }
+.test .desc { flex: 1; font-size: 14px; }
+.test .desc small { display: block; color: var(--muted); font-size: 12px; }
+input, select { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--bg); color: var(--ink); }
+input[type=number] { width: 84px; }
+button { font: inherit; font-weight: 600; border: 0; border-radius: 8px; padding: 8px 14px;
+  background: var(--accent); color: #fff; cursor: pointer; }
+button.ghost { background: var(--accent-soft); color: var(--accent); }
+button.danger { background: var(--bad); }
+button:disabled { opacity: .45; cursor: default; }
+.result { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 14px; }
+.verdict { display: inline-block; font-size: 18px; font-weight: 800; padding: 6px 14px; border-radius: 8px; }
+.v-ok { background: var(--ok-soft); color: var(--ok); } .v-bad { background: var(--bad-soft); color: var(--bad); }
+.v-na { background: var(--warn-soft); color: var(--warn); }
+.note { color: var(--muted); font-size: 13px; margin: 8px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--line); padding: 6px; }
+td { border-bottom: 1px solid var(--line); padding: 5px 6px; vertical-align: top; }
+td.mono, .mono { font-family: var(--mono); font-size: 12px; }
+.frames { max-height: 470px; overflow: auto; }
+.frames tr.new td { animation: flash .8s; }
+@keyframes flash { from { background: var(--accent-soft); } to { background: transparent; } }
+.tag { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: var(--line); }
+.tag.bad { background: var(--bad-soft); color: var(--bad); }
+.hist { display: flex; gap: 8px; align-items: flex-end; height: 34px; }
+.hist div { width: 16px; background: var(--accent); border-radius: 3px 3px 0 0; position: relative; }
+.hist div span { position: absolute; bottom: -16px; width: 100%; text-align: center; font-size: 10px; color: var(--muted); }
+.ok { color: var(--ok); font-weight: 700; } .ko { color: var(--bad); font-weight: 700; }
+details summary { cursor: pointer; color: var(--accent); font-weight: 600; margin-top: 10px; }
+pre { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px;
+  font: 12px/1.4 var(--mono); overflow: auto; max-height: 360px; white-space: pre; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.spinner { width: 16px; height: 16px; border: 3px solid var(--accent-soft); border-top-color: var(--accent);
+  border-radius: 50%; animation: spin .8s linear infinite; display: inline-block; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.hbtn { background: var(--accent-soft); color: var(--accent); padding: 6px 12px; font-size: 13px; }
+.overlay { position: fixed; inset: 0; background: rgba(8,12,20,.55); display: flex;
+  align-items: center; justify-content: center; z-index: 50; padding: 16px; }
+.overlay[hidden] { display: none; }
+.modal { background: var(--panel); color: var(--ink); border-radius: 14px; border: 1px solid var(--line);
+  max-width: 820px; width: 100%; max-height: 88vh; overflow: auto; padding: 22px 26px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+.modal h3 { margin: 0 0 6px; font-size: 20px; }
+.modal h4 { margin: 20px 0 6px; font-size: 15px; color: var(--accent); }
+.modal p, .modal li { font-size: 14px; }
+.modal .close { float: right; }
+.modal table td:first-child { font-weight: 600; white-space: nowrap; }
+.lost { position: fixed; left: 0; right: 0; top: 0; z-index: 60; background: var(--bad); color: #fff;
+  text-align: center; padding: 12px; font-weight: 600; }
+.lost[hidden] { display: none; }
+.help-dot { display: inline-flex; width: 16px; height: 16px; border-radius: 50%; align-items: center;
+  justify-content: center; font-size: 11px; font-weight: 800; background: var(--accent-soft);
+  color: var(--accent); cursor: help; margin-left: 4px; }
+.err { color: var(--bad); font-size: 13px; margin-top: 8px; }
+.phy-controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin: 12px 0; font-size: 14px; }
+.phy-controls input[type=range] { width: 140px; vertical-align: middle; }
+button.mini { padding: 3px 8px; font-size: 12px; margin-left: 4px; }
+.phy-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 6px 18px;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; font-size: 13px; }
+.phy-stats div { display: flex; justify-content: space-between; gap: 10px; }
+.phy-stats span { color: var(--muted); }
+.phy-h { font-size: 15px; margin: 22px 0 2px; }
+.chrono { width: 100%; display: block; border: 1px solid var(--line); border-radius: 8px; margin-top: 6px; }
+.phy-explain { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; font-size: 14px; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; }
+.phy-explain table { margin: 8px 0; }
+@media (max-width: 900px) { .phy-explain { grid-template-columns: 1fr; } }
+footer { text-align: center; color: var(--muted); font-size: 12px; padding-bottom: 20px; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Banc de test CAN</h1>
+    <div class="sub">G69-BANC-001 · ENSEA 2A · Groupe 69</div>
+  </div>
+  <div class="badges">
+    <span class="badge" id="b-mode">…</span>
+    <span class="badge">CAN 2.0A · 500 kbit/s</span>
+    <span class="badge" id="b-profile">profil</span>
+    <span class="badge" id="b-up">0 s</span>
+    <button class="hbtn" id="open-connect">Connexion</button>
+    <button class="hbtn" id="open-help">Aide</button>
+  </div>
+</header>
+<div class="lost" id="lost" hidden>Connexion au logiciel perdue : le serveur du banc est arrêté.
+  Les données affichées sont figées. Relancer BancCAN.</div>
+
+<main>
+  <div class="banner" id="banner" hidden>
+    <b>Simulation.</b> Les nœuds N1 à N4 sont simulés sur un bus virtuel : la page montre la
+    chaîne logicielle complète (ICD, décodage, tests, rapports), mais <b>aucun verdict n'a valeur
+    de preuve pour le bus</b>. Sur le banc réel, la même interface pilote les vraies cartes.
+  </div>
+
+  <section class="grid g-bus">
+    <div class="panel">
+      <h2>Le bus en direct</h2>
+      <svg id="bus" viewBox="0 0 860 230" width="100%" role="img" aria-label="Schéma du bus CAN"></svg>
+    </div>
+    <div class="panel">
+      <h2>Trafic</h2>
+      <div class="stats">
+        <div class="stat"><div class="v" id="s-fps">0</div><div class="l">trames / s</div></div>
+        <div class="stat"><div class="v" id="s-load">0 %</div><div class="l">charge du bus</div></div>
+        <div class="stat"><div class="v" id="s-total">0</div><div class="l">trames reçues</div></div>
+        <div class="stat"><div class="v" id="s-nc">0</div><div class="l">non conformes (FD, 29 bits)</div></div>
+      </div>
+      <canvas id="spark" width="400" height="90" aria-label="Charge du bus"></canvas>
+      <div class="note">Charge au pire cas du bourrage de bits, sur 1 s glissante.</div>
+    </div>
+  </section>
+
+  <section class="grid g-nodes" id="nodes"></section>
+
+  <section class="grid g-work">
+    <div class="panel">
+      <h2>Tests du protocole de validation</h2>
+      <div class="tests">
+        <div class="test">
+          <span class="code">T3</span>
+          <div class="desc">Arbitrage ARM/GO<small>Trois nœuds émettent au même bit : l'identifiant le plus faible doit gagner à chaque cycle.</small></div>
+          <input type="number" id="p-cycles" value="200" min="1" max="5000" aria-label="Nombre de cycles">
+          <button data-run="arbitration">Lancer</button>
+        </div>
+        <div class="test">
+          <span class="code">T4</span>
+          <div class="desc">Encodage de l'ICD<small>Chaque octet reçu est comparé à la séquence attendue.</small></div>
+          <button data-run="encoding">Lancer</button>
+        </div>
+        <div class="test">
+          <span class="code">T6</span>
+          <div class="desc">Fautes logicielles<small>Babbling idiot, DLC incohérent, silencieux : effet puis retour à la normale.</small></div>
+          <select id="p-node" aria-label="Nœud visé"><option>4</option><option>3</option><option>2</option><option>1</option></select>
+          <button data-run="faults">Lancer</button>
+        </div>
+      </div>
+      <div id="result" class="result" hidden></div>
+    </div>
+
+    <div class="panel">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">Trames décodées</h2>
+        <button class="ghost" id="pause">Pause</button>
+      </div>
+      <div class="frames">
+        <table>
+          <thead><tr><th>t (s)</th><th>ID</th><th>Trame</th><th>De</th><th>Signaux</th></tr></thead>
+          <tbody id="frames"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="physique">
+    <div class="row" style="justify-content:space-between">
+      <h2 style="margin:0">Couche physique : chronogrammes d'une trame</h2>
+      <span class="note">Niveaux et délais : datasheet TJA1051. Câble et bruit : modèle simplifié.</span>
+    </div>
+    <div class="phy-controls">
+      <label>Trame <select id="ph-frame"></select></label>
+      <label>Affichage
+        <select id="ph-win">
+          <option value="debut">Début de trame (SOF → DLC)</option>
+          <option value="complete">Trame entière</option>
+          <option value="front">Zoom sur le premier front (ns)</option>
+        </select></label>
+      <label>Longueur du bus <input type="range" id="ph-len" min="1" max="40" value="10"> <b id="ph-len-v">10 m</b>
+        <button class="ghost mini" data-len="1">1 m</button><button class="ghost mini" data-len="10">10 m</button></label>
+      <label>Câble <select id="ph-cable"><option value="torsadee">paire torsadée</option><option value="parallele">deux fils non torsadés</option></select></label>
+      <label>Bruit ambiant <select id="ph-noise"><option value="0">aucun</option><option value="1" selected>faible</option><option value="2">moyen (moteur proche)</option><option value="3">fort</option></select></label>
+      <label>Terminaisons <select id="ph-term"><option value="deux">2 × 120 Ω (normal)</option><option value="une">une seule</option><option value="aucune">aucune</option></select></label>
+      <button class="ghost" id="ph-redraw">Nouveau tirage du bruit</button>
+    </div>
+    <div class="phy-stats" id="ph-stats"></div>
+
+    <h3 class="phy-h">1 · Début du bus, côté émetteur</h3>
+    <p class="note">Tensions de CAN_H et CAN_L juste à la sortie du transceiver qui émet, et leur différence.</p>
+    <canvas class="chrono" id="ch-near" data-h="280"></canvas>
+
+    <h3 class="phy-h">2 · Entrée et sortie du transceiver émetteur</h3>
+    <p class="note">Entrée : TXD, signal logique 0 / 3,3 V venant du microcontrôleur. Sortie : la tension différentielle
+      CAN_H − CAN_L qu'il impose au bus. En zoom, on voit ses délais : 65 ns vers dominant, 90 ns vers récessif.</p>
+    <canvas class="chrono" id="ch-trx" data-h="240"></canvas>
+
+    <h3 class="phy-h">3 · Ce que fait le transceiver</h3>
+    <div class="phy-explain">
+      <div>
+        <b>À l'émission</b>, il traduit un bit logique en tension sur deux fils :
+        <table>
+          <tr><th>TXD</th><th>Bit</th><th>CAN_H</th><th>CAN_L</th><th>CAN_H − CAN_L</th></tr>
+          <tr><td>0 V</td><td>0 dominant</td><td>≈ 3,5 V</td><td>≈ 1,5 V</td><td>≈ 2 V</td></tr>
+          <tr><td>3,3 V</td><td>1 récessif</td><td>≈ 2,5 V</td><td>≈ 2,5 V</td><td>≈ 0 V</td></tr>
+        </table>
+        En dominant il <b>force</b> les lignes ; en récessif il les <b>relâche</b>, et ce sont les résistances de
+        terminaison qui ramènent l'écart à zéro. C'est pour ça qu'un dominant l'emporte toujours : c'est la base
+        de l'arbitrage.
+      </div>
+      <div>
+        <b>À la réception</b>, il mesure CAN_H − CAN_L et le compare à un seuil, entre 0,5 et 0,9 V, avec
+        120 mV d'hystérésis. Au-dessus : RXD = 0 (dominant). En dessous : RXD = 1.<br><br>
+        Tout l'intérêt est là : un parasite qui touche <b>les deux fils de la même façon</b> (mode commun) les
+        décale ensemble, et <b>disparaît dans la différence</b>. Le transceiver ne comprend pas les trames : il
+        ne fait que convertir. Découper les bits, vérifier le CRC et arbitrer, c'est le travail du contrôleur
+        CAN du microcontrôleur.
+      </div>
+    </div>
+
+    <h3 class="phy-h">4 · Fin du bus, côté récepteur</h3>
+    <p class="note">Le même signal, arrivé au bout du câble : retardé par la propagation (environ 5 ns par mètre),
+      arrondi, et chargé du bruit capté en chemin. Zone grise : seuil de décision du récepteur (0,5 à 0,9 V).</p>
+    <canvas class="chrono" id="ch-far" data-h="300"></canvas>
+    <p class="note">RXD reconstruit par le transceiver récepteur. Chaque bit est lu à 87,5 % de sa durée :
+      point vert s'il est bien lu, croix rouge sinon. En pointillé, TXD de l'émetteur pour comparer.</p>
+    <canvas class="chrono" id="ch-rxd" data-h="220"></canvas>
+  </section>
+
+  <section class="grid g-work">
+    <div class="panel">
+      <h2>Injecter une faute (BENCH_CFG)</h2>
+      <div class="row">
+        <label>Nœud <select id="f-node"><option>4</option><option>3</option><option>2</option><option>1</option></select></label>
+        <label>Mode <select id="f-mode"></select></label>
+        <label>Durée (ms) <input type="number" id="f-dur" value="3000" min="100" max="60000"></label>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="danger" id="f-go">Injecter</button>
+        <button class="ghost" id="f-stop">Révoquer</button>
+        <span class="note" id="f-msg"></span>
+      </div>
+      <div class="note">Toute faute est bornée dans le temps et révocable : le nœud revient seul à la normale à l'échéance.
+        L'identifiant inondé par le babbling idiot est 0x400.</div>
+    </div>
+    <div class="panel">
+      <h2>Trames vues</h2>
+      <table><thead><tr><th>ID</th><th>Trame</th><th style="text-align:right">Nombre</th></tr></thead>
+        <tbody id="counts"></tbody></table>
+    </div>
+  </section>
+</main>
+<div class="overlay" id="connect" hidden>
+  <div class="modal" style="max-width:560px">
+    <button class="ghost close" data-close="connect">Fermer</button>
+    <h3>Connexion au bus</h3>
+    <p class="note">La simulation ne demande aucun matériel. Pour le banc réel, brancher le CANable
+      au PC avant de se connecter.</p>
+    <div id="c-list"></div>
+    <div class="row" id="c-port-row" style="margin-top:10px" hidden>
+      <label>Port série <select id="c-port"></select></label>
+    </div>
+    <div class="row" style="margin-top:14px"><button id="c-go">Se connecter</button>
+      <span class="note" id="c-msg"></span></div>
+    <div class="err" id="c-err"></div>
+  </div>
+</div>
+
+<div class="overlay" id="help" hidden>
+  <div class="modal">
+    <button class="ghost close" data-close="help">Fermer</button>
+    <h3>Comprendre le banc</h3>
+    <p>Quatre nœuds partagent un même bus CAN à 500 kbit/s. Le PC y est relié par un
+      adaptateur (CANable) : il écoute tout, envoie des commandes et mesure.</p>
+
+    <h4>L'état d'un nœud : TEC, REC et les quatre états</h4>
+    <p>Chaque contrôleur CAN tient deux compteurs d'erreurs, imposés par la norme ISO 11898-1 et
+      lus directement dans ses registres :</p>
+    <table>
+      <tr><td>TEC</td><td>erreurs en <b>émission</b> : +8 à chaque trame émise en erreur, −1 à chaque trame réussie.</td></tr>
+      <tr><td>REC</td><td>erreurs en <b>réception</b> : +1 (parfois +8) par erreur détectée, −1 par trame bien reçue.</td></tr>
+    </table>
+    <p>Selon ces compteurs, le nœud change d'état : c'est ce qui empêche un nœud défaillant de
+      paralyser tout le bus.</p>
+    <table>
+      <tr><td><span class="state s0">error-active</span></td><td>normal (TEC et REC &lt; 96). Il signale activement les erreurs qu'il voit.</td></tr>
+      <tr><td><span class="state s1">error-warning</span></td><td>avertissement : un compteur a dépassé 96.</td></tr>
+      <tr><td><span class="state s2">error-passive</span></td><td>un compteur a atteint 128. Le nœud continue, mais ne peut plus perturber les autres en signalant une erreur.</td></tr>
+      <tr><td><span class="state s3">BUS-OFF</span></td><td>TEC au-delà de 255 : le nœud se <b>déconnecte</b> de lui-même. Il ne revient qu'après 128 × 11 bits de silence.</td></tr>
+    </table>
+    <p><b>Pertes</b> : trames arrivées au nœud mais qu'il n'a pas pu garder (mémoire pleine).
+      Elles doivent rester à zéro ; sinon, c'est le nœud qui est trop lent, pas le bus qui est en faute.</p>
+
+    <h4>Les tests du protocole de validation</h4>
+    <table>
+      <tr><td>T1</td><td><b>Signal et terminaisons</b> : 60 Ω entre CAN_H et CAN_L, niveaux à l'oscilloscope. Manuel.</td></tr>
+      <tr><td>T2</td><td><b>Débit</b> : un bit doit durer 2,000 µs, mesuré à l'oscilloscope contre une référence indépendante. Manuel.</td></tr>
+      <tr><td>T3</td><td><b>Arbitrage</b> : le PC envoie ARM (« préparez-vous ») puis GO (« partez »). N1, N2 et N3 émettent au même instant ; la règle du CAN veut que l'identifiant le plus faible gagne sans que rien ne soit perdu. Attendu : N1 1er, N2 2e, N3 3e, à chaque cycle.</td></tr>
+      <tr><td>T4</td><td><b>Encodage</b> : chaque trame reçue est décodée avec l'ICD (le document qui décrit chaque signal) et comparée octet par octet à ce qui était attendu.</td></tr>
+      <tr><td>T5</td><td><b>Fautes physiques</b> : interrupteurs SW1 (retrait d'une terminaison), SW2 (court-circuit CAN_H–CAN_L), SW3 (débranchement à chaud). Guidé, sur le banc réel.</td></tr>
+      <tr><td>T6</td><td><b>Fautes logicielles</b> : un nœud reçoit l'ordre de mal se comporter ; on vérifie l'effet, puis le retour à la normale.</td></tr>
+      <tr><td>T7</td><td><b>Isolation galvanique</b> : prévu pour un nœud isolé, pas encore réalisé.</td></tr>
+    </table>
+    <p>Un test donne <b>Réussite</b>, <b>Échec</b>, ou <b>Non concluant</b> quand la mesure ne peut pas
+      faire preuve : en simulation, ou si un nœud tourne sur une horloge imprécise (HSI).</p>
+
+    <h4>Les fautes injectables</h4>
+    <p>Le PC envoie une trame <code>BENCH_CFG</code> au nœud visé. Toute faute a une durée
+      maximale et peut être révoquée : le nœud revient seul à la normale.</p>
+    <table>
+      <tr><td>Babbling idiot</td><td>le nœud inonde le bus d'une même trame (0x400) sans arrêt. On vérifie que les trames prioritaires des autres passent toujours.</td></tr>
+      <tr><td>Débit erroné</td><td>le nœud passe à 250 kbit/s : les autres ne le comprennent plus et voient des erreurs. <i>Non simulé.</i></td></tr>
+      <tr><td>DLC incohérent</td><td>le nœud émet des trames de 4 octets là où l'ICD en prévoit 8 : le décodeur doit le signaler.</td></tr>
+      <tr><td>Silencieux</td><td>le nœud écoute sans jamais répondre ni acquitter. Seul sur le bus avec un émetteur, celui-ci ne recevrait plus d'acquittement.</td></tr>
+      <tr><td>Bus-off maintenu</td><td>une fois en bus-off, le nœud y reste jusqu'à la révocation, pour laisser le temps d'observer. <i>Non simulé.</i></td></tr>
+    </table>
+
+    <h4>Simulation et banc réel</h4>
+    <p>En simulation, un programme joue le rôle des quatre cartes sur un bus virtuel. Il montre que
+      toute la chaîne logicielle fonctionne, mais il <b>reproduit</b> le comportement attendu : il ne
+      démontre rien sur le bus. Sur le banc réel, la même fenêtre pilote les vraies cartes.</p>
+  </div>
+</div>
+
+<footer>Samuel GOMRI · Dylan KIATI · Hugo MATHOUX — ENSEA, projet de 2e année</footer>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const STATES = ["error-active", "error-warning", "error-passive", "BUS-OFF"];
+let paused = false, lastTop = null, wasBusy = null, built = false;
+
+// ---- schéma du bus -------------------------------------------------------
+const POS = [{x: 110, n: "PC"}, {x: 270, n: "N1"}, {x: 430, n: "N2"}, {x: 590, n: "N3"}, {x: 750, n: "N4"}];
+function buildBus(nodes) {
+  const svg = $("bus");
+  const label = (n) => n === "PC" ? "PC · CANable" : (nodes.find((x) => x.name === n) || {}).board || n;
+  let h = `<line x1="30" y1="170" x2="830" y2="170" stroke="var(--bus-h)" stroke-width="4"/>
+           <line x1="30" y1="190" x2="830" y2="190" stroke="var(--bus-l)" stroke-width="4"/>
+           <text x="36" y="162" font-size="12" style="fill:var(--bus-h)">CAN_H</text>
+           <text x="36" y="210" font-size="12" style="fill:var(--bus-l)">CAN_L</text>
+           <rect x="18" y="164" width="12" height="32" rx="2" fill="var(--muted)"/>
+           <rect x="830" y="164" width="12" height="32" rx="2" fill="var(--muted)"/>
+           <text x="20" y="226" font-size="11" style="fill:var(--muted)">120 Ω</text>
+           <text x="806" y="226" font-size="11" style="fill:var(--muted)">120 Ω</text>`;
+  for (const p of POS) {
+    h += `<g class="node-g" id="g-${p.n}">
+      <line class="drop" x1="${p.x - 8}" y1="100" x2="${p.x - 8}" y2="170"/>
+      <line class="drop" x1="${p.x + 8}" y1="100" x2="${p.x + 8}" y2="190"/>
+      <rect class="node-box" x="${p.x - 62}" y="22" width="124" height="78" rx="10"/>
+      <text x="${p.x}" y="56" text-anchor="middle" font-size="22" font-weight="800">${p.n}</text>
+      <text x="${p.x}" y="80" text-anchor="middle" font-size="11" style="fill:var(--muted)">${esc(label(p.n))}</text>
+    </g>`;
+  }
+  svg.innerHTML = h;
+}
+
+// ---- cartes des nœuds ----------------------------------------------------
+function renderNodes(nodes) {
+  $("nodes").innerHTML = nodes.map((n) => {
+    const hb = n.heartbeat;
+    const st = !n.online || !hb ? `<span class="state soff">muet</span>`
+             : `<span class="state s${hb.state}">${STATES[hb.state]}</span>`;
+    const flags = [];
+    if (hb && hb.clock_not_qualified) flags.push(`<div class="flag warn">Horloge HSI : non valide pour le débit</div>`);
+    if (hb && hb.fault_mode_active) flags.push(`<div class="flag bad">Faute active : ${esc(n.mode_name)}</div>`);
+    const losses = hb ? hb.rx_fifo_lost + hb.ring_overflow : 0;
+    const on = n.tx_age !== null && n.tx_age < 0.35;
+    return `<div class="panel node-card">
+      <span class="led ${on ? "on" : ""}" title="émission"></span>
+      <div class="top"><span class="nm">${n.name}</span><span class="role">${esc(n.role)}</span></div>
+      <div class="role">${esc(n.board)}${n.contender ? " · contendant" : ""}</div>
+      ${st}
+      <div class="kv"><span>TEC <span class="help-dot" title="Compteur d'erreurs en émission. +8 par trame émise en erreur, −1 par trame réussie. 128 : error-passive ; au-delà de 255 : bus-off.">?</span></span><span>${hb ? hb.tec : "—"}</span></div>
+      <div class="bar"><i style="width:${hb ? hb.tec / 2.55 : 0}%"></i></div>
+      <div class="kv"><span>REC <span class="help-dot" title="Compteur d'erreurs en réception. +1 (ou +8) par erreur détectée en recevant, −1 par trame bien reçue. 128 : error-passive.">?</span></span><span>${hb ? hb.rec : "—"}</span></div>
+      <div class="bar"><i style="width:${hb ? hb.rec / 2.55 : 0}%"></i></div>
+      <div class="kv"><span>Pertes <span class="help-dot" title="Trames reçues mais perdues par le nœud lui-même : FIFO matérielle du contrôleur pleine, ou tampon logiciel plein. Doit rester à 0.">?</span></span><span>${hb ? losses : "—"}</span></div>
+      ${flags.join("")}
+    </div>`;
+  }).join("");
+}
+
+function lightBus(state) {
+  const ages = {PC: state.pc_tx_age};
+  for (const n of state.nodes) ages[n.name] = n.tx_age;
+  for (const p of POS) {
+    const g = $("g-" + p.n);
+    if (!g) continue;
+    g.classList.toggle("tx", ages[p.n] !== null && ages[p.n] !== undefined && ages[p.n] < 0.3);
+    const node = state.nodes.find((x) => x.name === p.n);
+    g.classList.toggle("off", !!node && !node.online);
+  }
+}
+
+// ---- courbe de charge ----------------------------------------------------
+function spark(values) {
+  const c = $("spark"), ctx = c.getContext("2d");
+  const w = c.width = c.clientWidth * devicePixelRatio, h = c.height = 90 * devicePixelRatio;
+  ctx.clearRect(0, 0, w, h);
+  if (!values.length) return;
+  const max = Math.max(5, ...values) * 1.15;
+  const css = getComputedStyle(document.documentElement);
+  ctx.strokeStyle = css.getPropertyValue("--accent"); ctx.lineWidth = 2 * devicePixelRatio;
+  ctx.beginPath();
+  values.forEach((v, i) => {
+    const x = (i / Math.max(1, values.length - 1)) * w, y = h - (v / max) * (h - 6) - 3;
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  });
+  ctx.stroke();
+  ctx.fillStyle = css.getPropertyValue("--muted"); ctx.font = `${11 * devicePixelRatio}px sans-serif`;
+  ctx.fillText(`max ${max.toFixed(0)} %`, 4, 12 * devicePixelRatio);
+}
+
+// ---- trames --------------------------------------------------------------
+function renderFrames(frames) {
+  if (paused || !frames.length) return;
+  const top = frames[0].t + frames[0].id;
+  if (top === lastTop) return;
+  lastTop = top;
+  $("frames").innerHTML = frames.map((f, i) => {
+    const sig = Object.entries(f.signals).map(([k, v]) => `${esc(k)}=<b>${esc(v)}</b>`).join(" ");
+    const tags = (!f.known ? `<span class="tag">inconnue</span> ` : "")
+      + (!f.dlc_ok ? `<span class="tag bad">DLC incohérent</span> ` : "")
+      + (!f.classic ? `<span class="tag bad">non CAN 2.0A</span> ` : "");
+    return `<tr class="${i < 2 ? "new" : ""}"><td class="mono">${f.t.toFixed(3)}</td><td class="mono">${f.id}</td>
+      <td>${esc(f.name)}</td><td>${esc(f.sender)}</td>
+      <td class="mono">${tags}${sig || esc(f.data)}</td></tr>`;
+  }).join("");
+}
+
+// ---- résultats -----------------------------------------------------------
+function renderResult(r) {
+  const box = $("result");
+  if (!r || !r.test) { box.hidden = true; return; }
+  box.hidden = false;
+  if (r.error) { box.innerHTML = `<div class="verdict v-bad">Erreur</div><pre>${esc(r.error)}</pre>`; return; }
+  const cls = r.verdict === "REUSSITE" ? "v-ok" : r.verdict === "ECHEC" ? "v-bad" : "v-na";
+  const label = r.verdict === "REUSSITE" ? "Réussite" : r.verdict === "ECHEC" ? "Échec" : "Non concluant";
+  let h = `<div class="row"><span class="verdict ${cls}">${r.test} · ${label}</span>
+    <span class="note">${esc(r.title)} — ${r.finished}</span></div>`;
+  if (r.blockers.length) {
+    h += `<div class="note">Mesure logicielle ${r.passed ? "correcte" : "en échec"}, mais verdict non concluant : ${r.blockers.map(esc).join(" ; ")}</div>`;
+  }
+  const d = r.details;
+  if (r.test === "T3") {
+    h += `<div class="note">${d.valid} cycles valides sur ${d.cycles} · écart max entre trames ${d.max_gap_us} µs</div>
+      <table><thead><tr><th>Nœud</th><th>ID</th><th>Rang attendu</th><th>Gagnés</th><th>Perdus</th><th>Rangs obtenus</th><th></th></tr></thead><tbody>`;
+    for (const row of d.rows) {
+      const total = Object.values(row.histogram).reduce((a, b) => a + b, 0) || 1;
+      const bars = [1, 2, 3].map((k) => `<div style="height:${((row.histogram[k] || 0) / total) * 32 + 2}px"><span>${k}</span></div>`).join("");
+      h += `<tr><td><b>${row.sender}</b></td><td class="mono">${row.id}</td><td>${row.expected_rank}</td>
+        <td>${row.won}</td><td>${row.lost}</td><td><div class="hist">${bars}</div></td>
+        <td class="${row.ok ? "ok" : "ko"}">${row.ok ? "✓" : "✗"}</td></tr>`;
+    }
+    h += `</tbody></table>`;
+    if (d.invalid.length) h += `<div class="note">${d.invalid.map(esc).join("<br>")}</div>`;
+  } else if (r.test === "T4") {
+    h += `<table><thead><tr><th>Trame</th><th>ID</th><th>Vues</th><th>Conformes</th><th>DLC faux</th><th></th></tr></thead><tbody>`;
+    for (const row of d.rows) h += `<tr><td>${esc(row.name)}</td><td class="mono">${row.id}</td><td>${row.observed}</td>
+      <td>${row.matched}</td><td>${row.dlc_errors}</td><td class="${row.ok ? "ok" : "ko"}">${row.ok ? "✓" : "✗"}</td></tr>`;
+    h += `</tbody></table>`;
+  } else if (r.test === "T6") {
+    h += `<table><thead><tr><th>Faute</th><th>Avant (tr/s)</th><th>Après (tr/s)</th><th>Constat</th><th></th></tr></thead><tbody>`;
+    for (const row of d.rows) h += `<tr><td>${esc(row.name)}</td><td>${row.before}</td><td>${row.after}</td>
+      <td>${esc(row.detail)}</td><td class="${row.ok ? "ok" : "ko"}">${row.ok ? "✓" : "✗"}</td></tr>`;
+    h += `</tbody></table>`;
+  }
+  h += `<div class="row" style="margin-top:12px"><button class="ghost" id="dl">Télécharger le rapport (.md)</button></div>
+    <details><summary>Sortie complète</summary><pre>${esc(r.text)}</pre></details>`;
+  box.innerHTML = h;
+  $("dl").onclick = () => {
+    const blob = new Blob([r.markdown], {type: "text/markdown"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `rapport_${r.test}_${r.finished.replace(/:/g, "")}.md`;
+    a.click();
+  };
+}
+
+function setBusy(busy) {
+  document.querySelectorAll("[data-run]").forEach((b) => {
+    b.disabled = !!busy;
+    b.innerHTML = busy === b.dataset.run ? `<span class="spinner"></span> En cours` : "Lancer";
+  });
+}
+
+// ---- boucle de rafraîchissement -----------------------------------------
+async function tick() {
+  try {
+    const s = await (await fetch("/api/state")).json();
+    if (!built) { buildBus(s.nodes); built = true; }
+    $("b-mode").textContent = s.virtual ? "SIMULATION · bus virtuel" : `BANC RÉEL · ${s.interface}`;
+    $("b-mode").className = "badge " + (s.virtual ? "sim" : "real");
+    $("b-profile").textContent = `profil ${s.profile}`;
+    $("b-up").textContent = `${Math.floor(s.uptime)} s`;
+    $("banner").hidden = !s.virtual;
+    $("s-fps").textContent = s.fps.toFixed(0);
+    $("s-load").textContent = `${s.load.toFixed(1)} %`;
+    $("s-total").textContent = s.total;
+    $("s-nc").textContent = s.non_conformity;
+    renderNodes(s.nodes);
+    lightBus(s);
+    spark(s.load_history);
+    renderFrames(s.frames);
+    $("counts").innerHTML = s.counts.map((c) => `<tr><td class="mono">${c.id}</td><td>${esc(c.name)}</td>
+      <td style="text-align:right" class="mono">${c.count}</td></tr>`).join("");
+    setBusy(s.busy);
+    if (wasBusy && !s.busy) renderResult(await (await fetch("/api/result")).json());
+    wasBusy = s.busy;
+    $("lost").hidden = true;
+    virtual = s.virtual;
+    if (s.connect_error && !$("connect").hidden) $("c-err").textContent = s.connect_error;
+  } catch (e) {
+    $("b-mode").textContent = "serveur arrêté"; $("b-mode").className = "badge sim";
+    $("lost").hidden = false;
+  }
+  setTimeout(tick, 300);
+}
+
+// ---- fenêtres : aide et connexion ---------------------------------------
+let virtual = true;
+document.querySelectorAll("[data-close]").forEach((b) => b.onclick = () => $(b.dataset.close).hidden = true);
+document.querySelectorAll(".overlay").forEach((o) => o.onclick = (e) => { if (e.target === o) o.hidden = true; });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") document.querySelectorAll(".overlay").forEach((o) => o.hidden = true); });
+$("open-help").onclick = () => $("help").hidden = false;
+$("open-connect").onclick = async () => {
+  const info = await (await fetch("/api/interfaces")).json();
+  $("c-list").innerHTML = info.interfaces.map((i) => `<label class="test" style="margin-bottom:8px;cursor:pointer">
+    <input type="radio" name="iface" value="${i.name}" ${i.name === info.current ? "checked" : ""} ${i.available ? "" : "disabled"}>
+    <span class="desc">${esc(i.label)}${i.available ? "" : `<small>${esc(i.reason)}</small>`}</span></label>`).join("");
+  $("c-port").innerHTML = info.ports.length ? info.ports.map((p) => `<option>${esc(p)}</option>`).join("")
+                                            : "<option value=''>aucun port détecté</option>";
+  const sync = () => {
+    const sel = document.querySelector("input[name=iface]:checked");
+    $("c-port-row").hidden = !sel || sel.value !== "slcan";
+  };
+  document.querySelectorAll("input[name=iface]").forEach((r) => r.onchange = sync);
+  sync();
+  $("c-err").textContent = ""; $("c-msg").textContent = "";
+  $("connect").hidden = false;
+};
+$("c-go").onclick = async () => {
+  const sel = document.querySelector("input[name=iface]:checked");
+  if (!sel) return;
+  $("c-msg").innerHTML = `<span class="spinner"></span> connexion…`;
+  const body = {interface: sel.value, channel: sel.value === "slcan" ? $("c-port").value : null};
+  const r = await (await fetch("/api/connect", {method: "POST", body: JSON.stringify(body)})).json();
+  $("c-msg").textContent = r.ok ? "Connecté." : "";
+  $("c-err").textContent = r.ok ? "" : `Échec : ${r.error || "inconnu"}. Retour à la simulation.`;
+  built = false; lastTop = null; $("result").hidden = true;
+  if (r.ok) setTimeout(() => $("connect").hidden = true, 600);
+};
+
+document.querySelectorAll("[data-run]").forEach((b) => b.onclick = async () => {
+  const params = {cycles: +$("p-cycles").value, node: +$("p-node").value};
+  const r = await fetch(`/api/run/${b.dataset.run}`, {method: "POST", body: JSON.stringify(params)});
+  if (r.ok) { wasBusy = b.dataset.run; setBusy(b.dataset.run); $("result").hidden = true; }
+});
+$("pause").onclick = () => { paused = !paused; $("pause").textContent = paused ? "Reprendre" : "Pause"; };
+
+async function fault(mode) {
+  const body = {node: +$("f-node").value, mode, duration_ms: +$("f-dur").value, param: 0x400};
+  const r = await fetch("/api/fault", {method: "POST", body: JSON.stringify(body)});
+  $("f-msg").textContent = r.ok ? (mode ? "BENCH_CFG envoyée." : "Révocation envoyée.") : "Refusé.";
+}
+$("f-go").onclick = () => fault(+$("f-mode").value);
+$("f-stop").onclick = () => fault(0);
+
+fetch("/api/icd").then((r) => r.json()).then((icd) => {
+  $("f-mode").innerHTML = Object.entries(icd.modes).filter(([k]) => k !== "0")
+    .map(([k, v]) => `<option value="${k}">${esc(v)}${["2", "5"].includes(k) ? " (sans effet en simulation)" : ""}</option>`).join("");
+});
+// ---- chronogrammes de la couche physique --------------------------------
+// Niveaux et délais : datasheet du TJA1051 (fournis par /api/physical).
+// Câble : modèle RC du premier ordre, propagation 5 ns/m, réflexions et bruit
+// simplifiés. Illustratif : seul l'oscilloscope fait foi (tests T1 et T2).
+const PHY = {frame: null, seed: 1};
+
+function xorshift(seed) {
+  let s = (seed >>> 0) || 1;
+  return () => { s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return (s >>> 0) / 4294967296; };
+}
+function gaussian(r) { const u = Math.max(1e-9, r()), v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+
+function phyParams() {
+  const f = PHY.frame, T = f.tja1051;
+  const L = +$("ph-len").value, noise = +$("ph-noise").value, term = $("ph-term").value;
+  const cBus = 50e-12 * L + 4 * 30e-12;                      // câble ~50 pF/m + 4 nœuds
+  const rLoad = term === "deux" ? 60 : term === "une" ? 120 : 30000 / 4;  // sans terminaison : Ri(dif) des nœuds
+  return {
+    T, L, Tb: 1e9 / f.bitrate, tp: 5 * L,
+    tauDom: 8 + 20 * cBus * 1e9,                              // le transceiver force le dominant
+    tauRec: Math.max(8, rLoad * cBus * 1e9),                  // le récessif revient par la charge
+    refl: term === "deux" ? 0.03 : term === "une" ? 0.25 : 0.5,
+    acm: [0, 0.3, 1.5, 4][noise] * L / 10,                    // bruit de mode commun capté
+    resid: $("ph-cable").value === "torsadee" ? 0.02 : 0.25,  // part qui devient différentielle
+    sigma: noise ? 0.004 + 0.01 * noise : 0.002,
+  };
+}
+
+/** Simule la trame entre t0 et t1 (ns) au pas dt ; renvoie toutes les traces. */
+function phySimulate(t0, t1, dt) {
+  const P = phyParams(), bits = PHY.frame.bits, n = bits.length, Tb = P.Tb, T = P.T;
+  const busAt = (t) => { if (t < 0) return 1; const i = Math.floor(t / Tb); return i < n ? bits[i].value : 1; };
+  const txAt = (t) => { if (t < 0) return 1; const i = Math.floor(t / Tb); return i < n ? (bits[i].tx_value ?? bits[i].value) : 1; };
+  const dominantNear = (t) => busAt(t - T.td_txd_dom_ns) === 0 || busAt(t - T.td_txd_rec_ns) === 0;
+  const N = Math.max(2, Math.floor((t1 - t0) / dt) + 1);
+  const r = xorshift(PHY.seed * 7919 + Math.round(P.L * 13));
+  const out = {t: new Float64Array(N), txd: new Float64Array(N), hNear: new Float64Array(N), lNear: new Float64Array(N),
+    dNear: new Float64Array(N), hFar: new Float64Array(N), lFar: new Float64Array(N), dFar: new Float64Array(N),
+    rxd: new Float64Array(N), P};
+  // Le proche est simulé depuis bien avant t0 pour que le filtre soit établi.
+  let v = 0, lastEdge = -1e9, lastStep = 0, prevDom = false;
+  const warm = Math.min(t0, -Tb);
+  for (let tt = warm; tt < t0; tt += dt) {
+    const dom = dominantNear(tt), target = dom ? 2 : 0;
+    if (dom !== prevDom) { lastEdge = tt; lastStep = dom ? 2 : -2; prevDom = dom; }
+    v += (target - v) * (1 - Math.exp(-dt / (target > v ? P.tauDom : P.tauRec)));
+  }
+  const nearHist = [];  // pour retarder le signal jusqu'à l'extrémité du câble
+  const delaySamples = Math.round(P.tp / dt);
+  let rxState = 1;      // 1 récessif, 0 dominant (comparateur à hystérésis)
+  const rxRaw = new Int8Array(N);
+  for (let k = 0; k < N; k++) {
+    const tt = t0 + k * dt;
+    const dom = dominantNear(tt), target = dom ? 2 : 0;
+    if (dom !== prevDom) { lastEdge = tt; lastStep = dom ? 2 : -2; prevDom = dom; }
+    v += (target - v) * (1 - Math.exp(-dt / (target > v ? P.tauDom : P.tauRec)));
+    const cm = P.acm * (0.6 * Math.sin(2 * Math.PI * tt / 6667) + 0.4 * Math.sin(2 * Math.PI * tt / 1000 + 1));
+    const period = Math.max(10, 4 * P.tp), age = tt - lastEdge;
+    const ringFar = age > P.tp ? lastStep * P.refl * Math.sin(2 * Math.PI * (age - P.tp) / period) * Math.exp(-(age - P.tp) / (2 * period)) : 0;
+    const ringNear = age > 2 * P.tp ? 0.5 * lastStep * P.refl * Math.sin(2 * Math.PI * (age - 2 * P.tp) / period) * Math.exp(-(age - 2 * P.tp) / (2 * period)) : 0;
+    const dNear = v + ringNear + P.sigma * 0.5 * gaussian(r);
+    nearHist.push(v);
+    const vDelayed = k >= delaySamples ? nearHist[k - delaySamples] : 0;
+    const nd = P.resid * cm + P.sigma * gaussian(r);
+    const dFar = vDelayed + ringFar + nd;
+    out.t[k] = tt;
+    out.txd[k] = txAt(tt) ? T.vio : 0;
+    out.dNear[k] = dNear;
+    out.hNear[k] = T.rec + dNear / 2 + 0.3 * cm;
+    out.lNear[k] = T.rec - dNear / 2 + 0.3 * cm;
+    out.dFar[k] = dFar;
+    out.hFar[k] = T.rec + dFar / 2 + cm;
+    out.lFar[k] = T.rec - dFar / 2 + cm;
+    if (rxState === 1 && dFar > T.vth_rx + T.vhys_rx / 2) rxState = 0;
+    else if (rxState === 0 && dFar < T.vth_rx - T.vhys_rx / 2) rxState = 1;
+    rxRaw[k] = rxState;
+  }
+  // RXD : sortie du comparateur retardée de 60 ns (dominant) ou 65 ns (récessif).
+  const d1 = Math.round(T.td_bus_rxd_dom_ns / dt), d2 = Math.round(T.td_bus_rxd_rec_ns / dt);
+  for (let k = 0; k < N; k++) {
+    const a = k >= d1 ? rxRaw[k - d1] : 1, b = k >= d2 ? rxRaw[k - d2] : 1;
+    out.rxd[k] = (a === 0 || b === 0) ? 0 : T.vio;
+  }
+  return out;
+}
+
+/** Lecture des bits par le récepteur : synchronisation sur le SOF, échantillon à 87,5 %. */
+function phySample(sim) {
+  const P = sim.P, bits = PHY.frame.bits, dt = sim.t[1] - sim.t[0];
+  let ts = null;
+  for (let k = 0; k < sim.t.length; k++) if (sim.rxd[k] === 0) { ts = sim.t[k]; break; }
+  const samples = [];
+  if (ts === null) return {samples, errors: bits.length, ts: null};
+  let errors = 0, noiseMargin = Infinity;
+  for (let i = 0; i < bits.length; i++) {
+    const tsamp = ts + (i + 0.875) * P.Tb;
+    const k = Math.round((tsamp - sim.t[0]) / dt);
+    if (k < 0 || k >= sim.t.length) continue;
+    const read = sim.rxd[k] === 0 ? 0 : 1, ok = read === bits[i].value;
+    if (!ok) errors++;
+    const kd = Math.max(0, k - Math.round(P.T.td_bus_rxd_dom_ns / dt));
+    const vd = sim.dFar[kd];
+    noiseMargin = Math.min(noiseMargin, bits[i].value === 0 ? vd - P.T.vth_max : P.T.vth_min - vd);
+    samples.push({t: tsamp, ok, value: bits[i].value});
+  }
+  return {samples, errors, ts, noiseMargin};
+}
+
+// ---- tracé ----------------------------------------------------------------
+function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+function drawChrono(id, sim, opts) {
+  const c = $(id), ctx = c.getContext("2d"), dpr = devicePixelRatio || 1;
+  // Hauteur d'affichage fixée en CSS, séparée de la résolution interne : sans
+  // cela, redimensionner le canevas le déforme et écrase texte et courbes.
+  const W = c.clientWidth, H = +c.dataset.h;
+  c.style.height = `${H}px`;
+  c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  const padL = 56, padR = 12, padT = opts.band ? 30 : 12, padB = 28;
+  const t0 = opts.t0, t1 = opts.t1, [y0, y1] = opts.y;
+  const X = (t) => padL + (t - t0) / (t1 - t0) * (W - padL - padR);
+  const Y = (v) => padT + (1 - (v - y0) / (y1 - y0)) * (H - padT - padB);
+  const muted = cssVar("--muted"), line = cssVar("--line"), ink = cssVar("--ink");
+  ctx.font = "12px Segoe UI, system-ui, sans-serif";
+  // grille : bits en pointillé, graduations en tension
+  ctx.strokeStyle = line; ctx.lineWidth = 1; ctx.setLineDash([2, 3]);
+  const Tb = PHY.frame ? 1e9 / PHY.frame.bitrate : 2000;
+  if ((t1 - t0) / Tb < 60) for (let b = Math.ceil(t0 / Tb) * Tb; b <= t1; b += Tb) { ctx.beginPath(); ctx.moveTo(X(b), padT); ctx.lineTo(X(b), H - padB); ctx.stroke(); }
+  ctx.setLineDash([]);
+  ctx.fillStyle = muted; ctx.textAlign = "right";
+  for (const v of opts.ticks) { ctx.fillText(`${v} V`, padL - 6, Y(v) + 4); ctx.strokeStyle = line; ctx.beginPath(); ctx.moveTo(padL, Y(v)); ctx.lineTo(W - padR, Y(v)); ctx.stroke(); }
+  // zone de seuil du récepteur
+  if (opts.threshold) {
+    ctx.fillStyle = cssVar("--line"); ctx.globalAlpha = 0.6;
+    ctx.fillRect(padL, Y(0.9), W - padL - padR, Y(0.5) - Y(0.9)); ctx.globalAlpha = 1;
+    ctx.fillStyle = muted; ctx.textAlign = "left"; ctx.fillText("seuil 0,5–0,9 V", padL + 4, Y(0.9) - 3);
+  }
+  // bande des champs de la trame
+  if (opts.band) {
+    const bits = PHY.frame.bits;
+    let start = 0;
+    for (let i = 0; i <= bits.length; i++) {
+      if (i === bits.length || bits[i].field !== bits[start].field) {
+        const xa = X(Math.max(t0, start * Tb)), xb = X(Math.min(t1, i * Tb));
+        if (xb > xa + 1) {
+          ctx.fillStyle = cssVar("--accent-soft"); ctx.fillRect(xa, 3, xb - xa - 1, 20);
+          ctx.fillStyle = cssVar("--accent"); ctx.textAlign = "center";
+          if (xb - xa > 26) ctx.fillText(bits[start].field, (xa + xb) / 2, 17);
+        }
+        start = i;
+      }
+    }
+    ctx.fillStyle = cssVar("--warn");
+    bits.forEach((b, i) => { if (b.stuff) { const xa = X(i * Tb), xb = X((i + 1) * Tb); if (xb > padL && xa < W) ctx.fillRect(xa, 21, Math.max(1, xb - xa - 1), 3); } });
+  }
+  // traces
+  const i0 = 0, i1 = sim.t.length;
+  const step = Math.max(1, Math.floor((i1 - i0) / (2 * (W - padL))));
+  for (const s of opts.series) {
+    ctx.strokeStyle = s.color; ctx.lineWidth = s.width || 1.5; ctx.setLineDash(s.dash || []);
+    ctx.beginPath();
+    for (let k = i0; k < i1; k += step) { const x = X(sim.t[k]), y = Y(s.y[k]); k === i0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  // points d'échantillonnage
+  if (opts.samples) for (const s of opts.samples) {
+    if (s.t < t0 || s.t > t1) continue;
+    const x = X(s.t), y = Y(s.value ? 3.3 : 0);
+    ctx.fillStyle = s.ok ? cssVar("--ok") : cssVar("--bad");
+    if (s.ok) { ctx.beginPath(); ctx.arc(x, y, 3, 0, 2 * Math.PI); ctx.fill(); }
+    else { ctx.strokeStyle = cssVar("--bad"); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x - 5, y - 5); ctx.lineTo(x + 5, y + 5); ctx.moveTo(x + 5, y - 5); ctx.lineTo(x - 5, y + 5); ctx.stroke(); }
+  }
+  // légende et axe du temps
+  ctx.textAlign = "left"; let lx = padL + 4;
+  for (const s of opts.series) { ctx.fillStyle = s.color; ctx.fillRect(lx, H - 15, 14, 3); ctx.fillStyle = ink; ctx.fillText(s.label, lx + 18, H - 9); lx += ctx.measureText(s.label).width + 32; }
+  ctx.fillStyle = muted; ctx.textAlign = "right";
+  const span = t1 - t0, unit = span > 5000 ? ["µs", 1000] : ["ns", 1];
+  ctx.fillText(`${(t0 / unit[1]).toFixed(0)} → ${(t1 / unit[1]).toFixed(0)} ${unit[0]}`, W - padR, H - 9);
+}
+
+function drawPhysical() {
+  if (!PHY.frame) return;
+  const win = $("ph-win").value, bits = PHY.frame.bits, Tb = 1e9 / PHY.frame.bitrate;
+  $("ph-len-v").textContent = `${$("ph-len").value} m`;
+  // Simulation de la trame entière : sert au comptage des erreurs, quelle que soit la vue.
+  const full = phySimulate(-Tb, bits.length * Tb, 5);
+  const read = phySample(full);
+  let view = full, t0 = -Tb, t1 = bits.length * Tb;
+  if (win === "debut") { t1 = 20 * Tb; }
+  if (win === "front") { t0 = -150; t1 = 900; view = phySimulate(t0, t1, 1); }
+  const P = full.P;
+  const C = {h: cssVar("--bus-h"), l: cssVar("--bus-l"), d: cssVar("--diff"), a: cssVar("--accent"), m: cssVar("--muted")};
+  drawChrono("ch-near", view, {t0, t1, y: [-0.4, 4.6], ticks: [0, 1.5, 2.5, 3.5], band: true,
+    series: [{y: view.hNear, color: C.h, label: "CAN_H"}, {y: view.lNear, color: C.l, label: "CAN_L"}, {y: view.dNear, color: C.d, label: "CAN_H − CAN_L"}]});
+  drawChrono("ch-trx", view, {t0, t1, y: [-0.4, 3.8], ticks: [0, 2, 3.3],
+    series: [{y: view.txd, color: C.a, label: "TXD (entrée, 0/3,3 V)"}, {y: view.dNear, color: C.d, label: "CAN_H − CAN_L (sortie)"}]});
+  drawChrono("ch-far", view, {t0, t1, y: [-0.8, 5.2], ticks: [0, 1.5, 2.5, 3.5], threshold: true,
+    series: [{y: view.hFar, color: C.h, label: "CAN_H"}, {y: view.lFar, color: C.l, label: "CAN_L"}, {y: view.dFar, color: C.d, label: "CAN_H − CAN_L"}]});
+  drawChrono("ch-rxd", view, {t0, t1, y: [-0.4, 3.8], ticks: [0, 3.3], samples: read.samples,
+    series: [{y: view.txd, color: C.m, label: "TXD émetteur", dash: [4, 3], width: 1}, {y: view.rxd, color: C.a, label: "RXD récepteur"}]});
+
+  const loop = P.T.td_txd_dom_ns + P.tp + P.T.td_bus_rxd_dom_ns;
+  const verdict = read.errors === 0
+    ? `<span class="ok">trame lue sans erreur</span>`
+    : `<span class="ko">${read.errors} bit(s) mal lu(s)</span> : le contrôleur détecterait l'erreur (bourrage, forme ou CRC), enverrait une trame d'erreur, et l'émetteur recommencerait`;
+  $("ph-stats").innerHTML = [
+    ["Trame", `${esc(PHY.frame.name)} · 0x${PHY.frame.id.toString(16).toUpperCase().padStart(3, "0")} · ${bits.length} bits dont ${PHY.frame.stuff_bits} de bourrage`],
+    ["Durée d'un bit", `${(Tb / 1000).toFixed(2)} µs à ${(PHY.frame.bitrate / 1000)} kbit/s`],
+    ["Propagation sur le câble", `${P.tp.toFixed(0)} ns pour ${P.L} m, soit ${(100 * P.tp / Tb).toFixed(1)} % d'un bit`],
+    ["Retard TXD émetteur → RXD récepteur", `≈ ${loop.toFixed(0)} ns`],
+    ["Marge de bruit au point d'échantillonnage", isFinite(read.noiseMargin) ? `${(read.noiseMargin * 1000).toFixed(0)} mV${read.noiseMargin < 0 ? " : négative, un transceiver au seuil le plus défavorable (0,5 ou 0,9 V) se tromperait" : ""}` : "—"],
+    ["Résultat", verdict],
+  ].map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join("")
+    + `<div class="note" style="grid-column:1/-1">À 500 kbit/s, la règle usuelle limite le bus à environ 100 m : l'aller-retour du signal doit tenir avant le point d'échantillonnage, pour que l'arbitrage fonctionne.</div>`;
+}
+
+async function phyLoad() {
+  const name = $("ph-frame").value;
+  PHY.frame = await (await fetch(`/api/physical?name=${encodeURIComponent(name)}`)).json();
+  drawPhysical();
+}
+["ph-win", "ph-cable", "ph-noise", "ph-term"].forEach((id) => $(id).onchange = drawPhysical);
+$("ph-len").oninput = drawPhysical;
+$("ph-frame").onchange = phyLoad;
+$("ph-redraw").onclick = () => { PHY.seed++; drawPhysical(); };
+document.querySelectorAll("[data-len]").forEach((b) => b.onclick = () => { $("ph-len").value = b.dataset.len; drawPhysical(); });
+window.addEventListener("resize", () => drawPhysical());
+fetch("/api/icd").then((r) => r.json()).then((icd) => {
+  $("ph-frame").innerHTML = icd.frames.map((f) => `<option ${f === "ENERGY_COMMAND" ? "selected" : ""}>${esc(f)}</option>`).join("");
+  phyLoad();
+});
+
+tick();
+</script>
+</body>
+</html>
