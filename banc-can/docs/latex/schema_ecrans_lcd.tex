@@ -1,0 +1,156 @@
+% ===========================================================================
+%  Schéma électrique : deux NUCLEO-G431KB en bus CAN direct (sans
+%  transceiver), chacune pilotant un afficheur LCD 16x2 HD44780 en mode 4 bits.
+%
+%  Sources : UM2397 Rev 2 Table 11 (connecteurs Arduino Nano), board.h,
+%  docs/pinout.md, docs/oscilloscope.md.
+%
+%  Compiler :  pdflatex schema_ecrans_lcd.tex
+%  (paquets : circuitikz, standalone)
+% ===========================================================================
+\documentclass[border=6mm]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[european, straightvoltages]{circuitikz}
+\usetikzlibrary{calc}
+
+\ctikzset{bipoles/length=1.1cm}
+
+% Une broche sur le bord d'un boîtier : un trait court et un libellé intérieur.
+% #1 = point sur le bord, #2 = côté (left|right), #3 = libellé
+\newcommand{\pinR}[2]{\node[anchor=east, font=\scriptsize] at (#1) {#2\,};}
+\newcommand{\pinL}[2]{\node[anchor=west, font=\scriptsize] at (#1) {\,#2};}
+
+% ---------------------------------------------------------------------------
+%  Un nœud : Nucleo + LCD. #1 = décalage vertical, #2 = nom du nœud,
+%  #3 = ce que l'écran affiche
+% ---------------------------------------------------------------------------
+\newcommand{\noeud}[3]{%
+\begin{scope}[yshift=#1 cm]
+  % --- Nucleo -----------------------------------------------------------
+  \draw[thick, fill=blue!4] (0,0) rectangle (5,9.2);
+  \node[align=center, font=\small\bfseries] at (2.5,9.7)
+       {NUCLEO-G431KB -- #2};
+
+  % côté gauche : bus CAN, alimentation
+  \pinL{0,8.4}{5V \ (CN3-4)}
+  \pinL{0,7.6}{3V3 (CN3-14)}
+  \pinL{0,6.0}{D2 \ (PA12) TX}
+  \pinL{0,5.0}{D10 (PA11) RX}
+  \pinL{0,1.0}{GND (CN3-2)}
+
+  % côté droit : vers le LCD
+  \pinR{5,7.0}{D3 \ (PB0)}
+  \pinR{5,6.2}{D9 \ (PA8)}
+  \pinR{5,5.4}{D11 (PB5)}
+  \pinR{5,4.6}{D12 (PB4)}
+  \pinR{5,3.8}{D13 (PB3)}
+  \pinR{5,3.0}{D0 \ (PA10)}
+
+  % 5V et GND de la carte
+  \draw (0,8.4) -- (-0.6,8.4) node[vcc]{\scriptsize +5V};
+  \draw (0,1.0) -- (-0.6,1.0) node[ground]{};
+
+  \begin{scope}[xshift=1.6cm]
+  % --- LCD 16x2 HD44780 -----------------------------------------------------
+  \draw[thick, fill=green!5] (9,0) rectangle (12,9.2);
+  \node[align=center, font=\small\bfseries] at (10.5,9.7)
+       {LCD 16$\times$2 HD44780};
+  \node[align=center, font=\scriptsize, text=black!60] at (10.5,0.45)
+       {D0--D3 (7--10) : n.c.};
+
+  % côté gauche : signaux
+  \pinL{9,7.0}{4 \ RS}
+  \pinL{9,6.2}{6 \ E}
+  \pinL{9,5.4}{11 D4}
+  \pinL{9,4.6}{12 D5}
+  \pinL{9,3.8}{13 D6}
+  \pinL{9,3.0}{14 D7}
+
+  % côté droit : alimentation, contraste, rétroéclairage
+  \pinR{12,8.2}{VDD 2}
+  \pinR{12,7.0}{V0 3}
+  \pinR{12,5.6}{R/W 5}
+  \pinR{12,4.2}{VSS 1}
+  \pinR{12,2.8}{A (LED+) 15}
+  \pinR{12,1.4}{K (LED$-$) 16}
+
+  % --- Liaisons Nucleo -> LCD (mode 4 bits) ----------------------------------
+  \foreach \y/\s in {7.0/RS, 6.2/E, 5.4/D4, 4.6/D5, 3.8/D6, 3.0/D7}{
+    \draw (3.4,\y) -- node[above, font=\tiny, pos=0.5]{\s} (9,\y);
+  }
+
+  % --- Alimentation et périphérie du LCD -----------------------------------
+  \draw (12,8.2) -- (13.0,8.2) node[vcc]{\scriptsize +5V};
+
+  % contraste : potentiomètre 10 kOhm entre +5V et GND, curseur sur V0
+  \draw (14.6,8.8) node[vcc]{\scriptsize +5V}
+        to[pR, n=pot#2, l_=\scriptsize 10\,k$\Omega$, mirror] (14.6,5.6)
+        node[ground]{};
+  \draw (12,7.0) -| (pot#2.wiper);
+
+  % R/W et VSS à la masse : l'écran est en écriture seule
+  \draw (12,5.6) -- (12.9,5.6) node[ground]{};
+  \draw (12,4.2) -- (12.9,4.2) node[ground]{};
+
+  % rétroéclairage
+  \draw (12,2.8) to[R, l=\scriptsize 220\,$\Omega$] (14.8,2.8)
+        -- (14.8,3.4) node[vcc]{\scriptsize +5V};
+  \draw (12,1.4) -- (12.9,1.4) node[ground]{};
+
+  % ce que l'écran affiche
+  \node[draw, dashed, rounded corners, font=\scriptsize\ttfamily,
+        align=left, fill=white] at (10.5,-0.9) {#3};
+  \end{scope}
+\end{scope}
+}
+
+\begin{document}
+\begin{circuitikz}[line width=0.6pt]
+
+  % N1 en haut, N2 en bas
+  \noeud{12.5}{N1}{RX 20F DLC4\\Test}
+  \noeud{0}{N2}{RX 0F0 DLC4\\Test}
+
+  % --- Bus CAN direct : TX et RX des deux cartes sur un seul fil ------------
+  % N1
+  \draw (0,18.5) -- (-1.2,18.5);
+  \draw (0,17.5) -- (-1.2,17.5);
+  \draw (-1.2,18.5) -- (-1.2,17.5);
+  \draw (-1.2,18.0) node[circ]{} -- (-2.8,18.0) node[circ]{};
+  % N2
+  \draw (0,6.0) -- (-1.2,6.0);
+  \draw (0,5.0) -- (-1.2,5.0);
+  \draw (-1.2,6.0) -- (-1.2,5.0);
+  \draw (-1.2,5.5) node[circ]{} -- (-2.8,5.5) node[circ]{};
+  % le fil BUS
+  \draw[very thick, red!70!black] (-2.8,5.5) -- (-2.8,18.0);
+  \node[rotate=90, font=\scriptsize\bfseries, red!70!black, fill=white]
+       at (-2.8,11.75) {BUS CAN (0 V dominant / 3,3 V récessif)};
+
+  % résistance de tirage vers 3V3 (prise sur N1)
+  \draw (0,20.1) -- (-4.4,20.1)
+        to[R, l_={\scriptsize 2,2\,k$\Omega$}] (-4.4,16.5)
+        -- (-2.8,16.5) node[circ]{};
+
+  % point de mesure oscilloscope
+  \draw (-2.8,7.5) node[circ]{} -- (-4.4,7.5)
+        node[ocirc]{} node[left, font=\scriptsize, align=right]
+        {Sonde oscillo.\\(masse sur GND)};
+
+  % --- Légende ---------------------------------------------------------------
+  \node[draw, rounded corners, align=left, font=\scriptsize,
+        anchor=north west, fill=white] at (-5.4,-1.8) {%
+    \textbf{Notes}\\
+    -- Firmware \texttt{n1/n2-scope-direct} : TX en drain ouvert, tirage interne
+       ; la 2,2\,k$\Omega$ accélère les fronts montants.\\
+    -- Toutes les masses (GND des deux cartes, VSS, R/W, K, sonde) forment un
+       seul potentiel : relier le GND de N1 à celui de N2.\\
+    -- +5V : broche 5V (CN3-4) de chaque Nucleo, alimentée par son USB.
+       Chaque LCD prend le 5V de sa propre carte.\\
+    -- Ne pas utiliser A4/A5 (PA5/PA6 en entrée flottante, SB2/SB3 fermés).\\
+    -- Mode 4 bits : D0--D3 du LCD non connectées ; R/W à GND, écriture seule.%
+  };
+
+\end{circuitikz}
+\end{document}
