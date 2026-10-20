@@ -64,6 +64,25 @@
       }
     },
     {
+      "name": "bridge",
+      "inherits": "arm",
+      "displayName": "Pont CAN-USB - Nucleo-L476RG (slcan)",
+      "description": "Adaptateur slcan sur le port COM virtuel : remplace un CANable pour canbench --interface slcan.",
+      "cacheVariables": {
+        "BENCH_NODE_ID": "5"
+      }
+    },
+    {
+      "name": "bridge-direct",
+      "inherits": "bridge",
+      "displayName": "Pont CAN-USB - bus direct sans transceiver",
+      "description": "Sorties a drain ouvert, pour un bus de cartes reliees fil a fil (essai sur table).",
+      "binaryDir": "${sourceDir}/build/bridge-direct",
+      "cacheVariables": {
+        "BENCH_CAN_DIRECT": "ON"
+      }
+    },
+    {
       "name": "n1-selftest",
       "inherits": "n1",
       "displayName": "N1 - autotest de mise en route",
@@ -162,6 +181,30 @@
       "cacheVariables": {
         "BENCH_CAN_DIRECT": "ON"
       }
+    },
+    {
+      "name": "n1-scope-direct",
+      "inherits": "n1",
+      "displayName": "N1 - trames fixes pour oscilloscope, bus direct",
+      "description": "Trame fixe et periodique, reconnaissable a l'oscilloscope. HSI, sans transceiver : essai sur table uniquement.",
+      "binaryDir": "${sourceDir}/build/n1-scope-direct",
+      "cacheVariables": {
+        "BENCH_SCOPE": "ON",
+        "BENCH_CLOCK_SOURCE": "HSI",
+        "BENCH_CAN_DIRECT": "ON"
+      }
+    },
+    {
+      "name": "n2-scope-direct",
+      "inherits": "n2",
+      "displayName": "N2 - trames fixes pour oscilloscope, bus direct",
+      "description": "Trame fixe et periodique, reconnaissable a l'oscilloscope. HSI, sans transceiver : essai sur table uniquement.",
+      "binaryDir": "${sourceDir}/build/n2-scope-direct",
+      "cacheVariables": {
+        "BENCH_SCOPE": "ON",
+        "BENCH_CLOCK_SOURCE": "HSI",
+        "BENCH_CAN_DIRECT": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -174,6 +217,14 @@
       "configurePreset": "n1"
     },
     {
+      "name": "n1-scope-direct",
+      "configurePreset": "n1-scope-direct"
+    },
+    {
+      "name": "n2-scope-direct",
+      "configurePreset": "n2-scope-direct"
+    },
+    {
       "name": "n2",
       "configurePreset": "n2"
     },
@@ -184,6 +235,14 @@
     {
       "name": "n4",
       "configurePreset": "n4"
+    },
+    {
+      "name": "bridge",
+      "configurePreset": "bridge"
+    },
+    {
+      "name": "bridge-direct",
+      "configurePreset": "bridge-direct"
     },
     {
       "name": "n1-selftest",
