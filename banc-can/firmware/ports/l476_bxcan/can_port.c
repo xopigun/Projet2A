@@ -44,20 +44,16 @@ static bench_port_can_t *s_port;
 /**
  * @brief Horodatage en microsecondes, dérivé du compteur de cycles DWT.
  *
- * Le Cortex-M4 du L476 dispose du compteur DWT, comme le G431.
+ * Le Cortex-M4 du L476 dispose du compteur DWT, comme le G431, avec le même
+ * piège : STM32CubeProgrammer efface TRCENA en se déconnectant
+ * (DEMCR = 0x00000001), ce qui fige CYCCNT. Comme sur le G431, le compteur est
+ * donc relancé à chaque lecture, et jamais remis à zéro pour que les horodatages
+ * ne reculent pas (open() est rappelée par les modes de faute).
  */
-static void dwt_init(void) {
-    /* Une seule fois : open() est rappelée par les modes de faute. */
-    if ((DWT->CTRL & DWT_CTRL_CYCCNTENA_Msk) != 0u) {
-        return;
-    }
-    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-    DWT->CYCCNT = 0u;
-    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-}
-
 static uint32_t now_us(void *ctx) {
     (void)ctx;
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
     return DWT->CYCCNT / (BENCH_SYSCLK_HZ / 1000000u);
 }
 
@@ -102,7 +98,6 @@ static bool port_open(void *ctx, const bench_can_config_t *config) {
         return false;
     }
 
-    dwt_init();
     gpio_init();
     __HAL_RCC_CAN1_CLK_ENABLE();
 
