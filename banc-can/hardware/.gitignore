@@ -1,0 +1,4 @@
+# Préférences locales et sauvegardes KiCad
+*.kicad_prl
+*-backups/
+fp-info-cache
