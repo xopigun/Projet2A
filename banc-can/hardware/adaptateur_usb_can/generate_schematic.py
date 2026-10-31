@@ -12,7 +12,7 @@ Relancer après modification :  python generate_schematic.py
 """
 
 from pathlib import Path
-from uuid import uuid4
+from uuid import UUID, uuid5
 
 import kisym
 
@@ -31,8 +31,11 @@ lib_ids = set()
 counters = {"#PWR": 0, "#FLG": 0}
 
 
-def uid():
-    return str(uuid4())
+def uid(key=None):
+    # UUID déterministes : un symbole garde le sien d'une génération à l'autre, ce qui
+    # préserve son lien avec l'empreinte du PCB (chemin /<uuid du symbole>).
+    counters["uuid"] = counters.get("uuid", 0) + 1
+    return str(uuid5(UUID(ROOT), key or f"item{counters['uuid']}"))
 
 
 def q(value):
@@ -82,8 +85,9 @@ def place(lib_id, ref, value, x, y, footprint="", rot=0, text_side="below", prop
     pin_uuids = " ".join(f"(pin {q(n)} (uuid {q(uid())}))" for n in sorted(pts))
     items.append(
         f"(symbol (lib_id {q(lib_id)}) (at {f(x)} {f(y)} {rot}) (unit 1) "
-        f"(exclude_from_sim no) (in_bom {'no' if hidden else 'yes'}) (on_board {'no' if hidden else 'yes'}) "
-        f"(dnp no) (uuid {q(uid())}) {' '.join(body)} {pin_uuids} "
+        f"(exclude_from_sim no) (in_bom {'no' if hidden or ref.startswith('H') else 'yes'}) "
+        f"(on_board {'no' if hidden else 'yes'}) "
+        f"(dnp no) (uuid {q(uid('symbol:' + ref))}) {' '.join(body)} {pin_uuids} "
         f"(instances (project {q(PROJECT)} (path {q('/' + ROOT)} (reference {q(ref)}) (unit 1)))))"
     )
     return pts
