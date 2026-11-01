@@ -7,11 +7,26 @@ bibliothèque KiCad 9.0.7, documentation du banc CAN ou source secondaire.
 Statut de chaque information :
 
 - ✅ **vérifiée** dans la datasheet officielle jointe au dossier ;
-- ⚠️ **à confirmer** : la datasheet officielle n'a pas pu être téléchargée automatiquement
-  (site protégé contre les robots). L'information vient d'une source secondaire, qui est indiquée ;
+- ⚠️ **à confirmer** : point qui dépend du composant réellement acheté ou d'un accord de
+  la factory ;
 - ℹ️ **choix de conception** : valeur choisie, pas tirée d'une datasheet.
 
-Les datasheets jointes sont dans le dossier `datasheets/` du .zip.
+Les datasheets jointes sont dans le dossier `datasheets/` du .zip :
+
+| Fichier | Document |
+|---|---|
+| `STM32G431_DS12589_Rev6.pdf` | ST DS12589 Rev 6, datasheet du STM32G431x6/x8/xB |
+| `ST_AN2606_bootloader.pdf` | ST AN2606 Rev 70, chargeur intégré des STM32 (STM32G431 : §52) |
+| `WCH_CH340DS1.pdf` | WCH CH340DS1 version 3D, datasheet de la famille CH340 |
+| `NXP_TJA1051_Rev02.pdf` | NXP TJA1051 Rev 02, transceiver CAN haute vitesse |
+| `AMS_AMS1117.pdf` | Advanced Monolithic Systems AMS1117, régulateur LDO 1 A |
+| `ST_USBLC6-2.pdf` | ST DS4260 Rev 7, protection ESD USBLC6-2 |
+| `OST_USB-B1HSxx.pdf` | On Shore Technology USB-B1HSxx, embase USB-B |
+| `Bourns_MF-NSMF.pdf` | Bourns MF-NSMF, fusibles réarmables 1206 |
+| `Omron_B3F.pdf` | Omron B3F, boutons tactiles 6 × 6 mm |
+
+Le registre FLASH_OPTR cité pour le STM32 vient du manuel de référence ST RM0440 Rev 9, présent
+dans le dépôt (`banc-can/docs/references/RM0440.pdf`) mais non joint (2 140 pages).
 
 ---
 
@@ -44,25 +59,31 @@ Datasheet : **ST DS12589 Rev 6**, fichier `STM32G431_DS12589_Rev6.pdf`.
 | Quartz HSE | 4 à 48 MHz, 8 MHz typique : Y1 = 8 MHz | Table 40 p.100 | ✅ |
 | Condensateur sur NRST | 0,1 µF au plus près de la broche → C12 = 100 nF | Fig. 27 p.117 | ✅ |
 | Empreinte du LQFP32 | pastilles de 0,50 mm au pas de 0,80 mm (écart 0,30 mm). L'empreinte KiCad `LQFP-32_7x7mm_P0.8mm` a la même largeur et des pastilles plus longues : 1,5 mm contre 1,2 mm, ce qui facilite la soudure à la main | Fig. 44 p.165 | ✅ |
-| Chargeur intégré sur USART2 (PA2/PA3), lancé par BOOT0 = 1 au reset | programmation par le CH340 sans sonde | forums ST Community (AN2606 non téléchargée) | ⚠️ à confirmer dans **AN2606**, tableau du STM32G431 |
+| Chargeur intégré sur USART2 (PA2 = TX, PA3 = RX ; 8 bits, parité paire, 1 stop) | programmation par le CH340 sans sonde | **ST AN2606 Rev 70**, Table 115 p.274 | ✅ |
+| Lancement du chargeur | Pattern 15 : BOOT0 (broche) = 1, nBOOT1 = 1, nSWBOOT0 = 1 → bouton SW2 maintenu pendant RESET | AN2606 Table 2 p.34 ; RM0440 Rev 9 Table 5 p.91 | ✅ ; la valeur d'usine des octets d'option n'est pas donnée explicitement (FLASH_OPTR = 0xFXXX XXXX), à lire avec STM32CubeProgrammer au premier branchement |
 
 ## U2 — CH340C (pont USB-UART, SOIC-16)
 
-Datasheet attendue : **WCH CH340DS1** (site wch-ic.com), non téléchargée.
+Datasheet : **WCH CH340DS1, version 3D**, fichier `WCH_CH340DS1.pdf`.
 
 | Information utilisée | Valeur | Source | Statut |
 |---|---|---|---|
-| Brochage du SOIC-16 | 1 GND, 2 TXD, 3 RXD, 4 V3, 5 UD+, 6 UD−, 7–8 NC, 9 CTS#, 10 DSR#, 11 RI#, 12 DCD#, 13 DTR#, 14 RTS#, 15 R232, 16 VCC | symbole KiCad `Interface_USB:CH340C` ; recopies de la datasheet chinoise (mikrocontroller.net, flux.ai) | ⚠️ |
-| Fonctionnement en 3,3 V | V3 relié à VCC, alimentés en 3,3 V (R2 = 0 Ω permet de repasser en mode 5 V) | recopies de la datasheet (wiki.adom.inc) | ⚠️ |
-| Pas de quartz externe | version C : oscillateur interne | symbole KiCad (broches 7 et 8 NC) ; fiches distributeurs | ⚠️ |
-| Pas de résistance série sur UD+/UD− | émetteur-récepteur USB intégré | recopie de la datasheet (digikey.cn) | ⚠️ |
-| Découplage | 100 nF sur VCC (C3) et sur V3 (C4) | pratique courante, à recouper avec la datasheet | ⚠️ |
-| Débit UART maximal | 2 Mbaud | fiches distributeurs | ⚠️ |
+| Boîtier | SOP-16 3,9 mm au pas de 1,27 mm → empreinte `SOIC-16_3.9x9.9mm_P1.27mm` | §3 *Package*, p.2 | ✅ |
+| Brochage du SOP-16 | 1 GND, 2 TXD, 3 RXD, 4 V3, 5 UD+, 6 UD−, 7 NC, 8 OUT#, 9 CTS#, 10 DSR#, 11 RI#, 12 DCD#, 13 DTR#, 14 RTS#, 15 R232, 16 VCC | §4 *Pin*, p.3–4 (colonne SOP16) | ✅ |
+| Broche 7 | CH340C : broche vide, à laisser en l'air → croix de non-connexion | §4 p.3 | ✅ |
+| Broche 8 | OUT#, sortie MODEM ; se change en second DTR# si on ajoute une résistance de 4,7 kΩ à la masse → laissée non connectée | §4 p.3 et §5.3 p.7 | ✅ (la bibliothèque KiCad l'appelle « NC ») |
+| Broche 15 (R232) | rappel interne au niveau bas → peut rester en l'air | §4 p.4 | ✅ |
+| Fonctionnement en 3,3 V | V3 relié à VCC, alimentés en 3,3 V (R2 = 0 Ω). VCC de 3,1 à 3,6 V | §4 p.3 (ligne V3) ; §6.3 p.9 | ✅ |
+| Pas de quartz externe | CH340C : horloge interne | §2 *Features*, p.1 | ✅ |
+| Pas de résistance série sur UD+/UD− | « Connect directly to the D+/D- data line … without a series resistor » | §4 p.3 | ✅ |
+| Découplage de VCC | 0,1 µF obligatoire → C3 = 100 nF. C4 sur V3 est facultatif en mode 3,3 V | §4 p.3 (ligne VCC) | ✅ |
+| Débit UART | de 50 bit/s à 2 Mbit/s | §2 p.1 | ✅ |
+| Consommation | 12 mA maximum | §6.2–6.3 p.8–9 | ✅ |
 
 ## U3 — TJA1051T/3 (transceiver CAN, SOIC-8)
 
-Datasheet : **NXP TJA1051 Rev 02 (1er juillet 2009)**, fichier `NXP_TJA1051_Rev02.pdf`. Une révision plus
-récente existe chez NXP ; les points utilisés ici sont inchangés d'une révision à l'autre.
+Datasheet : **NXP TJA1051 Rev 02 (1er juillet 2009)**, fichier `NXP_TJA1051_Rev02.pdf`. C'est la version déjà présente
+dans le dépôt du banc ; la révision la plus récente chez NXP n'a pas été comparée.
 
 | Information utilisée | Valeur | Source | Statut |
 |---|---|---|---|
@@ -87,12 +108,13 @@ Datasheet : **Advanced Monolithic Systems AMS1117**, fichier `AMS_AMS1117.pdf`.
 
 ## U5 — USBLC6-2SC6 (protection ESD de l'USB, SOT-23-6)
 
-Datasheet attendue : **ST USBLC6-2**, non téléchargée.
+Datasheet : **ST DS4260 Rev 7 (décembre 2021)**, fichier `ST_USBLC6-2.pdf`.
 
 | Information utilisée | Valeur | Source | Statut |
 |---|---|---|---|
-| Brochage | 1 I/O1, 2 GND, 3 I/O2, 4 I/O2, 5 VBUS, 6 I/O1 (1 et 6, puis 3 et 4, reliées en interne) | symbole KiCad `Power_Protection:USBLC6-2SC6` | ⚠️ |
-| Câblage | D+ sur I/O1, D− sur I/O2, VBUS sur le 5 V après le fusible | symbole KiCad ; montage USB habituel | ⚠️ |
+| Brochage | 1 I/O1, 2 GND, 3 I/O2, 4 I/O2, 5 VBUS, 6 I/O1 (vue de dessus) | *Functional diagram*, p.1 | ✅ |
+| Câblage | D+ sur I/O1, D− sur I/O2, VBUS sur le 5 V après le fusible | Fig. 13 *USB 2.0 port application diagram*, p.9 | ✅ |
+| Tenue sur VBUS | VRM = 5,25 V (condition de mesure de la fuite) : compatible avec le 5 V de l'USB | Table *Electrical characteristics*, p.2 | ✅ |
 
 ## J1 — Embase USB type B, OST USB-B1HSxx (traversante, coudée)
 
@@ -174,11 +196,11 @@ Aucune référence précise n'est imposée : prendre le quartz 8 MHz HC-49 dispo
 | DRC avec les règles ENSEA, et cohérence avec le schéma | 0 erreur, 0 liaison manquante ; 7 avertissements de sérigraphie, dus à l'USB-B et au DB9 qui dépassent volontairement du bord | `kicad-cli pcb drc --schematic-parity`, rapport joint |
 | Routage | 2 couches, pistes de 0,4 mm, vias de 0,8/0,4 mm, plan de masse en face arrière | Freerouting 2.5.0, rétrécissement des pistes (« neckdown ») désactivé |
 
-## Points restant à confirmer (⚠️)
+## Points restant à confirmer (⚠️ ou ℹ️)
 
-1. **CH340C** : brochage, mode 3,3 V et découplage, à vérifier dans la datasheet WCH CH340DS1.
-2. **USBLC6-2SC6** : brochage, à vérifier dans la datasheet ST USBLC6-2.
-3. **AN2606** : présence du chargeur sur USART2 (PA2/PA3) pour le STM32G431. Sinon, la
-   programmation passe par le connecteur SWD J3.
-4. **Quartz** : relever la CL du quartz reçu et recalculer C10/C11.
-5. **Perçages de 2,33 mm** (USB-B) : à faire accepter par la factory.
+1. **Quartz** : relever la CL du quartz reçu et recalculer C10/C11.
+2. **Perçages de 2,33 mm** (USB-B) : à faire accepter par la factory.
+3. **Octets d'option du STM32** (nSWBOOT0, nBOOT1) : les lire au premier branchement. Si la
+   broche BOOT0 n'est pas prise en compte, programmer par le connecteur SWD J3.
+4. **Embase DB9** : comparer les dimensions de l'embase achetée avec l'empreinte (pas de
+   2,77 × 2,84 mm, fixations espacées de 25 mm).

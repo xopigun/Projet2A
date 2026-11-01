@@ -67,6 +67,8 @@ def cli(*args):
 
 def boitier(footprint):
     name = footprint.split(":")[1]
+    if "3216-18" in name:
+        return "tantale A (3216)"
     for key in ("1206", "LQFP-32", "SOIC-16", "SOIC-8", "SOT-223", "SOT-23-6", "HC49"):
         if key in name:
             return key

@@ -1,7 +1,7 @@
 ﻿Qté;Repères;Désignation;Valeur;Boîtier;Remarque
 1;C1;Condensateur céramique X5R 16 V;10uF;1206;entrée 5 V du régulateur
 2;C10, C11;Condensateur céramique C0G/NP0 50 V;22pF;1206;à ajuster selon la CL du quartz
-1;C2;Condensateur tantale solide 22 µF 10 V, boîtier A (3216-18), polarisé;22uF;traversant;sortie de l'AMS1117 : tantale exigé pour la stabilité
+1;C2;Condensateur tantale solide 22 µF 10 V, boîtier A (3216-18), polarisé;22uF;tantale A (3216);sortie de l'AMS1117 : tantale exigé pour la stabilité
 7;C3, C4, C5, C6, C12, C13, C14;Condensateur céramique X7R 50 V;100nF;1206;découplage
 1;C7;Condensateur céramique X7R 50 V;10nF;1206;VDDA, avec C8
 1;C8;Condensateur céramique X7R 16 V;1uF;1206;VDDA

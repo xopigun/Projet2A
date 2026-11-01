@@ -34,6 +34,7 @@ conçue pour être fabriquée à la factory ENSEA (2 couches, cuivre nu).
 | `schema.pdf` | schéma électrique |
 | `implantation.pdf` | implantation de la face avant |
 | `adaptateur_usb_can_BOM.pdf` / `.csv` | nomenclature |
+| `adaptateur_usb_can_commande.xlsx` | composants à commander : références fabricant, quantités, liens vers Farnell, RS, Mouser et DigiKey France |
 | `fabrication/` | Gerber, perçages Excellon et plans de perçage, zip pour le ticket factory |
 | `kicad/` | projet KiCad 9 (schéma, PCB, règles ENSEA) |
 | `verifications/` | rapports ERC et DRC de kicad-cli, rendus 3D face avant et face arrière |
@@ -128,7 +129,7 @@ def main(datasheets, archive):
     print_pdf(md_to_html(sources, "Sources et vérifications"), root / "SOURCES_COMPOSANTS.pdf")
 
     fab = HERE / "fabrication"
-    for f in ("schema.pdf", "implantation.pdf", f"{NAME}_BOM.pdf", f"{NAME}_BOM.csv"):
+    for f in ("schema.pdf", "implantation.pdf", f"{NAME}_BOM.pdf", f"{NAME}_BOM.csv", f"{NAME}_commande.xlsx"):
         shutil.copy2(fab / f, root / f)
     shutil.copytree(fab / "gerber", root / "fabrication" / "gerber")
     shutil.copy2(fab / f"{NAME}_gerber.zip", root / "fabrication")
