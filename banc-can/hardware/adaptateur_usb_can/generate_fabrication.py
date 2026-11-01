@@ -32,7 +32,9 @@ EDGE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 DESIGNATION = {
     "100nF": ("Condensateur céramique X7R 50 V", "découplage"),
     "10uF": ("Condensateur céramique X5R 16 V", "entrée 5 V du régulateur"),
-    "22uF": ("Condensateur céramique X5R 10 V", "sortie 3,3 V, stabilité de l'AMS1117"),
+    "22uF": ("Condensateur tantale solide 22 µF 10 V, boîtier A (3216-18), polarisé",
+             "sortie de l'AMS1117 : tantale exigé pour la stabilité"),
+    "10nF": ("Condensateur céramique X7R 50 V", "VDDA, avec C8"),
     "1uF": ("Condensateur céramique X7R 16 V", "VDDA"),
     "4.7uF": ("Condensateur céramique X5R 10 V", "réservoir 3,3 V"),
     "22pF": ("Condensateur céramique C0G/NP0 50 V", "à ajuster selon la CL du quartz"),

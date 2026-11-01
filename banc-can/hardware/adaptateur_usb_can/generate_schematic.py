@@ -244,7 +244,9 @@ path((106.68, 58.42), (114.3, 58.42), (121.92, 58.42), (129.54, 58.42))
 dot(114.3, 58.42)
 dot(121.92, 58.42)
 power("+3V3", 121.92, 58.42, (0, -1))
-c("C2", "22uF", 114.3, 62.23)
+# Datasheet AMS1117 (« Stability ») : 22 µF tantale solide en sortie pour la stabilité.
+part("Device:C_Polarized", "C2", "22uF", 114.3, 62.23, {"1": WIRED, "2": "GND"},
+     "Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A_HandSolder", text_side="right")
 R1 = r("R1", "1k", 129.54, 62.23)
 D1 = part("Device:LED", "D1", "PWR vert", 129.54, 72.39, {"2": WIRED, "1": "GND"}, FP_LED, rot=90,
           text_side="right", gap=3.81)
@@ -292,10 +294,10 @@ for x in rail[1:-1]:
 power("+3V3", 152.4, 76.2, (0, -1))
 for num in ("1", "17", "15"):
     path((at(U1, num)[0], 76.2), at(U1, num))
-for ref, value, x in (("C5", "100nF", 162.56), ("C6", "100nF", 172.72), ("C7", "100nF", 203.2),
+for ref, value, x in (("C5", "100nF", 162.56), ("C6", "100nF", 172.72), ("C7", "10nF", 203.2),
                       ("C8", "1uF", 213.36), ("C9", "4.7uF", 223.52)):
     c(ref, value, x, 80.01)
-text(147.32, 66.04, "C5, C6 : VDD broches 1 et 17 ; C7, C8 : VDDA broche 15 ; C9 : réservoir 3,3 V")
+text(147.32, 66.04, "DS12589 fig. 16 : VDD n x 100 nF + 4,7 uF (C5, C6, C9) ; VDDA 10 nF + 1 uF (C7, C8)")
 
 # Reset : C12 et SW1 sur NRST, repris par le connecteur SWD
 path(at(U1, "4"), (144.78, 93.98), (132.08, 93.98), (127.0, 93.98))
