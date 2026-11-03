@@ -1,6 +1,7 @@
 """Moniteur du bus CAN pour la démonstration « dialogue » (firmware entry/dialogue.c).
 
     python pc/moniteur_dialogue.py
+    python pc/moniteur_dialogue.py --demo   (scénario automatique, puis pause)
 
 Lit le bus avec l'adaptateur MyActuator USBCAN-Z (famille ZLG USBCAN-I) et affiche
 chaque trame avec son émetteur, son destinataire et la **transcription du texte** :
@@ -25,6 +26,7 @@ from __future__ import annotations
 import ctypes as C
 import os
 import queue
+import sys
 import threading
 import time
 import tkinter as tk
@@ -227,9 +229,12 @@ class Moniteur(tk.Tk):
                ("id", "ID", 60), ("dlc", "DLC", 40), ("data", "Données", 210),
                ("texte", "Transcription", 320))
 
-    def __init__(self, can: UsbCanZ):
+    def __init__(self, can: UsbCanZ, demo: bool = False):
         super().__init__()
         self.can = can
+        self.demo = demo  # scénario de présentation : un dialogue, trois appels, pause
+        self.demo_started = False
+        self.demo_armed = not demo  # en démo, on attend le début d'une question pour afficher
         self.rebuild = Reassembler()
         self.frames: queue.Queue = queue.Queue()
         self.t0 = time.monotonic()
@@ -237,7 +242,9 @@ class Moniteur(tk.Tk):
         self.paused = False
         self.count = 0
         self.title("Moniteur du bus CAN - dialogue N1 / N2 (USBCAN-Z, 500 kbit/s)")
-        self.geometry("1000x620")
+        self.scale = self.winfo_fpixels("1i") / 96  # 1,0 à 100 %, 1,5 à 150 %…
+        self.geometry(f"{int(1000 * self.scale)}x{int(620 * self.scale)}")
+        ttk.Style(self).configure("Treeview", rowheight=int(20 * self.scale))
         self._build()
         self.running = True
         threading.Thread(target=self._reader, daemon=True).start()
@@ -265,7 +272,7 @@ class Moniteur(tk.Tk):
         self.tree = ttk.Treeview(frame, columns=[c for c, _, _ in self.COLUMNS], show="headings")
         for key, title, width in self.COLUMNS:
             self.tree.heading(key, text=title)
-            self.tree.column(key, width=width, anchor="w", stretch=key == "texte")
+            self.tree.column(key, width=int(width * self.scale), anchor="w", stretch=key == "texte")
         sb = ttk.Scrollbar(frame, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=sb.set)
         self.tree.pack(side="left", fill="both", expand=True)
@@ -281,18 +288,22 @@ class Moniteur(tk.Tk):
     def _reader(self):
         while self.running:
             try:
+                now = time.monotonic() - self.t0  # heure de lecture, côté PC
                 for frame in self.can.receive():
-                    self.frames.put(("bus",) + frame)
+                    self.frames.put(("bus",) + frame + (now,))
             except OSError:
                 pass
             time.sleep(0.005)
 
     def _drain(self):
         while not self.frames.empty():
-            kind, can_id, data, ts = self.frames.get()
+            kind, can_id, data, ts, read_at = self.frames.get()
             if kind == "bus":
-                if self.dev_offset is None:
-                    self.dev_offset = (time.monotonic() - self.t0) - ts / 1e6
+                # Horloge de l'adaptateur ramenée sur celle du PC. On garde le plus petit
+                # écart observé : c'est la trame arrivée avec le moins de latence USB.
+                offset = read_at - ts / 1e6
+                if self.dev_offset is None or offset < self.dev_offset:
+                    self.dev_offset = offset
                 t = ts / 1e6 + self.dev_offset
             else:
                 t = ts
@@ -304,11 +315,17 @@ class Moniteur(tk.Tk):
         self.count += 1
         if self.paused:
             return
+        if not self.demo_armed:
+            if can_id != ID_N1 or data[:1] != bytes([0x12]) or data[1:3] != b"M'":
+                return  # démo : la liste commence par une question complète
+            self.demo_armed = True
         src, dst = who(can_id, data)
         text, complete = transcription(can_id, data, self.rebuild)
         tags = [src] if src in COLORS else []
         if complete:
             tags.append("complet")
+            if self.demo and not self.demo_started and text == "« Tres bien »":
+                self._demo()
         self.tree.insert("", "end", tags=tags, values=(
             f"{t:9.4f}", "émise par le PC" if kind == "pc" else "lue sur le bus",
             f"{src} → {dst}", f"0x{can_id:03X}", len(data),
@@ -318,11 +335,19 @@ class Moniteur(tk.Tk):
             self.tree.delete(children[0])
         self.tree.yview_moveto(1.0)
 
+    def _demo(self):
+        """Après un dialogue complet : appel de N1, de N2, de tous, puis affichage figé."""
+        self.demo_started = True
+        for delay, target in ((800, 1), (2200, 2), (3600, 0)):
+            self.after(delay, lambda t=target: self.call(t))
+        self.after(5200, self.toggle_pause)
+
     def call(self, target: int):
         data = bytes([target])
         ok = self.can.send(ID_CALL, data)
         # La trame du PC est affichée tout de suite, avec l'heure d'envoi.
-        self.frames.put(("pc", ID_CALL, data, time.monotonic() - self.t0))
+        now = time.monotonic() - self.t0
+        self.frames.put(("pc", ID_CALL, data, now, now))
         if not ok:
             self.status.configure(text="Envoi refusé par l'adaptateur.")
 
@@ -348,6 +373,11 @@ class Moniteur(tk.Tk):
 
 
 def main():
+    # Rendu net sur les écrans à mise à l'échelle (125 %, 150 %…) au lieu d'un agrandissement flou.
+    try:
+        C.windll.shcore.SetProcessDpiAwareness(1)
+    except (AttributeError, OSError):
+        pass
     lib_dir = Path(os.environ.get("ZLGCAN_DIR", Path.home() / "ZLG" / "zlgcan_x64"))
     try:
         can = UsbCanZ(lib_dir)
@@ -357,7 +387,7 @@ def main():
         from tkinter import messagebox
         messagebox.showerror("Moniteur CAN", str(e))
         return
-    Moniteur(can).mainloop()
+    Moniteur(can, demo="--demo" in sys.argv).mainloop()
 
 
 if __name__ == "__main__":
