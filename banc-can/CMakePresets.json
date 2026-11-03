@@ -205,6 +205,36 @@
         "BENCH_CLOCK_SOURCE": "HSI",
         "BENCH_CAN_DIRECT": "ON"
       }
+    },
+    {
+      "name": "n1-dialogue",
+      "inherits": "n1",
+      "displayName": "N1 - demonstration de dialogue texte",
+      "description": "Echange de messages texte entre N1 et N2 et reponse a l'appel du PC (0x0B0). N1 pose la question. Bus avec transceivers, HSE.",
+      "binaryDir": "${sourceDir}/build/n1-dialogue",
+      "cacheVariables": {
+        "BENCH_DIALOGUE": "ON"
+      }
+    },
+    {
+      "name": "n2-dialogue",
+      "inherits": "n2",
+      "displayName": "N2 - demonstration de dialogue texte",
+      "description": "Echange de messages texte entre N1 et N2 et reponse a l'appel du PC (0x0B0). N2 repond. Bus avec transceivers, HSE.",
+      "binaryDir": "${sourceDir}/build/n2-dialogue",
+      "cacheVariables": {
+        "BENCH_DIALOGUE": "ON"
+      }
+    },
+    {
+      "name": "n3-dialogue",
+      "inherits": "n3",
+      "displayName": "N3 - demonstration de dialogue texte",
+      "description": "Echange de messages texte entre N1 et N2 et reponse a l'appel du PC (0x0B0). N3 repond seulement a l'appel du PC. Bus avec transceivers, HSE.",
+      "binaryDir": "${sourceDir}/build/n3-dialogue",
+      "cacheVariables": {
+        "BENCH_DIALOGUE": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -223,6 +253,18 @@
     {
       "name": "n2-scope-direct",
       "configurePreset": "n2-scope-direct"
+    },
+    {
+      "name": "n1-dialogue",
+      "configurePreset": "n1-dialogue"
+    },
+    {
+      "name": "n2-dialogue",
+      "configurePreset": "n2-dialogue"
+    },
+    {
+      "name": "n3-dialogue",
+      "configurePreset": "n3-dialogue"
     },
     {
       "name": "n2",
