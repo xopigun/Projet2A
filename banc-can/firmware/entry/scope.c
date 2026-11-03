@@ -28,14 +28,21 @@
  *
  * Le journal série (VCP, 115200 bauds) affiche une fois par seconde ce que le
  * nœud a émis et l'état du contrôleur.
+ *
+ * **Afficheur LCD 16x2** (docs/latex/schema_ecrans_lcd.tex) : deux secondes
+ * d'accueil — nœud, identifiant émis, source d'horloge — puis la dernière trame
+ * reçue, le nombre de trames reçues et l'état du contrôleur. Le détail des
+ * lignes est dans app/lcd_text.h.
  */
 
 #include <stdio.h>
 
+#include "app/lcd_text.h"
 #include "board.h"
 #include "can_port.h"
 #include "clock.h"
 #include "icd_gen.h"
+#include "lcd.h"
 #include "serial.h"
 #include "util/ring_buffer.h"
 
@@ -49,6 +56,15 @@
 
 #define SCOPE_ID_N1 0x0F0u
 #define SCOPE_ID_N2 0x20Fu
+
+#if BENCH_NODE_ID == 1
+#define SCOPE_TX_ID SCOPE_ID_N1
+#else
+#define SCOPE_TX_ID SCOPE_ID_N2
+#endif
+
+#define SCOPE_LCD_SPLASH_MS 2000u /* ecran d'accueil : noeud et horloge */
+#define SCOPE_LCD_PERIOD_MS 100u  /* mise a jour du texte de l'ecran */
 
 /** « Test » en ASCII : 0x54 0x65 0x73 0x74. Identique sur N1 et N2. */
 #define SCOPE_DLC 4u
@@ -76,11 +92,7 @@ static bool open_can(void) {
 static bool send_scope_frame(void) {
     bench_can_frame_t tx = {0};
 
-#if BENCH_NODE_ID == 1
-    tx.id = SCOPE_ID_N1;
-#else
-    tx.id = SCOPE_ID_N2;
-#endif
+    tx.id = SCOPE_TX_ID;
     for (uint8_t i = 0u; i < SCOPE_DLC; i++) {
         tx.data[i] = k_data[i];
     }
@@ -100,10 +112,31 @@ static void print_status(uint32_t now_ms, uint32_t sent, uint32_t heard) {
            (unsigned)status.last_error_code);
 }
 
+/** Texte de l'écran de réception, d'après ce que le nœud a entendu. */
+static void update_lcd(bench_lcd_rx_view_t *view, uint32_t now_ms, uint32_t last_rx_ms,
+                       uint32_t heard) {
+    bench_can_status_t status;
+    bench_lcd_text_t text;
+
+    s_can.ops->status(s_can.ctx, &status);
+    view->rx_count = heard;
+    view->silent_ms = now_ms - last_rx_ms;
+    view->state = status.state;
+    bench_lcd_text_rx(&text, view);
+    bench_lcd_show(&text);
+}
+
 int main(void) {
     HAL_Init();
     bench_clock_config();
     (void)bench_serial_open();
+
+    /* Avant le bus : l'initialisation de l'écran bloque une soixantaine de ms. */
+    bench_lcd_text_t splash;
+    bench_lcd_init();
+    bench_lcd_text_splash(&splash, BENCH_NODE_ID, SCOPE_TX_ID, bench_clock_source_name());
+    bench_lcd_show(&splash);
+    bench_lcd_flush();
 
     printf("\r\n\r\n============================================================\r\n");
     printf(" Trames pour oscilloscope - noeud N%u - %s\r\n", (unsigned)BENCH_NODE_ID,
@@ -138,6 +171,10 @@ int main(void) {
     uint32_t heard = 0u;
     uint32_t next_tx_ms = HAL_GetTick() + SCOPE_PERIOD_MS;
     uint32_t next_report_ms = 0u;
+    uint32_t next_lcd_ms = HAL_GetTick() + SCOPE_LCD_SPLASH_MS;
+    uint32_t last_rx_ms = 0u;
+    bench_lcd_rx_view_t lcd_view = {0};
+    lcd_view.tx_id = SCOPE_TX_ID;
 #if BENCH_NODE_ID == 2
     uint32_t last_n1_ms = 0u;
     bool     n1_seen = false;
@@ -151,6 +188,9 @@ int main(void) {
 
         while (bench_ring_pop(&s_rx_ring, &rx)) {
             heard++;
+            lcd_view.has_rx = true;
+            lcd_view.last_rx = rx;
+            last_rx_ms = now_ms;
 #if BENCH_NODE_ID == 2
             if (rx.id == SCOPE_ID_N1) {
                 /* N2 se cale sur N1 : sa trame suivra la sienne de 5 ms. */
@@ -186,6 +226,12 @@ int main(void) {
             print_status(now_ms, sent, heard);
             next_report_ms = now_ms + 1000u;
         }
+
+        if ((int32_t)(now_ms - next_lcd_ms) >= 0) {
+            update_lcd(&lcd_view, now_ms, last_rx_ms, heard);
+            next_lcd_ms = now_ms + SCOPE_LCD_PERIOD_MS;
+        }
+        bench_lcd_service();
     }
 }
 

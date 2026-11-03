@@ -36,13 +36,41 @@ heartbeat, ce qui interdit tout verdict de réussite.
 | `I2C1_SDA` | PB7 | D4 (= A4) | CN4-7 (= CN3-8) | SB2 fermé : idem |
 | VCP TX | PA2 | A7 | CN3-5 | USART2, SB1 fermé par défaut |
 | VCP RX | PA3 | A2 | CN3-10 | USART2, SB12 fermé par défaut |
-| LED TX | PB8 | D13 | — | LED LD2 embarquée ; PB8 est aussi BOOT0 |
+| LED TX | PB8 | — | — | LED LD2 embarquée, absente du connecteur ; PB8 est aussi BOOT0 |
 | LED erreur | PA0 | A0 | CN3-12 | error-passive |
 | LED bus-off | PA1 | A1 | CN3-11 | bus-off |
 | Broche S transceiver | PB6 | D6 | CN4-9 | optionnelle, voir §5 |
 | Capteur Hall (N2) | PA4 | A3 | CN3-9 | entrée à front |
 | 1-Wire DS18B20 (N3) | PA7 | A6 | CN3-6 | drain ouvert + 4,7 kΩ |
 | HSE | PF0 / PF1 | D7 / D8 | CN4-10 / CN4-11 | **consommées** si SB9+SB10 soudés |
+| LCD `RS` (N1, N2) | PB0 | D3 | CN4-6 | **TT_a, 3,6 V au plus** — voir ci-dessous |
+| LCD `E` | PA8 | D9 | CN4-12 | FT_f |
+| LCD `D4` | PB5 | D11 | CN4-14 | FT_f |
+| LCD `D5` | PB4 | D12 | CN4-15 | FT_c ; pull-down UCPD désactivé par le firmware |
+| LCD `D6` | PB3 | D13 | CN3-15 | FT ; relié aussi au T_SWO du ST-LINK (SB4) |
+| LCD `D7` | PA10 | D0 | CN4-2 | FT_f ; UCPD1_DBCC2 |
+
+### Afficheurs LCD 16x2 (N1 et N2, firmware scope)
+
+Câblage : [`docs/latex/schema_ecrans_lcd.tex`](latex/schema_ecrans_lcd.tex). LCD HD44780 en
+mode 4 bits, alimenté en 5 V par la broche 5V (CN3-4) de sa carte, `R/W` à la masse : le
+LCD ne pilote jamais les broches, il ne fait que lire. Types d'E/S : DS12589 Rev 6, Table 12.
+
+- **D4 à D7 et E sont tolérantes au 5 V** (FT) : rien à craindre des tirages internes du
+  LCD vers son 5 V.
+- **PB0 (`RS`) ne l'est pas** : TT_a, 3,6 V en fonctionnement (Table 17) et 4,0 V en limite
+  absolue (Table 14). L'entrée `RS` de bien des contrôleurs compatibles HD44780 a un tirage
+  interne vers VDD. Le firmware passe PB0 en sortie en tout premier, mais pendant le reset et
+  la programmation la broche n'est pas pilotée et ce tirage peut la faire monter vers 5 V.
+  Le courant est faible (quelques centaines de µA au plus), mais c'est hors spécification.
+  Deux remèdes : une **résistance de 10 kΩ entre PB0 et GND**, qui garde la broche sous
+  2,5 V au repos, ou déplacer `RS` sur une broche FT libre et changer `BENCH_LCD_RS_*` dans
+  `board.h`.
+- **PA10 (`D7`) est aussi UCPD1_DBCC2** : à l'état haut, elle active un tirage de 5,1 kΩ vers
+  la masse sur PB4 (`D5`), au titre de la fonction « dead battery » de l'UCPD (Table 12,
+  note 6). Le firmware la désactive (`HAL_PWREx_DisableUCPDDeadBattery()`).
+- **PB3 et PB4 sortent du reset en fonction JTAG** (Table 12, note 5). Les passer en GPIO ne
+  gêne pas la programmation : le ST-LINK n'utilise que le SWD (PA13, PA14).
 
 ### Écarts par rapport au dossier v0.1
 

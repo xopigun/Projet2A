@@ -45,6 +45,13 @@ du dépôt correspond au dossier `v0.1`.
   d'application dédiée, connexion choisie depuis l'interface avec repli en simulation,
   aide intégrée (TEC/REC, états CAN, tests T1 à T7, fautes), arrêt à la fermeture, perte
   de connexion signalée au lieu d'une page figée.
+- **Afficheurs LCD 16x2 de N1 et N2** (firmware `scope`, schéma
+  `docs/latex/schema_ecrans_lcd.tex`) : accueil avec le nœud et la source d'horloge
+  (`HSI - NON VALIDE`), puis dernière trame reçue, nombre de trames reçues et état du
+  contrôleur. Pilote HD44780 4 bits non bloquant (un octet par tour de boucle), mise en
+  forme sans HAL testée sur l'hôte (`test_lcd_text`).
+- **`BENCH_STLINK_SN`** : choix de la sonde à programmer quand plusieurs cartes sont
+  branchées ; sans lui, `flash_<noeud>` prend la première trouvée.
 
 ### Corrigé (écarts relevés par rapport au dossier v0.1)
 
@@ -68,8 +75,15 @@ du dépôt correspond au dossier `v0.1`.
   tampon de 64 octets, DLC ramené à 8.
 - **Codage du DLC** à l'émission et à la réception sur le G431, qui dépend de la version
   de la HAL ; verrouillé par des assertions statiques.
+- **Nœud figé après programmation** (relevé sur carte avec le pilote LCD) : en se
+  déconnectant, STM32CubeProgrammer efface `DEMCR.TRCENA`, ce qui fige le compteur de
+  cycles DWT ; une attente active fondée sur lui ne se terminait jamais. Le pilote relance
+  le compteur à chaque lecture.
 
 ### Corrigé (dans nos propres documents)
+
+- **D13 n'est pas PB8** : `docs/pinout.md` donnait D13 comme repère de la LED TX. D13 est
+  PB3 (UM2397 Table 11) ; PB8 et LD2 ne sont pas sur le connecteur.
 
 - **Portée du bouclage interne** : il ne valide ni l'horloge ni le débit, émetteur et
   récepteur partageant la même horloge noyau. Un échange entre deux nœuds de configuration

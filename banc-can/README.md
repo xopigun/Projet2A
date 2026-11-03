@@ -90,6 +90,18 @@ cmake --build --preset n1 --target flash_n1
 d'installation usuels ; le premier trouvé est utilisé. Pour forcer :
 `cmake --preset n1 -DBENCH_FLASH_TOOL=openocd`.
 
+**Plusieurs cartes branchées à la fois** : sans autre précision, l'outil programme la
+première sonde trouvée, pas forcément le nœud visé. Lister les sondes, puis fixer une fois
+pour toutes le numéro de série de chaque nœud :
+
+```bash
+STM32_Programmer_CLI --list st-link
+```
+
+```bash
+cmake --preset n1-scope-direct -DBENCH_STLINK_SN=005000463335510433383531
+```
+
 ### Installer les outils PC
 
 ```bash

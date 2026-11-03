@@ -8,6 +8,11 @@
 set(BENCH_FLASH_TOOL "auto" CACHE STRING "Outil de programmation : auto, cubeprog ou openocd")
 set_property(CACHE BENCH_FLASH_TOOL PROPERTY STRINGS auto cubeprog openocd)
 
+# Plusieurs cartes branchees a la fois : sans numero de serie, les deux outils prennent
+# la premiere sonde trouvee, qui n'est pas forcement le noeud vise. La liste des sondes
+# et de leurs numeros : STM32_Programmer_CLI --list st-link.
+set(BENCH_STLINK_SN "" CACHE STRING "Numero de serie du ST-LINK a programmer (vide : le premier trouve)")
+
 # --- STM32_Programmer_CLI -------------------------------------------------------------
 file(GLOB _bench_cubeprog_hints
     "C:/ST/STM32CubeIDE_*/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.externaltools.cubeprogrammer.*/tools/bin"
@@ -45,15 +50,23 @@ endif()
 function(bench_add_flash_target target)
     cmake_parse_arguments(ARG "" "OPENOCD_CFG" "" ${ARGN})
 
+    set(_sn_cubeprog "")
+    set(_sn_openocd "")
+    if(BENCH_STLINK_SN)
+        set(_sn_cubeprog "sn=${BENCH_STLINK_SN}")
+        set(_sn_openocd -c "adapter serial ${BENCH_STLINK_SN}")
+    endif()
+
     if(BENCH_FLASH_TOOL_RESOLVED STREQUAL "cubeprog")
         add_custom_target(flash_${target}
-            COMMAND ${BENCH_CUBEPROG} -c port=SWD mode=UR -w $<TARGET_FILE_DIR:${target}>/${target}.hex -rst
+            COMMAND ${BENCH_CUBEPROG} -c port=SWD ${_sn_cubeprog} mode=UR
+                    -w $<TARGET_FILE_DIR:${target}>/${target}.hex -rst
             DEPENDS ${target}
             COMMENT "Programmation de ${target} via STM32_Programmer_CLI"
             USES_TERMINAL VERBATIM)
     elseif(BENCH_FLASH_TOOL_RESOLVED STREQUAL "openocd")
         add_custom_target(flash_${target}
-            COMMAND ${BENCH_OPENOCD} -f ${ARG_OPENOCD_CFG}
+            COMMAND ${BENCH_OPENOCD} -f ${ARG_OPENOCD_CFG} ${_sn_openocd}
                     -c "program $<TARGET_FILE:${target}> verify reset exit"
             DEPENDS ${target}
             COMMENT "Programmation de ${target} via OpenOCD"
@@ -70,6 +83,9 @@ function(bench_add_flash_target target)
 endfunction()
 
 function(bench_report_flash_tool)
+    if(BENCH_STLINK_SN)
+        message(STATUS "Programmation : ST-LINK ${BENCH_STLINK_SN} uniquement")
+    endif()
     if(BENCH_FLASH_TOOL_RESOLVED STREQUAL "cubeprog")
         message(STATUS "Programmation : STM32_Programmer_CLI (${BENCH_CUBEPROG})")
     elseif(BENCH_FLASH_TOOL_RESOLVED STREQUAL "openocd")

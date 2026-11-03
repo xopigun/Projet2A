@@ -208,6 +208,46 @@
 #define BENCH_LED_TX_PULSE_MS 20u
 
 /* =========================================================================
+ *  Afficheur LCD 16x2 HD44780, mode 4 bits — firmware scope (N1 et N2)
+ * =========================================================================
+ *  Schéma : docs/latex/schema_ecrans_lcd.tex. R/W du LCD est relié à GND :
+ *  l'écran est en écriture seule et ne pilote jamais ces broches.
+ *
+ *  RS = PB0  = CN4 broche 6  (ARD_D3)   TT_a : 3,6 V au plus, voir pinout.md §2
+ *  E  = PA8  = CN4 broche 12 (ARD_D9)
+ *  D4 = PB5  = CN4 broche 14 (ARD_D11)
+ *  D5 = PB4  = CN4 broche 15 (ARD_D12)  pull-down UCPD de 5,1 kΩ si PA10 haut
+ *  D6 = PB3  = CN3 broche 15 (ARD_D13)  aussi T_SWO du ST-LINK (SB4), sans effet
+ *  D7 = PA10 = CN4 broche 2  (ARD_D0)
+ *
+ *  Types d'E/S et notes : DS12589 Rev 6, Table 12. PB3 et PB4 sortent du reset
+ *  en fonction JTAG (note 5) : les passer en GPIO laisse le SWD (PA13, PA14)
+ *  intact.
+ * ========================================================================= */
+
+#define BENCH_HAS_LCD 1
+
+#define BENCH_LCD_RS_PORT GPIOB
+#define BENCH_LCD_RS_PIN  GPIO_PIN_0
+#define BENCH_LCD_E_PORT  GPIOA
+#define BENCH_LCD_E_PIN   GPIO_PIN_8
+#define BENCH_LCD_D4_PORT GPIOB
+#define BENCH_LCD_D4_PIN  GPIO_PIN_5
+#define BENCH_LCD_D5_PORT GPIOB
+#define BENCH_LCD_D5_PIN  GPIO_PIN_4
+#define BENCH_LCD_D6_PORT GPIOB
+#define BENCH_LCD_D6_PIN  GPIO_PIN_3
+#define BENCH_LCD_D7_PORT GPIOA
+#define BENCH_LCD_D7_PIN  GPIO_PIN_10
+
+/** Horloges des ports GPIO portant le LCD. */
+#define BENCH_LCD_CLK_ENABLE()        \
+    do {                              \
+        __HAL_RCC_GPIOA_CLK_ENABLE(); \
+        __HAL_RCC_GPIOB_CLK_ENABLE(); \
+    } while (0)
+
+/* =========================================================================
  *  Journal série — port COM virtuel du ST-LINK
  * =========================================================================
  *  USART2 sur PA2 (TX) et PA3 (RX), relié au VCP par SB1 et SB12, fermés par

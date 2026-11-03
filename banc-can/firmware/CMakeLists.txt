@@ -47,6 +47,8 @@ else()
     set(BENCH_STARTUP ${VENDOR}/cmsis_device_g4/Source/Templates/gcc/startup_stm32g431xx.s)
     set(BENCH_LINKER_SCRIPT ${BENCH_PORT_DIR}/STM32G431KBTx_FLASH.ld)
     set(BENCH_VECTORS SysTick_Handler FDCAN1_IT0_IRQHandler)
+    # Afficheur LCD 16x2 des noeuds N1 et N2 (firmware scope).
+    set(BENCH_PORT_EXTRA ${BENCH_PORT_DIR}/lcd.c)
 endif()
 
 if(BENCH_NODE_ID EQUAL 5)
@@ -126,6 +128,7 @@ add_library(bench_app STATIC
     ${COMMON}/app/node.c
     ${COMMON}/app/faults.c
     ${COMMON}/app/slcan.c
+    ${COMMON}/app/lcd_text.c
 )
 target_include_directories(bench_app PUBLIC ${COMMON} ${COMMON}/icd_gen ${BENCH_BOARD_DIR})
 
@@ -184,6 +187,7 @@ add_executable(${BENCH_ELF}
     ${BENCH_PORT_DIR}/serial.c
     ${BENCH_PORT_DIR}/clock.c
     ${BENCH_PORT_DIR}/can_port.c
+    ${BENCH_PORT_EXTRA}
     ${BENCH_STARTUP}
 )
 target_include_directories(${BENCH_ELF} PRIVATE ${BENCH_PORT_DIR})
