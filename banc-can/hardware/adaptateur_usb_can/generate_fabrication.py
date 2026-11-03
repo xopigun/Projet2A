@@ -6,7 +6,8 @@
   en mm séparés métallisés / non métallisés, plans de perçage PDF ;
 - adaptateur_usb_can_gerber.zip : le contenu de gerber/, à joindre au ticket ;
 - BOM : nomenclature CSV (Excel) et PDF à imprimer pour le retrait au magasin ;
-- schema.pdf et implantation.pdf : aides au câblage et à la soudure.
+- schema.pdf et implantation.pdf : aides au câblage et à la soudure ;
+- pcb_echelle_1.pdf : PCB à l'échelle 1:1 sur A4, à imprimer en taille réelle.
 
 Le PDF de la nomenclature est imprimé par Microsoft Edge en mode headless.
 """
@@ -18,6 +19,8 @@ import subprocess
 import tempfile
 import zipfile
 from pathlib import Path
+
+from pypdf import PdfWriter
 
 HERE = Path(__file__).parent
 NAME = "adaptateur_usb_can"
@@ -144,6 +147,26 @@ h1 {{ font-size: 13pt; margin: 0 0 4mm; }} img {{ width: 100%; }}</style>
     svg.unlink()
 
 
+def echelle_1():
+    """PCB à l'échelle 1:1 sur A4 : page 1 face avant, page 2 face arrière vue de dessus.
+
+    À imprimer en « taille réelle » (100 %, sans ajustement à la page) : la carte doit
+    alors mesurer 87,7 × 41 mm, ce qui permet de poser les composants sur le papier.
+    """
+    pages = []
+    for i, layers in enumerate(("F.Cu,F.Silkscreen,Edge.Cuts", "B.Cu,Edge.Cuts")):
+        page = OUT / f"_page{i}.pdf"
+        cli("pcb", "export", "pdf", "--mode-single", "--include-border-title",
+            "--layers", layers, "-o", str(page), str(PCB))
+        pages.append(page)
+    writer = PdfWriter()
+    for page in pages:
+        writer.append(str(page))
+        page.unlink()
+    with open(OUT / "pcb_echelle_1.pdf", "wb") as fh:
+        writer.write(fh)
+
+
 def main():
     shutil.rmtree(OUT, ignore_errors=True)
     GERBER.mkdir(parents=True)
@@ -157,6 +180,7 @@ def main():
             z.write(f, f.name)
     cli("sch", "export", "pdf", "-o", str(OUT / "schema.pdf"), str(SCH))
     implantation()
+    echelle_1()
     bom()
     for f in sorted(OUT.rglob("*")):
         if f.is_file():
