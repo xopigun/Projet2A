@@ -44,20 +44,23 @@ static bench_port_can_t *s_port;
  * Le compteur de millisecondes de la HAL est trop grossier : à 500 kbit/s une
  * trame de 8 octets dure environ 220 µs, donc l'ordre des trames d'un cycle
  * d'arbitrage ne serait pas discernable.
+ *
+ * Le compteur est relancé à chaque lecture. En se déconnectant, après une
+ * programmation suivie d'un reset ou une connexion HOTPLUG, STM32CubeProgrammer
+ * remet DEMCR à 0x00000001 : TRCENA est effacé et CYCCNT figé, alors que
+ * CYCCNTENA reste à 1. Activé une seule fois à l'ouverture, le compteur restait
+ * donc arrêté et les horodatages constants jusqu'à la mise hors tension suivante
+ * (relevé sur carte). Les deux écritures sont idempotentes : sans danger depuis
+ * une interruption.
+ *
+ * Il n'est jamais remis à zéro : open() est rappelée par les modes de faute, et
+ * les horodatages ne doivent pas reculer en cours de test. Le temps écoulé
+ * pendant un arrêt est perdu, ce qui est sans conséquence au démarrage.
  */
-static void dwt_init(void) {
-    /* Une seule fois : open() est rappelée par les modes de faute, et remettre
-     * le compteur à zéro ferait reculer les horodatages en cours de test. */
-    if ((DWT->CTRL & DWT_CTRL_CYCCNTENA_Msk) != 0u) {
-        return;
-    }
-    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-    DWT->CYCCNT = 0u;
-    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-}
-
 static uint32_t now_us(void *ctx) {
     (void)ctx;
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
     return DWT->CYCCNT / (BENCH_SYSCLK_HZ / 1000000u);
 }
 
@@ -111,7 +114,6 @@ static void gpio_init(void) {
 static bool port_open(void *ctx, const bench_can_config_t *config) {
     bench_port_can_t *port = (bench_port_can_t *)ctx;
 
-    dwt_init();
     gpio_init();
     __HAL_RCC_FDCAN_CLK_ENABLE();
 

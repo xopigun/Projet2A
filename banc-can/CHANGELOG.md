@@ -70,6 +70,14 @@ du dépôt correspond au dossier `v0.1`.
 
 ### Corrigé (firmware)
 
+- **Horodatages figés après une déconnexion du débogueur** (ports G431, F103 et L476) :
+  après une programmation suivie d'un reset ou une connexion HOTPLUG, STM32CubeProgrammer
+  remet `DEMCR` à `0x00000001` en se déconnectant. `TRCENA` effacé fige `DWT->CYCCNT`, que
+  le port n'activait qu'une fois : `now_us()` et le `timestamp_us` des trames restaient
+  constants jusqu'à la mise hors tension suivante. `now_us()` relance désormais le compteur
+  à chaque lecture, sans jamais le remettre à zéro. Aucun rapport PC n'était faussé :
+  `timestamp_us` ne quitte pas les nœuds, le pont slcan n'envoie pas d'horodatage et
+  `canbench` date les trames à leur réception sur le PC.
 - **Débordement de tampon en réception sur le G431** : la HAL G4 recopie jusqu'à 64
   octets pour une trame classique de DLC 9 à 15, légale en CAN 2.0. Réception dans un
   tampon de 64 octets, DLC ramené à 8.
