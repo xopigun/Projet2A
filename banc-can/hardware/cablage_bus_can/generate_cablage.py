@@ -13,6 +13,7 @@ Sources :
   (Vcc 3 à 5 V, pompe de charge 5 V intégrée, SLNT haut = silencieux, bornier L/G/H,
   terminaison 2 × 60 Ω commutable) ;
 - MyActuator USBCAN-Z : marquage du boîtier (CAN-L, CAN-H, CAN-G, interrupteur 120 Ω) ;
+  énumération USB relevée sur le banc (« USBCAN-UC12 », VID 0471 PID 1200, pilote ZLG) ;
 - docs/pinout.md : affectation FDCAN1 (PA12 TX, PA11 RX), HW1, topologie et terminaisons.
 """
 
@@ -302,8 +303,8 @@ notes = [
     ("CANH/CANL de la barrette = bornier L/H : on câble le bornier.", False),
     ("", False),
     ("USBCAN-Z", True),
-    ("Protocole côté PC (slcan, gs_usb ou pilote propriétaire)", False),
-    ("encore à vérifier avant de l'utiliser avec canbench.", False),
+    ("Clone ZLG USBCAN-I (USB 0471:1200), pilote propriétaire ZLG :", False),
+    ("ZCANPRO ou pc/moniteur_dialogue.py. Ni slcan ni gs_usb.", False),
 ]
 for k, (s, bold) in enumerate(notes):
     if s:
