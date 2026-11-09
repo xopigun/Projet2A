@@ -62,7 +62,7 @@ ouverts (UM2397 §6.5 et Table 9). Le quartz 24 MHz X2 est monté sur la carte m
 **déconnecté**.
 
 Le HSI est spécifié à ±1 %, soit plus du double de la tolérance admissible de **0,485 %** à
-500 kbit/s (voir [bit_timing.md](bit_timing.md)). Deux nœuds sur HSI peuvent communiquer par
+500 kbit/s (voir [config_logicielle.md](config_logicielle.md) §3.3). Deux nœuds sur HSI peuvent communiquer par
 chance, mais aucune mesure n'aurait valeur de preuve.
 
 SB9 et SB10 sont sur la face inférieure, près du quartz X2. Les ponter à l'étain.
@@ -334,7 +334,7 @@ mathématique A−B. Déclencher sur un front descendant du début de trame.
 
 | Bande | Valeur | Origine |
 |---|---|---|
-| **Tolérance d'acceptation** | **1,990 à 2,010 µs** (± 0,485 %) | Écart maximal admissible par nœud, calculé en [bit_timing.md](bit_timing.md) |
+| **Tolérance d'acceptation** | **1,990 à 2,010 µs** (± 0,485 %) | Écart maximal admissible par nœud, calculé en [config_logicielle.md](config_logicielle.md) §3.3 |
 | **Valeur attendue en pratique** | **2,000 µs à quelques ppm près** | Le quartz est à 20 ppm, soit ± 0,04 ns |
 
 Cet écart entre les deux lignes est le cœur du diagnostic. La bande d'acceptation

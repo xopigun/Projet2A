@@ -58,7 +58,7 @@
  *
  * Le HSI n'est **pas** une référence valable pour le CAN : il est spécifié à
  * ±1 %, soit plus du double de la tolérance admissible de 0,485 % à 500 kbit/s
- * (voir docs/bit_timing.md). Le repli existe uniquement pour permettre de
+ * (voir docs/config_logicielle.md §3.3). Le repli existe uniquement pour permettre de
  * travailler avant la soudure de SB9/SB10 ; il se signale de trois façons : un
  * avertissement à la compilation, un bandeau « HSI - NON VALIDE » sur l'écran,
  * et le bit `clock_not_qualified` du heartbeat, qui empêche `canbench` de

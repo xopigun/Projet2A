@@ -104,7 +104,7 @@ CAN_H − CAN_L, déclenché sur front descendant du début de trame. CANable ra
 
 | Grandeur | Attendu | Origine |
 |---|---|---|
-| Temps de bit | **2,000 µs**, bande d'acceptation **1,990 à 2,010 µs** | 1/500 000, ± 0,485 % (cf. [bit_timing.md](bit_timing.md)) |
+| Temps de bit | **2,000 µs**, bande d'acceptation **1,990 à 2,010 µs** | 1/500 000, ± 0,485 % (cf. [config_logicielle.md](config_logicielle.md) §3.3) |
 | Temps de bit, valeur typique attendue | **2,000 µs à quelques ppm près** | Quartz à 20 ppm, soit ± 0,04 ns |
 | Point d'échantillonnage | **87,5 %** | Recommandation CiA, identique sur les deux familles |
 | Échange avec le CANable | Aucune trame erronée, dans les deux sens | Oscillateur indépendant |

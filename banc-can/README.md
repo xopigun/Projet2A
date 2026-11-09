@@ -215,17 +215,18 @@ Le projet lui-même est sous licence MIT — voir [LICENSE](LICENSE).
 |---|---|
 | Débit | 500 kbit/s, CAN 2.0A *classic* (identifiants 11 bits) |
 | Point d'échantillonnage | 87,50 % exactement, identique sur G431 et F103 |
-| Tolérance d'oscillateur | 0,485 % — voir [docs/bit_timing.md](docs/bit_timing.md) |
+| Tolérance d'oscillateur | 0,485 % — voir [docs/config_logicielle.md](docs/config_logicielle.md) §3.3 |
 | G431 | horloge FDCAN 80 MHz, BRP 10, 16 tq (1+13+2), SJW 2 |
 | F103 | APB1 36 MHz, BRP 9, 8 tq (1+6+1), SJW 1 |
 
 ## Documentation
 
 - [docs/PLAN.md](docs/PLAN.md) — plan de travail, écarts relevés, points à vérifier
-- [docs/architecture.md](docs/architecture.md) — couches, flux ISR, machine d'états ARM/GO
 - [docs/pinout.md](docs/pinout.md) — brochage, vérifié depuis les `board.h`
-- [docs/bit_timing.md](docs/bit_timing.md) — calcul et justification du bit timing
-- [docs/config_logicielle.md](docs/config_logicielle.md) — paramètres FDCAN/bxCAN
-- [docs/protocole_validation.md](docs/protocole_validation.md) — les sept tests T1 à T7
+- [docs/config_logicielle.md](docs/config_logicielle.md) — paramètres FDCAN/bxCAN : horloges,
+  calcul du temps de bit et de la tolérance d'oscillateur (§3), filtres, bus-off,
+  architecture temps réel : interruption de réception, tampon, boucle principale (§9)
+- [docs/protocole_validation.md](docs/protocole_validation.md) — les sept tests T1 à T7, dont
+  le protocole ARM/GO du test d'arbitrage (T3)
 - [docs/bringup.md](docs/bringup.md) — procédure de mise en route pas à pas
 - [docs/references/README.md](docs/references/README.md) — où trouver les documents de référence
