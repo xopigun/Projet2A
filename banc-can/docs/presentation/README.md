@@ -10,6 +10,8 @@ dire, les chiffres clés, et où trouver les images et les sources dans le dép�
 | `captures/` | captures d'écran de la démonstration du 03/11 sur le banc réel |
 | `images/` | rendus 3D, schémas et PCB en PNG 2400 px, prêts à coller dans une diapo |
 | `generer_images.py` | régénère `images/` depuis les projets KiCad (KiCad 9 et Edge) |
+| `Avancement_Bus_CAN_G69.pptx` | la présentation, 13 diapos |
+| `EXPLICATIONS_DIAPOS.md` | ce que montre chaque diapo et comment répondre aux questions : **à lire avant l'oral** |
 
 Les rendus 3D de l'adaptateur ont un fond transparent : ils s'affichent proprement sur une
 diapositive claire comme sur une foncée.
