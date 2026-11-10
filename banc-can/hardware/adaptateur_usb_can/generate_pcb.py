@@ -25,7 +25,8 @@ TEMPLATE = HERE.parent / "regles_fabrication" / "20260112_ENSEA_2_layers_drc.kic
 KICAD = Path(r"C:\Program Files\KiCad\9.0")
 FOOTPRINTS = KICAD / "share" / "kicad" / "footprints"
 
-# Contour (mm). L'USB-B déborde à gauche, le DB9 à droite, comme des connecteurs de façade.
+# Contour (mm). L'USB-B déborde à gauche, le bornier CAN à droite (entrées des fils vers
+# l'extérieur), comme des connecteurs de façade.
 X0, Y0, X1, Y1 = 104.0, 100.0, 191.7, 141.0
 
 # Référence : (x, y, rotation en degrés) de l'origine de l'empreinte, face avant.
@@ -71,7 +72,8 @@ PLACEMENT = {
     "R6": (177.5, 113.0, 90),
     "R7": (179.0, 103.5, 0),
     "JP1": (175.5, 107.5, 90),
-    "J2": (184.0, 128.0, 90),
+    # Bornier : broche 1 (GND) en bas, de haut en bas H, L, G comme l'USBCAN-Z.
+    "J2": (188.0, 128.52, 90),
     # Fixations
     "H1": (108.5, 104.5, 0),
     "H2": (108.5, 136.5, 0),
@@ -175,6 +177,16 @@ def main():
     label.SetTextSize(pcbnew.VECTOR2I(mm(1.0), mm(1.0)))
     label.SetTextThickness(mm(0.15))
     board.Add(label)
+
+    # Repères des bornes du bus, à gauche du bornier.
+    for txt, y in (("H", 118.36), ("L", 123.44), ("G", 128.52)):
+        t = pcbnew.PCB_TEXT(board)
+        t.SetText(txt)
+        t.SetLayer(pcbnew.F_SilkS)
+        t.SetPosition(point(181.0, y))
+        t.SetTextSize(pcbnew.VECTOR2I(mm(1.2), mm(1.2)))
+        t.SetTextThickness(mm(0.18))
+        board.Add(t)
 
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
     board.Save(str(PCB))

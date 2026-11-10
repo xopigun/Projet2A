@@ -38,7 +38,7 @@ dans le dépôt (`banc-can/docs/references/RM0440.pdf`) mais non joint (2 140 pa
 | Le CANable 2.0 (STM32G431 en LQFP48, pas de 0,5 mm) ne passe pas à la factory | écart de 0,20 mm entre pastilles, sous les 0,3 mm d'isolation | empreinte KiCad `LQFP-48_7x7mm_P0.5mm` : pastilles de 0,3 mm au pas de 0,5 mm |
 | Choix du LQFP32 (pas de 0,8 mm) | écart de 0,30 mm entre pastilles, pile à la limite factory | DS12589 Fig. 44 p.165 (pastilles de 0,50 mm au pas de 0,80 mm) ✅ |
 | En LQFP32, FDCAN1_TX n'existe que sur PA12, qui porte aussi USB_DP : l'USB natif et le CAN ne peuvent pas fonctionner ensemble | d'où le pont USB-série CH340C et le protocole slcan | DS12589 Table 12–13 (FDCAN1_TX sur PA12, PB9 ou PD1) et Fig. 6 p.44 (ni PB9 ni PD1 en boîtier 32) ✅ |
-| Brochage du DB9 | 2 = CAN_L, 3 = GND, 7 = CAN_H (CiA 303-1), identique à J1–J5 du banc | `banc-can/docs/pinout.md` §7 (dossier du banc) |
+| Connecteur de bus : bornier à vis plutôt que DB9 | le bus du banc est câblé en fils nus, vissés sur les borniers de l'USBCAN-Z et des CAN Pal ; même ordre H, L, G que l'USBCAN-Z | marquage du boîtier de l'USBCAN-Z ; `banc-can/hardware/cablage_bus_can/` |
 
 ---
 
@@ -159,13 +159,13 @@ Aucune référence précise n'est imposée : prendre le quartz 8 MHz HC-49 dispo
 | Empreinte | HC-49/U vertical, entraxe 4,88 mm | bibliothèque KiCad (`Crystal_HC49-U_Vertical`) | ℹ️ |
 | C10 = C11 = 22 pF | capacité de charge obtenue ≈ 22/2 + environ 5 pF parasites ≈ 16 pF. À ajuster selon la CL du quartz reçu : C ≈ 2 × (CL − 5 pF) | règle usuelle (ST AN2867, non jointe) | ⚠️ à recalculer avec la CL réelle |
 
-## J2 — Embase SUB-D 9 points mâle coudée, pour CI
+## J2 — Bornier à vis 3 points, pas de 5,08 mm, pour CI
 
 | Information utilisée | Valeur | Source | Statut |
 |---|---|---|---|
-| Brochage | 2 CAN_L, 3 GND, 7 CAN_H ; les autres broches non connectées | CiA 303-1, repris dans `banc-can/docs/pinout.md` §7 | ✅ (document du banc) |
-| Empreinte | DE-9 standard : pas de 2,77 × 2,84 mm, fixations espacées de 25 mm | bibliothèque KiCad (`DSUB-9_Pins_Horizontal_…`) ; le lien vers la datasheet Tonar de KiCad est mort | ℹ️ à comparer avec l'embase reçue |
-| Genre | mâle, côté appareil comme le veut la CiA | CiA 303-1 | ℹ️ à confirmer avec les câbles du banc |
+| Brochage | 1 GND, 2 CAN_L, 3 CAN_H ; sur la carte, de haut en bas : H, L, G, repérés en sérigraphie | schéma de l'adaptateur ; ordre du bornier de l'USBCAN-Z | ✅ |
+| Empreinte | Phoenix MKDS 1,5/3-5,08 : 3 broches au pas de 5,08 mm, perçages de 1,3 mm, boîtier 15,2 × 9,8 mm, entrée des fils côté bord de carte | bibliothèque KiCad (`TerminalBlock_Phoenix_MKDS-1,5-3-5.08_1x03_P5.08mm_Horizontal`) | ℹ️ perçage de 1,3 mm, arrondi à 1,4 mm par la factory (pas de 0,2 mm) |
+| Courant | quelques dizaines de mA sur le bus, négligeable pour un bornier de puissance | — | ✅ |
 
 ## R7 + JP1 — Terminaison 120 Ω commutable
 
@@ -193,7 +193,7 @@ Aucune référence précise n'est imposée : prendre le quartz 8 MHz HC-49 dispo
 | Vérification | Résultat | Outil |
 |---|---|---|
 | ERC du schéma | 0 violation | `kicad-cli sch erc` (KiCad 9.0.7), rapport joint |
-| DRC avec les règles ENSEA, et cohérence avec le schéma | 0 erreur, 0 liaison manquante ; 7 avertissements de sérigraphie, dus à l'USB-B et au DB9 qui dépassent volontairement du bord | `kicad-cli pcb drc --schematic-parity`, rapport joint |
+| DRC avec les règles ENSEA, et cohérence avec le schéma | 0 erreur, 0 liaison manquante ; 7 avertissements de sérigraphie, dus à l'USB-B et au bornier CAN qui dépassent volontairement du bord | `kicad-cli pcb drc --schematic-parity`, rapport joint |
 | Routage | 2 couches, pistes de 0,4 mm, vias de 0,8/0,4 mm, plan de masse en face arrière | Freerouting 2.5.0, rétrécissement des pistes (« neckdown ») désactivé |
 
 ## Points restant à confirmer (⚠️ ou ℹ️)
@@ -202,5 +202,5 @@ Aucune référence précise n'est imposée : prendre le quartz 8 MHz HC-49 dispo
 2. **Perçages de 2,33 mm** (USB-B) : à faire accepter par la factory.
 3. **Octets d'option du STM32** (nSWBOOT0, nBOOT1) : les lire au premier branchement. Si la
    broche BOOT0 n'est pas prise en compte, programmer par le connecteur SWD J3.
-4. **Embase DB9** : comparer les dimensions de l'embase achetée avec l'empreinte (pas de
-   2,77 × 2,84 mm, fixations espacées de 25 mm).
+4. **Bornier J2** : vérifier que le bornier acheté est au pas de 5,08 mm (et non 5,00 mm),
+   et que ses broches entrent dans les perçages (1,3 mm, arrondis à 1,4 mm par la factory).

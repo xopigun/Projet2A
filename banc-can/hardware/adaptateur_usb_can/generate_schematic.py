@@ -191,11 +191,15 @@ def dot(x, y):
     items.append(f"(junction (at {f(x)} {f(y)}) (diameter 0) (color 0 0 0 0) (uuid {q(uid())}))")
 
 
-def name(net, x, y):
-    """Nom de net posé sur un fil (étiquette locale, simple texte)."""
+def name(net, x, y, angle=0):
+    """Nom de net posé sur un fil (étiquette locale, simple texte).
+
+    Deux étiquettes locales de même nom sont reliées : angle=180 écrit le nom à gauche du point.
+    """
+    just = "right" if angle == 180 else "left"
     items.append(
-        f"(label {q(net)} (at {f(x)} {f(y)} 0) (effects (font (size 1.27 1.27)) "
-        f"(justify left bottom)) (uuid {q(uid())}))"
+        f"(label {q(net)} (at {f(x)} {f(y)} {angle}) (effects (font (size 1.27 1.27)) "
+        f"(justify {just} bottom)) (uuid {q(uid())}))"
     )
 
 
@@ -213,7 +217,7 @@ def text(x, y, value, size=1.27):
 
 # --- Titre --------------------------------------------------------------------------
 text(20.32, 20.32, "G69 - ADAPTATEUR USB-CAN (remplace le CANable 2.0)", 2.0)
-text(20.32, 25.4, "USB-B -> CH340C (UART 3,3 V) -> STM32G431KBT6 USART2 / FDCAN1 -> TJA1051T/3 -> DB9 CiA 303-1")
+text(20.32, 25.4, "USB-B -> CH340C (UART 3,3 V) -> STM32G431KBT6 USART2 / FDCAN1 -> TJA1051T/3 -> bornier CAN_H / CAN_L / GND")
 text(20.32, 29.21, "Règles factory ENSEA : 2 couches, piste 0,4 mm, isolation 0,3 mm, vias 0,8/0,4 mm, cuivre nu.")
 
 # --- USB et alimentation ------------------------------------------------------------
@@ -368,25 +372,28 @@ c("C14", "100nF", 287.02, 120.65)
 path(at(U3, "8"), (294.64, 119.38), (294.64, 134.62))
 glabel("CAN_S", 294.64, 134.62, 180, "input")
 
-# Bus : DB9 et terminaison commutable R7 + JP1 entre CANH et CANL
-J2 = part("Connector:DE9_Pins", "J2", "DB9 mâle", 360.68, 109.22,
-          {"2": WIRED, "3": "GND", "7": WIRED,
-           "1": None, "4": None, "5": None, "6": None, "8": None, "9": None},
-          "Connector_Dsub:DSUB-9_Pins_Horizontal_P2.77x2.84mm_EdgePinOffset7.70mm_Housed_MountingHolesOffset9.12mm")
-path(at(U3, "7"), (337.82, 111.76), at(J2, "7"))
-dot(337.82, 111.76)
+# Bus : bornier à vis 3 points et terminaison commutable R7 + JP1 entre CANH et CANL
+path(at(U3, "7"), (337.82, 111.76))
 name("CANH", *at(U3, "7"))
-path(at(U3, "6"), (327.66, 116.84), (327.66, 129.54), (337.82, 129.54), (347.98, 129.54),
-     (347.98, 114.3), at(J2, "2"))
-dot(337.82, 129.54)
+path(at(U3, "6"), (327.66, 116.84), (327.66, 129.54), (337.82, 129.54))
 name("CANL", 327.66, 129.54)
+# Broche 1 en bas sur la carte : de haut en bas H, L, G, comme le bornier de l'USBCAN-Z.
+J2 = part("Connector:Screw_Terminal_01x03", "J2", "Bornier CAN", 375.92, 121.92,
+          {"1": "GND", "2": WIRED, "3": WIRED},
+          "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-3-5.08_1x03_P5.08mm_Horizontal",
+          text_side="right", gap=8.89)
+for net, num in (("CANL", "2"), ("CANH", "3")):
+    x, y = at(J2, num)
+    path((x - 15.24, y), (x, y))
+    name(net, x - 15.24, y, angle=180)
 r("R7", "120R", 337.82, 115.57)
 part("Jumper:Jumper_2_Open", "JP1", "TERM", 337.82, 124.46, {"1": WIRED, "2": WIRED},
      "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical", rot=270, text_side="right",
      gap=2.54)
 text(281.94, 142.24, "R6 (près du MCU) : S à la masse = mode normal ; PA4 à 1 = mode silencieux.")
 text(320.04, 147.32, "JP1 fermé = terminaison 120 ohms (adaptateur en bout de bus).")
-text(320.04, 151.13, "Brochage CiA 303-1 comme J1 à J5 du banc : 2 CAN_L, 3 GND, 7 CAN_H.")
+text(320.04, 151.13, "J2 : bornier à vis 3 points, pas 5,08 mm. 1 GND, 2 CAN_L, 3 CAN_H.")
+text(320.04, 154.94, "Sur la carte, de haut en bas : H, L, G, comme le bornier de l'USBCAN-Z.")
 
 # --- Fixations ----------------------------------------------------------------------
 place("Mechanical:MountingHole", "H1", "M3", 304.8, 177.8, "MountingHole:MountingHole_3.2mm_M3")

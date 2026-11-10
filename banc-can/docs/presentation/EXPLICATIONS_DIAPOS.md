@@ -144,7 +144,7 @@ mais ils ne se voient pas sur la capture : c'est pour ça qu'ils ont été retir
 | **CH340C** | convertisseur USB ↔ série : le PC voit un port COM. Il permet aussi de programmer le STM32 sans sonde, avec le bouton BOOT0 |
 | **STM32G431** | le microcontrôleur, avec son contrôleur CAN. Il traduit les commandes série du PC en trames CAN, et inversement. Même famille que nos Nucleo |
 | **TJA1051T/3** | le transceiver : transforme les signaux logiques TX/RX (0 / 3,3 V) du microcontrôleur en signal différentiel CAN_H / CAN_L. La version /3 accepte une logique en 3,3 V |
-| **DB9** | connecteur CAN standard, brochage CiA 303-1 : broche 2 CAN_L, broche 7 CAN_H, broche 3 masse |
+| **Bornier à vis** (J2) | prise vers le bus CAN : 3 bornes H (CAN_H), L (CAN_L) et G (masse), dans le même ordre que l'USBCAN-Z. On y visse directement les fils du bus. Il remplace le connecteur DB9 de la première version |
 
 Autour, il y a :
 

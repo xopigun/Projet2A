@@ -46,7 +46,8 @@ DESIGNATION = {
     "TX jaune": ("LED jaune", ""),
     "500mA": ("Fusible réarmable PTC, 500 mA maintenu, 6 V mini", ""),
     "USB_B": ("Embase USB type B femelle coudée, traversante", "type OST USB-B1HSW6"),
-    "DB9 mâle": ("Embase SUB-D 9 points mâle coudée 90°, pour CI", "brochage CiA 303-1"),
+    "Bornier CAN": ("Bornier à vis 3 points, pas 5,08 mm, pour CI (type Phoenix MKDS 1,5/3-5,08)",
+                    "bus CAN : H, L, G"),
     "SWD": ("Barrette mâle sécable 1 × 5, pas 2,54 mm", ""),
     "TERM": ("Barrette mâle 1 × 2, pas 2,54 mm + cavalier", "terminaison 120 Ω"),
     "1k": ("Résistance 1 %, 1/4 W", ""),
@@ -123,12 +124,16 @@ def print_pdf(page, pdf):
     """Imprime une page HTML en PDF avec Edge headless."""
     page_path = pdf.with_suffix(".html")
     page_path.write_text(page, encoding="utf-8")
-    subprocess.run(
-        [EDGE, "--headless", "--disable-gpu", "--no-pdf-header-footer",
-         f"--print-to-pdf={pdf}", page_path.as_uri()],
-        check=True, capture_output=True,
-    )
+    # Profil temporaire : sinon, si Edge est déjà ouvert, la commande lui est passée et
+    # rend la main sans rien imprimer.
+    with tempfile.TemporaryDirectory() as profile:
+        subprocess.run(
+            [EDGE, "--headless", "--disable-gpu", "--no-pdf-header-footer",
+             f"--user-data-dir={profile}", f"--print-to-pdf={pdf}", page_path.as_uri()],
+            check=True, capture_output=True,
+        )
     page_path.unlink()
+    assert pdf.exists(), f"{pdf.name} n'a pas été produit par Edge"
 
 
 def implantation():

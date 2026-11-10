@@ -11,7 +11,7 @@
 1;D3;LED jaune;TX jaune;1206;
 1;F1;Fusible réarmable PTC, 500 mA maintenu, 6 V mini;500mA;1206;
 1;J1;Embase USB type B femelle coudée, traversante;USB_B;traversant;type OST USB-B1HSW6
-1;J2;Embase SUB-D 9 points mâle coudée 90°, pour CI;DB9 mâle;traversant;brochage CiA 303-1
+1;J2;Bornier à vis 3 points, pas 5,08 mm, pour CI (type Phoenix MKDS 1,5/3-5,08);Bornier CAN;traversant;bus CAN : H, L, G
 1;J3;Barrette mâle sécable 1 × 5, pas 2,54 mm;SWD;traversant;
 1;JP1;Barrette mâle 1 × 2, pas 2,54 mm + cavalier;TERM;traversant;terminaison 120 Ω
 3;R1, R4, R5;Résistance 1 %, 1/4 W;1k;1206;
