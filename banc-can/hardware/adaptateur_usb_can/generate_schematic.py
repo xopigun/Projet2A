@@ -22,9 +22,9 @@ ROOT = "6f1c2a3e-4b5d-4e6f-8a9b-0c1d2e3f4a5b"
 STUB = 2.54
 POWER = {"GND": "power:GND", "+3V3": "power:+3V3", "+5V": "power:+5V"}
 
-FP_R = "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
-FP_C = "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder"
-FP_LED = "LED_SMD:LED_1206_3216Metric_Pad1.42x1.75mm_HandSolder"
+FP_R = "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+FP_C = "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
+FP_LED = "LED_SMD:LED_0805_2012Metric_Pad1.15x1.40mm_HandSolder"
 
 items = []
 lib_ids = set()
@@ -217,18 +217,23 @@ def text(x, y, value, size=1.27):
 
 # --- Titre --------------------------------------------------------------------------
 text(20.32, 20.32, "G69 - ADAPTATEUR USB-CAN (remplace le CANable 2.0)", 2.0)
-text(20.32, 25.4, "USB-B -> CH340C (UART 3,3 V) -> STM32G431KBT6 USART2 / FDCAN1 -> TJA1051T/3 -> bornier CAN_H / CAN_L / GND")
-text(20.32, 29.21, "Règles factory ENSEA : 2 couches, piste 0,4 mm, isolation 0,3 mm, vias 0,8/0,4 mm, cuivre nu.")
+text(20.32, 25.4, "USB-A (clé) -> CH340C (UART 3,3 V) -> STM32G431KBT6 USART2 / FDCAN1 -> TJA1051T/3 -> bornier CAN_H / CAN_L / GND")
+text(20.32, 29.21, "Règles factory ENSEA : 2 couches, piste 0,4 mm, isolation 0,3 mm, vias 0,8/0,4 mm, cuivre nu. Carte 50 x 20 mm.")
 
 # --- USB et alimentation ------------------------------------------------------------
 text(20.32, 40.64, "1 - USB, PROTECTION ET ALIMENTATION", 1.5)
-J1 = part("Connector:USB_B", "J1", "USB_B", 35.56, 63.5,
+# Fiche USB-A mâle : l'adaptateur se branche directement sur le PC, comme une clé USB.
+J1 = part("Connector:USB_A", "J1", "USB_A", 35.56, 63.5,
           {"1": WIRED, "2": "USB_DM", "3": "USB_DP", "4": "GND", "5": WIRED},
-          "Connector_USB:USB_B_OST_USB-B1HSxx_Horizontal")
+          "Connector_USB:USB_A_CNCTech_1001-011-01101_Horizontal")
 F1 = part("Device:Polyfuse", "F1", "500mA", 53.34, 58.42, {"1": WIRED, "2": WIRED},
           "Fuse:Fuse_1206_3216Metric_Pad1.42x1.75mm_HandSolder", rot=90, text_at=(53.34, 52.07, 54.61))
-path(at(J1, "1"), at(F1, "1"))
+_xv = at(J1, "1")[0] + 2.54  # sur la grille de 1,27 mm
+path(at(J1, "1"), (_xv, at(F1, "1")[1]), at(F1, "1"))
+# Le symbole USB-A déclare VBUS et GND en entrées d'alimentation : la fiche alimente la carte.
+flag(_xv, at(F1, "1")[1])
 path(at(J1, "5"), at(J1, "4"))
+flag(at(J1, "4")[0], at(J1, "4")[1] + STUB)
 name("VBUS", *at(J1, "1"))
 # Rail +5 V : F1 vers U5 (VBUS), C1 et le régulateur
 path(at(F1, "2"), (63.5, 58.42), (68.58, 58.42), (76.2, 58.42), (83.82, 58.42), (91.44, 58.42))
@@ -281,13 +286,14 @@ text(147.32, 40.64, "3 - STM32G431KBT6 (LQFP32, pas 0,8 mm)", 1.5)
 U1 = part("MCU_ST_STM32G4:STM32G431KBTx", "U1", "STM32G431KBT6", 190.5, 114.3,
           {"1": WIRED, "17": WIRED, "15": WIRED, "14": WIRED, "16": "GND", "32": WIRED,
            "2": WIRED, "3": WIRED, "4": WIRED, "31": WIRED, "9": WIRED,
-           "5": "LED_RX", "6": "LED_TX", "7": "UART_TX", "8": "UART_RX",
+           # LED sur PA7/PB0, broches du bas : à côté des LED sur la carte.
+           "12": "LED_RX", "13": "LED_TX", "7": "UART_TX", "8": "UART_RX",
            "21": "CAN_RX", "22": "CAN_TX", "23": "SWDIO", "24": "SWCLK",
-           "10": None, "11": None, "12": None, "13": None, "18": None, "19": None, "20": None,
+           "5": None, "6": None, "10": None, "11": None, "18": None, "19": None, "20": None,
            "25": None, "26": None, "27": None, "28": None, "29": None, "30": None},
           "Package_QFP:LQFP-32_7x7mm_P0.8mm",
           # La bibliothèque déclare toutes les E/S bidirectionnelles : sens réel du firmware.
-          dirs={"5": "output", "6": "output", "7": "output", "8": "input",
+          dirs={"12": "output", "13": "output", "7": "output", "8": "input",
                 "21": "input", "22": "output", "24": "input"})
 path(at(U1, "14"), at(U1, "16"))  # VSSA rejoint VSS (16 et 32 sont superposées)
 # Rail +3,3 V au-dessus du MCU, découplage au plus près des broches d'alimentation
@@ -310,11 +316,11 @@ dot(132.08, 93.98)
 glabel("NRST", 127.0, 93.98, 180, "bidirectional")
 c("C12", "100nF", 144.78, 97.79)
 part("Switch:SW_Push", "SW1", "RESET", 132.08, 99.06, {"1": WIRED, "2": "GND"},
-     "Button_Switch_THT:SW_PUSH_6mm", rot=270, text_side="right", gap=2.54)
+     "Button_Switch_SMD:SW_SPST_B3U-1000P", rot=270, text_side="right", gap=2.54)
 
 # Quartz et capacités de charge
 Y1 = part("Device:Crystal", "Y1", "8MHz", 160.02, 111.76, {"1": WIRED, "2": WIRED},
-          "Crystal:Crystal_HC49-U_Vertical", text_at=(160.02, 104.14, 106.68))
+          "Crystal:Crystal_SMD_5032-2Pin_5.0x3.2mm", text_at=(160.02, 104.14, 106.68))
 path(at(U1, "2"), (156.21, 99.06), at(Y1, "1"), (151.13, 111.76))
 name("OSC_IN", 156.21, 99.06)
 path(at(U1, "3"), (163.83, 101.6), at(Y1, "2"), (168.91, 111.76))
@@ -330,7 +336,7 @@ dot(152.4, 137.16)
 name("BOOT0", 152.4, 137.16)
 r("R3", "10k", 152.4, 140.97, bottom="GND")
 part("Switch:SW_Push", "SW2", "BOOT0", 144.78, 132.08, {"1": "+3V3", "2": WIRED},
-     "Button_Switch_THT:SW_PUSH_6mm", rot=270, text_side="right", gap=2.54)
+     "Button_Switch_SMD:SW_SPST_B3U-1000P", rot=270, text_side="right", gap=2.54)
 text(129.54, 190.5, "Quartz 8 MHz propre à l'adaptateur, distinct des 24 MHz des Nucleo :")
 text(129.54, 194.31, "référence d'horloge indépendante (bringup étape 6 bis). C10/C11 selon la CL du quartz.")
 text(129.54, 203.2, "BOOT0 maintenu + RESET : chargeur ST sur USART2 (PA2/PA3),")
@@ -350,10 +356,13 @@ for ref_r, ref_d, value, net, x in (("R4", "D2", "RX vert", "LED_RX", 226.06),
              text_side="right", gap=3.81)
     path(at(R, "2"), at(D, "2"))
 
-part("Connector_Generic:Conn_01x05", "J3", "SWD", 269.24, 165.1,
-     {"1": "+3V3", "2": "SWCLK", "3": "GND", "4": "SWDIO", "5": "NRST"},
-     "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical")
-text(256.54, 186.69, "SWD : 3V3, SWCLK, GND, SWDIO, NRST")
+part("Connector_Generic:Conn_01x04", "J3", "SWD", 269.24, 165.1,
+     # Ordre des broches du STM32 (SWCLK broche 24 au-dessus de SWDIO broche 23) : les deux
+     # pistes arrivent sur J3 sans se croiser.
+     # 4 broches : NRST n'y est pas, le bouton RESET suffit (programmation SWD normale).
+     {"1": "SWCLK", "2": "SWDIO", "3": "GND", "4": "+3V3"},
+     "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical")
+text(256.54, 186.69, "SWD : 1 SWCLK, 2 SWDIO, 3 GND, 4 3V3")
 
 # --- Bus CAN ------------------------------------------------------------------------
 text(281.94, 40.64, "4 - TRANSCEIVER ET CONNECTEUR CAN", 1.5)
@@ -395,16 +404,13 @@ text(320.04, 147.32, "JP1 fermé = terminaison 120 ohms (adaptateur en bout de b
 text(320.04, 151.13, "J2 : bornier à vis 3 points, pas 5,08 mm. 1 GND, 2 CAN_L, 3 CAN_H.")
 text(320.04, 154.94, "Sur la carte, de haut en bas : H, L, G, comme le bornier de l'USBCAN-Z.")
 
-# --- Fixations ----------------------------------------------------------------------
-place("Mechanical:MountingHole", "H1", "M3", 304.8, 177.8, "MountingHole:MountingHole_3.2mm_M3")
-place("Mechanical:MountingHole", "H2", "M3", 320.04, 177.8, "MountingHole:MountingHole_3.2mm_M3")
-text(294.64, 198.12, "Trous de fixation 3,2 mm (règle factory).")
+text(281.94, 177.8, "Carte 50 x 20 mm, composants sur les deux faces, sans trou de fixation.")
 
 lib = " ".join(kisym.dump(kisym.load(l)) for l in sorted(lib_ids))
 OUT.write_text(
     "(kicad_sch (version 20250114) (generator \"eeschema\") (generator_version \"9.0\") "
     f"(uuid {q(ROOT)}) (paper \"A3\") "
-    "(title_block (title \"Adaptateur USB-CAN - banc CAN G69\") (rev \"0.1\") "
+    "(title_block (title \"Adaptateur USB-CAN - banc CAN G69\") (rev \"0.2\") "
     "(company \"ENSEA - Projet 2A\") (comment 1 \"Généré par generate_schematic.py\")) "
     f"(lib_symbols {lib}) {' '.join(items)} "
     "(sheet_instances (path \"/\" (page \"1\"))) (embedded_fonts no))\n",

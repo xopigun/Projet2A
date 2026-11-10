@@ -145,14 +145,15 @@ Sources : `banc-can/firmware/entry/dialogue.c` (presets `n1-dialogue`, `n2-dialo
 
 - Pourquoi : le CANable 2.0 prévu ne pouvait pas être commandé (ticket GLPI 0015779). On a
   donc conçu une carte équivalente, fabricable à la factory de l'ENSEA.
-- Chaîne : USB-B → protection ESD USBLC6-2SC6 → pont USB-série **CH340C** →
+- Chaîne : fiche USB-A mâle (format clé) → protection ESD USBLC6-2SC6 → pont USB-série **CH340C** →
   **STM32G431KBT6** (FDCAN) → transceiver **TJA1051T/3** → **bornier à vis** 3 points
   (CAN_H, CAN_L, masse), comme celui de l'USBCAN-Z. Régulateur AMS1117-3.3, quartz 8 MHz, terminaison 120 Ω sur cavalier,
   connecteur SWD, boutons RESET et BOOT0, LED d'alimentation, RX et TX.
-- PCB 2 couches de **87,7 × 41 mm**, cuivre nu, aux règles de la factory (piste 0,4 mm,
-  isolation 0,3 mm), routé avec Freerouting.
-- Vérifications : ERC 0 erreur ; DRC 0 piste non connectée, 0 erreur d'empreinte (7
-  avertissements de sérigraphie seulement). Chaque composant vérifié contre sa datasheet,
+- PCB 2 couches de **60 × 30 mm**, composants sur les deux faces, cuivre nu, aux règles de
+  la factory (piste 0,4 mm, isolation 0,3 mm, passifs 0805). Routé avec Freerouting, les
+  dernières liaisons autour du STM32 tracées à la main.
+- Vérifications : ERC 0 erreur ; DRC 0 erreur, 0 liaison manquante (15 avertissements de
+  sérigraphie seulement). Chaque composant vérifié contre sa datasheet,
   avec la page ou le tableau utilisé.
 - Dossier de fabrication complet : Gerber, perçages, nomenclature, tableau de commande avec
   les liens fournisseurs, PCB imprimable à l'échelle 1:1.

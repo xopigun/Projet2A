@@ -28,23 +28,23 @@ ACHAT = {
     "TJA1051T/3": ("NXP", "TJA1051T/3", "TJA1051T/3", "suffixe /3 indispensable (broche VIO)"),
     "AMS1117-3.3": ("Advanced Monolithic Systems", "AMS1117-3.3", "AMS1117-3.3", "SOT-223"),
     "USBLC6-2SC6": ("STMicroelectronics", "USBLC6-2SC6", "USBLC6-2SC6", ""),
-    "USB_B": ("On Shore Technology", "USB-B1HSW6", "USB-B1HSW6",
-              "toute embase USB-B coudée traversante au même brochage (grille 2,5 × 2 mm) convient"),
+    "USB_A": ("CNCTech", "1001-011-01101", "1001-011-01101",
+              "fiche USB-A mâle coudée ; pattes de blindage dans des fentes de 2,5 × 0,9 mm"),
     "Bornier CAN": ("Phoenix Contact", "MKDS 1,5/ 3-5,08", "bornier a vis 3 points 5.08mm",
                     "tout bornier 3 points au pas de 5,08 mm convient (perçages 1,3 mm)"),
     "500mA": ("Bourns", "MF-NSMF050-2", "MF-NSMF050-2", "ou tout PTC 1206 0,5 A maintenu, ≥ 6 V"),
-    "RESET": ("Omron", "B3F-1000", "B3F-1000", ""),
-    "BOOT0": ("Omron", "B3F-1000", "B3F-1000", ""),
-    "8MHz": ("au choix", "", "quartz 8 MHz HC-49", "noter la capacité de charge CL (calcul de C10/C11)"),
+    "RESET": ("Omron", "B3U-1000P", "B3U-1000P", "bouton CMS 3 × 2,5 mm"),
+    "BOOT0": ("Omron", "B3U-1000P", "B3U-1000P", "bouton CMS 3 × 2,5 mm"),
+    "8MHz": ("au choix", "", "quartz 8 MHz 5032 CMS", "boîtier 5 × 3,2 mm à 2 pastilles ; noter la capacité de charge CL (calcul de C10/C11)"),
     "22uF": ("au choix", "", "condensateur tantale 22uF 10V boitier A 3216",
              "polarisé : respecter le + sur la carte"),
     "SWD": ("au choix", "", "barrette secable male 2.54mm", "une barrette sécable couvre J3 et JP1"),
     "TERM": ("au choix", "", "barrette secable male 2.54mm", "+ 1 cavalier 2,54 mm"),
 }
 GENERIQUE = {  # recherche pour les passifs, par préfixe de repère
-    "C": "condensateur ceramique {v} 1206",
-    "R": "resistance {v} 1206",
-    "D": "{d} 1206",
+    "C": "condensateur ceramique {v} 0805",
+    "R": "resistance {v} 0805",
+    "D": "{d} 0805",
 }
 
 FOURNISSEURS = [

@@ -45,23 +45,23 @@ DESIGNATION = {
     "RX vert": ("LED verte", ""),
     "TX jaune": ("LED jaune", ""),
     "500mA": ("Fusible réarmable PTC, 500 mA maintenu, 6 V mini", ""),
-    "USB_B": ("Embase USB type B femelle coudée, traversante", "type OST USB-B1HSW6"),
+    "USB_A": ("Fiche USB type A mâle coudée, pour CI (CNCTech 1001-011-01101)", "branchement direct sur le PC"),
     "Bornier CAN": ("Bornier à vis 3 points, pas 5,08 mm, pour CI (type Phoenix MKDS 1,5/3-5,08)",
                     "bus CAN : H, L, G"),
-    "SWD": ("Barrette mâle sécable 1 × 5, pas 2,54 mm", ""),
+    "SWD": ("Barrette mâle sécable 1 × 4, pas 2,54 mm", "SWCLK, SWDIO, GND, 3V3"),
     "TERM": ("Barrette mâle 1 × 2, pas 2,54 mm + cavalier", "terminaison 120 Ω"),
-    "1k": ("Résistance 1 %, 1/4 W", ""),
+    "1k": ("Résistance 1 %, 1/8 W", ""),
     "0R": ("Résistance 0 Ω (ou strap)", "CH340C en mode 3,3 V"),
-    "10k": ("Résistance 1 %, 1/4 W", ""),
-    "120R": ("Résistance 1 %, 1/4 W", "terminaison CAN"),
-    "RESET": ("Bouton poussoir 6 × 6 mm, traversant", ""),
-    "BOOT0": ("Bouton poussoir 6 × 6 mm, traversant", ""),
+    "10k": ("Résistance 1 %, 1/8 W", ""),
+    "120R": ("Résistance 1 %, 1/8 W", "terminaison CAN"),
+    "RESET": ("Bouton poussoir CMS 3 × 2,5 mm (Omron B3U-1000P)", "face avant"),
+    "BOOT0": ("Bouton poussoir CMS 3 × 2,5 mm (Omron B3U-1000P)", "face avant"),
     "STM32G431KBT6": ("Microcontrôleur STM32G431KBT6, LQFP32", "pas 0,8 mm"),
     "CH340C": ("Pont USB-UART CH340C, SOIC-16", "version C : sans quartz externe"),
     "TJA1051T/3": ("Transceiver CAN TJA1051T/3, SOIC-8", "suffixe /3 : broche VIO"),
     "AMS1117-3.3": ("Régulateur linéaire 3,3 V AMS1117-3.3, SOT-223", ""),
     "USBLC6-2SC6": ("Protection ESD USB USBLC6-2SC6, SOT-23-6", ""),
-    "8MHz": ("Quartz 8 MHz HC-49/U, traversant", "noter sa capacité de charge CL"),
+    "8MHz": ("Quartz 8 MHz CMS 5 × 3,2 mm, 2 pastilles", "noter sa capacité de charge CL"),
 }
 
 
@@ -73,7 +73,7 @@ def boitier(footprint):
     name = footprint.split(":")[1]
     if "3216-18" in name:
         return "tantale A (3216)"
-    for key in ("1206", "LQFP-32", "SOIC-16", "SOIC-8", "SOT-223", "SOT-23-6", "HC49"):
+    for key in ("0805", "1206", "LQFP-32", "SOIC-16", "SOIC-8", "SOT-223", "SOT-23-6", "5032", "B3U"):
         if key in name:
             return key
     return "traversant"
@@ -113,7 +113,7 @@ def bom():
  .box {{ width: 12mm; }}
 </style>
 <h1>Nomenclature — adaptateur USB-CAN (G69, projet 2A banc CAN)</h1>
-<p>Carte 2 couches 87,7 × 41 mm, FR4 35 µm. Composants passifs en 1206 (empreintes HandSolder).
+<p>Carte 2 couches 60 × 30 mm, FR4 35 µm, composants sur les deux faces. Passifs en 0805 (empreintes HandSolder).
 {len(rows)} lignes, {total} composants. Fichiers : {NAME}_gerber.zip.</p>
 <table><tr>{"".join(f"<th>{h}</th>" for h in head)}<th>Pris</th></tr>{cells}</table>
 </html>"""
@@ -156,7 +156,7 @@ def echelle_1():
     """PCB à l'échelle 1:1 sur A4 : page 1 face avant, page 2 face arrière vue de dessus.
 
     À imprimer en « taille réelle » (100 %, sans ajustement à la page) : la carte doit
-    alors mesurer 87,7 × 41 mm, ce qui permet de poser les composants sur le papier.
+    alors mesurer 60 × 30 mm, ce qui permet de poser les composants sur le papier.
     """
     pages = []
     for i, layers in enumerate(("F.Cu,F.Silkscreen,Edge.Cuts", "B.Cu,Edge.Cuts")):

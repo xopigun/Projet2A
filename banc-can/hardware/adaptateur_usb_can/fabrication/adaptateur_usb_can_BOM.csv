@@ -1,28 +1,28 @@
 ﻿Qté;Repères;Désignation;Valeur;Boîtier;Remarque
-1;C1;Condensateur céramique X5R 16 V;10uF;1206;entrée 5 V du régulateur
-2;C10, C11;Condensateur céramique C0G/NP0 50 V;22pF;1206;à ajuster selon la CL du quartz
+1;C1;Condensateur céramique X5R 16 V;10uF;0805;entrée 5 V du régulateur
+2;C10, C11;Condensateur céramique C0G/NP0 50 V;22pF;0805;à ajuster selon la CL du quartz
 1;C2;Condensateur tantale solide 22 µF 10 V, boîtier A (3216-18), polarisé;22uF;tantale A (3216);sortie de l'AMS1117 : tantale exigé pour la stabilité
-7;C3, C4, C5, C6, C12, C13, C14;Condensateur céramique X7R 50 V;100nF;1206;découplage
-1;C7;Condensateur céramique X7R 50 V;10nF;1206;VDDA, avec C8
-1;C8;Condensateur céramique X7R 16 V;1uF;1206;VDDA
-1;C9;Condensateur céramique X5R 10 V;4.7uF;1206;réservoir 3,3 V
-1;D1;LED verte;PWR vert;1206;
-1;D2;LED verte;RX vert;1206;
-1;D3;LED jaune;TX jaune;1206;
+7;C3, C4, C5, C6, C12, C13, C14;Condensateur céramique X7R 50 V;100nF;0805;découplage
+1;C7;Condensateur céramique X7R 50 V;10nF;0805;VDDA, avec C8
+1;C8;Condensateur céramique X7R 16 V;1uF;0805;VDDA
+1;C9;Condensateur céramique X5R 10 V;4.7uF;0805;réservoir 3,3 V
+1;D1;LED verte;PWR vert;0805;
+1;D2;LED verte;RX vert;0805;
+1;D3;LED jaune;TX jaune;0805;
 1;F1;Fusible réarmable PTC, 500 mA maintenu, 6 V mini;500mA;1206;
-1;J1;Embase USB type B femelle coudée, traversante;USB_B;traversant;type OST USB-B1HSW6
+1;J1;Fiche USB type A mâle coudée, pour CI (CNCTech 1001-011-01101);USB_A;traversant;branchement direct sur le PC
 1;J2;Bornier à vis 3 points, pas 5,08 mm, pour CI (type Phoenix MKDS 1,5/3-5,08);Bornier CAN;traversant;bus CAN : H, L, G
-1;J3;Barrette mâle sécable 1 × 5, pas 2,54 mm;SWD;traversant;
+1;J3;Barrette mâle sécable 1 × 4, pas 2,54 mm;SWD;traversant;SWCLK, SWDIO, GND, 3V3
 1;JP1;Barrette mâle 1 × 2, pas 2,54 mm + cavalier;TERM;traversant;terminaison 120 Ω
-3;R1, R4, R5;Résistance 1 %, 1/4 W;1k;1206;
-1;R2;Résistance 0 Ω (ou strap);0R;1206;CH340C en mode 3,3 V
-2;R3, R6;Résistance 1 %, 1/4 W;10k;1206;
-1;R7;Résistance 1 %, 1/4 W;120R;1206;terminaison CAN
-1;SW1;Bouton poussoir 6 × 6 mm, traversant;RESET;traversant;
-1;SW2;Bouton poussoir 6 × 6 mm, traversant;BOOT0;traversant;
+3;R1, R4, R5;Résistance 1 %, 1/8 W;1k;0805;
+1;R2;Résistance 0 Ω (ou strap);0R;0805;CH340C en mode 3,3 V
+2;R3, R6;Résistance 1 %, 1/8 W;10k;0805;
+1;R7;Résistance 1 %, 1/8 W;120R;0805;terminaison CAN
+1;SW1;Bouton poussoir CMS 3 × 2,5 mm (Omron B3U-1000P);RESET;B3U;face avant
+1;SW2;Bouton poussoir CMS 3 × 2,5 mm (Omron B3U-1000P);BOOT0;B3U;face avant
 1;U1;Microcontrôleur STM32G431KBT6, LQFP32;STM32G431KBT6;LQFP-32;pas 0,8 mm
 1;U2;Pont USB-UART CH340C, SOIC-16;CH340C;SOIC-16;version C : sans quartz externe
 1;U3;Transceiver CAN TJA1051T/3, SOIC-8;TJA1051T/3;SOIC-8;suffixe /3 : broche VIO
 1;U4;Régulateur linéaire 3,3 V AMS1117-3.3, SOT-223;AMS1117-3.3;SOT-223;
 1;U5;Protection ESD USB USBLC6-2SC6, SOT-23-6;USBLC6-2SC6;SOT-23-6;
-1;Y1;Quartz 8 MHz HC-49/U, traversant;8MHz;HC49;noter sa capacité de charge CL
+1;Y1;Quartz 8 MHz CMS 5 × 3,2 mm, 2 pastilles;8MHz;5032;noter sa capacité de charge CL

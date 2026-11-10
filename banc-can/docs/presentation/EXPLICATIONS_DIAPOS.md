@@ -139,7 +139,7 @@ mais ils ne se voient pas sur la capture : c'est pour ça qu'ils ont été retir
 
 | Composant | Rôle |
 |---|---|
-| **USB-B** | prise vers le PC : alimentation 5 V et données |
+| **Fiche USB-A** | se branche directement sur le PC, comme une clé USB : alimentation 5 V et données |
 | **ESD USBLC6** | protège les lignes USB contre les décharges électrostatiques |
 | **CH340C** | convertisseur USB ↔ série : le PC voit un port COM. Il permet aussi de programmer le STM32 sans sonde, avec le bouton BOOT0 |
 | **STM32G431** | le microcontrôleur, avec son contrôleur CAN. Il traduit les commandes série du PC en trames CAN, et inversement. Même famille que nos Nucleo |

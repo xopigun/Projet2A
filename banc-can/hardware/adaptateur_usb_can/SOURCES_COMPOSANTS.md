@@ -21,9 +21,9 @@ Les datasheets jointes sont dans le dossier `datasheets/` du .zip :
 | `NXP_TJA1051_Rev02.pdf` | NXP TJA1051 Rev 02, transceiver CAN haute vitesse |
 | `AMS_AMS1117.pdf` | Advanced Monolithic Systems AMS1117, régulateur LDO 1 A |
 | `ST_USBLC6-2.pdf` | ST DS4260 Rev 7, protection ESD USBLC6-2 |
-| `OST_USB-B1HSxx.pdf` | On Shore Technology USB-B1HSxx, embase USB-B |
+| `OST_USB-B1HSxx.pdf` | On Shore Technology USB-B1HSxx, embase USB-B (version 0.1 ; la version 0.2 passe à une fiche USB-A mâle CNCTech, datasheet non jointe) |
 | `Bourns_MF-NSMF.pdf` | Bourns MF-NSMF, fusibles réarmables 1206 |
-| `Omron_B3F.pdf` | Omron B3F, boutons tactiles 6 × 6 mm |
+| `Omron_B3F.pdf` | Omron B3F, boutons tactiles 6 × 6 mm (version 0.1 ; la version 0.2 passe aux boutons CMS Omron B3U, datasheet non jointe) |
 
 Le registre FLASH_OPTR cité pour le STM32 vient du manuel de référence ST RM0440 Rev 9, présent
 dans le dépôt (`banc-can/docs/references/RM0440.pdf`) mais non joint (2 140 pages).
@@ -116,16 +116,17 @@ Datasheet : **ST DS4260 Rev 7 (décembre 2021)**, fichier `ST_USBLC6-2.pdf`.
 | Câblage | D+ sur I/O1, D− sur I/O2, VBUS sur le 5 V après le fusible | Fig. 13 *USB 2.0 port application diagram*, p.9 | ✅ |
 | Tenue sur VBUS | VRM = 5,25 V (condition de mesure de la fuite) : compatible avec le 5 V de l'USB | Table *Electrical characteristics*, p.2 | ✅ |
 
-## J1 — Embase USB type B, OST USB-B1HSxx (traversante, coudée)
+## J1 — Fiche USB type A mâle, CNCTech 1001-011-01101 (coudée, format clé)
 
-Datasheet : **On Shore Technology USB-B1HSxx** (rév. A, 2012), fichier `OST_USB-B1HSxx.pdf`.
+L'adaptateur se branche directement sur un port USB du PC, sans câble. Une embase A femelle
+n'est pas possible sur un périphérique : elle obligerait à un câble A-A, hors norme, qui relie
+deux sorties 5 V.
 
 | Information utilisée | Valeur | Source | Statut |
 |---|---|---|---|
-| Implantation conseillée | broches 1 à 4 sur une grille de 2,50 × 2,00 mm, Ø 0,92 ± 0,08 mm ; 2 pattes de blindage Ø 2,33 ± 0,08 mm espacées de 12,04 mm, à 2,71 mm de la rangée de broches | *Recommended P.C. Board Layout* | ✅ identique à l'empreinte KiCad `USB_B_OST_USB-B1HSxx_Horizontal` |
-| Valeurs nominales | 1 A, 30 V AC | *Ratings* | ✅ |
-| Brochage USB | 1 VBUS, 2 D−, 3 D+, 4 GND | numérotation de la vue de face (plan OST) ; affectation selon la norme USB 2.0 | ✅ |
-| Perçages de 2,33 mm | hors de la série factory (0,4 à 2 mm) | guide factory | ⚠️ à valider avec la factory |
+| Empreinte | 4 pastilles CMS de 2,5 × 1,1 mm (pas de 2,5 et 2,0 mm), 2 trous de centrage Ø 1,1 mm, 2 pattes de blindage traversantes ; repère « PCB Edge » sur le bord de la carte, la fiche dépasse de 14,7 mm | bibliothèque KiCad (`Connector_USB:USB_A_CNCTech_1001-011-01101_Horizontal`) | ℹ️ à comparer avec la datasheet CNCTech (non jointe) |
+| Brochage USB | 1 VBUS, 2 D−, 3 D+, 4 GND | norme USB 2.0 | ✅ |
+| Fentes des pattes de blindage | perçages oblongs de 2,5 × 0,9 mm : le guide factory ne cite que des perçages ronds | guide factory | ⚠️ à valider avec la factory (sinon trous ronds et pattes repliées) |
 
 ## F1 — Fusible réarmable 500 mA, Bourns MF-NSMF050 (1206)
 
@@ -140,23 +141,24 @@ référence équivalente du magasin convient.
 | Résistance | 0,15 Ω (Rmin) à 0,70 Ω (R1max) → chute ≤ 0,05 V à environ 70 mA | idem | ✅ |
 | Boîtier | 1206 standard → empreinte `Fuse_1206_3216Metric_Pad1.42x1.75mm_HandSolder` | p.1 | ✅ |
 
-## SW1, SW2 — Boutons poussoirs 6 × 6 mm traversants (type Omron B3F-1000)
+## SW1, SW2 — Boutons poussoirs CMS 3 × 2,5 mm (Omron B3U-1000P)
 
-Datasheet : **Omron B3F**, fichier `Omron_B3F.pdf`.
+Les boutons traversants 6 × 6 mm de la version 0.1 ne tenaient pas sur la carte 60 × 30 mm.
 
 | Information utilisée | Valeur | Source | Statut |
 |---|---|---|---|
-| Implantation | 4 trous Ø 1,0 ± 0,1 mm, entraxe de 6,5 × 4,5 mm → empreinte KiCad `SW_PUSH_6mm` (perçage de 1,1 mm, arrondi à 1,2 mm par la factory) | *PCB Mounting Holes*, p.4 | ✅ |
+| Empreinte | 2 pastilles de 0,9 × 1,7 mm à 3,4 mm d'entraxe, boîtier 3 × 2,5 mm | bibliothèque KiCad (`Button_Switch_SMD:SW_SPST_B3U-1000P`) | ℹ️ à comparer avec la datasheet Omron B3U (non jointe) et avec le bouton acheté |
 
-## Y1 — Quartz 8 MHz HC-49/U, avec C10 et C11 (22 pF)
+## Y1 — Quartz 8 MHz CMS 5 × 3,2 mm, avec C10 et C11 (22 pF)
 
-Aucune référence précise n'est imposée : prendre le quartz 8 MHz HC-49 disponible au magasin.
+Aucune référence précise n'est imposée : prendre un quartz 8 MHz en boîtier 5032 à deux
+pastilles. Le HC-49 de la version 0.1 (12 mm de long) ne tenait pas sur la carte.
 
 | Information utilisée | Valeur | Source | Statut |
 |---|---|---|---|
 | Fréquence | 8 MHz, dans la plage de 4 à 48 MHz du HSE | DS12589 Table 40 p.100 | ✅ |
 | Quartz indépendant des Nucleo (24 MHz) | sert de référence d'horloge à l'étape 6 bis du bring-up | `banc-can/docs/bringup.md` | ℹ️ |
-| Empreinte | HC-49/U vertical, entraxe 4,88 mm | bibliothèque KiCad (`Crystal_HC49-U_Vertical`) | ℹ️ |
+| Empreinte | boîtier 5 × 3,2 mm, 2 pastilles, en face avant à côté de PF0/PF1 : liaison sans via | bibliothèque KiCad (`Crystal_SMD_5032-2Pin_5.0x3.2mm`) | ℹ️ |
 | C10 = C11 = 22 pF | capacité de charge obtenue ≈ 22/2 + environ 5 pF parasites ≈ 16 pF. À ajuster selon la CL du quartz reçu : C ≈ 2 × (CL − 5 pF) | règle usuelle (ST AN2867, non jointe) | ⚠️ à recalculer avec la CL réelle |
 
 ## J2 — Bornier à vis 3 points, pas de 5,08 mm, pour CI
@@ -180,11 +182,11 @@ Aucune référence précise n'est imposée : prendre le quartz 8 MHz HC-49 dispo
 | C1 | 10 µF céramique | réservoir d'entrée du régulateur | ℹ️ |
 | C3, C4 | 100 nF | découplage du CH340C | ℹ️ (voir U2) |
 | C13, C14 | 100 nF | découplage de VCC et VIO du TJA1051 | ℹ️ pratique courante |
-| R1, R4, R5 + D1–D3 | 1 kΩ, LED 1206 | I ≈ (3,3 − 2,0) / 1000 ≈ 1,3 mA, en supposant Vf ≈ 2 V | ℹ️ |
+| R1, R4, R5 + D1–D3 | 1 kΩ, LED 0805 | I ≈ (3,3 − 2,0) / 1000 ≈ 1,3 mA, en supposant Vf ≈ 2 V. LED RX sur PA7 (broche 12), LED TX sur PB0 (broche 13) : des broches du bas du STM32, à côté des LED | ℹ️ |
 | R3 | 10 kΩ | rappel de BOOT0 à la masse : démarrage sur la flash | ℹ️ |
 | R6 | 10 kΩ | S au niveau bas, mode normal (double le rappel interne) | ℹ️ |
-| J3 | barrette 1 × 5 au pas de 2,54 mm | SWD : 3V3, SWCLK, GND, SWDIO, NRST | ℹ️ |
-| Toutes les empreintes CMS passives | 1206 HandSolder | conseil du guide factory pour la soudure à la main | ✅ guide factory |
+| J3 | barrette 1 × 4 au pas de 2,54 mm | SWD : 1 SWCLK, 2 SWDIO, 3 GND, 4 3V3, dans l'ordre des broches du STM32. NRST n'y est pas : la programmation SWD normale s'en passe, et le bouton RESET reste disponible | ℹ️ |
+| Toutes les empreintes CMS passives | 0805 HandSolder (fusible F1 en 1206) | le guide factory conseille « 0805 ou 1206 » avec l'option HandSolder | ✅ guide factory |
 
 ---
 
@@ -193,13 +195,14 @@ Aucune référence précise n'est imposée : prendre le quartz 8 MHz HC-49 dispo
 | Vérification | Résultat | Outil |
 |---|---|---|
 | ERC du schéma | 0 violation | `kicad-cli sch erc` (KiCad 9.0.7), rapport joint |
-| DRC avec les règles ENSEA, et cohérence avec le schéma | 0 erreur, 0 liaison manquante ; 7 avertissements de sérigraphie, dus à l'USB-B et au bornier CAN qui dépassent volontairement du bord | `kicad-cli pcb drc --schematic-parity`, rapport joint |
-| Routage | 2 couches, pistes de 0,4 mm, vias de 0,8/0,4 mm, plan de masse en face arrière | Freerouting 2.5.0, rétrécissement des pistes (« neckdown ») désactivé |
+| DRC avec les règles ENSEA, et cohérence avec le schéma | 0 erreur, 0 liaison manquante ; 15 avertissements de sérigraphie (textes tronqués par le bord ou par des pastilles, connecteurs qui dépassent volontairement du bord) | `kicad-cli pcb drc --schematic-parity`, rapport joint |
+| Carte | 60 × 30 mm, sans trou de fixation ; composants sur les deux faces : connecteurs, circuits intégrés, quartz, boutons et LED dessus, régulateur, protection USB et passifs dessous | `generate_pcb.py` |
+| Routage | 2 couches, pistes de 0,4 mm, vias de 0,8/0,4 mm, plan de masse sur les deux faces relié par des vias de couture | Freerouting 2.5.0 pour les signaux, dernières liaisons tracées à la main (`route_freerouting.py`) |
 
 ## Points restant à confirmer (⚠️ ou ℹ️)
 
 1. **Quartz** : relever la CL du quartz reçu et recalculer C10/C11.
-2. **Perçages de 2,33 mm** (USB-B) : à faire accepter par la factory.
+2. **Fentes de 2,5 × 0,9 mm** (pattes de la fiche USB-A) : à faire accepter par la factory.
 3. **Octets d'option du STM32** (nSWBOOT0, nBOOT1) : les lire au premier branchement. Si la
    broche BOOT0 n'est pas prise en compte, programmer par le connecteur SWD J3.
 4. **Bornier J2** : vérifier que le bornier acheté est au pas de 5,08 mm (et non 5,00 mm),
