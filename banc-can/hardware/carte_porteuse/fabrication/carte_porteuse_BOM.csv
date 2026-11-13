@@ -1,0 +1,15 @@
+﻿Qté;Repères;Désignation;Valeur;Boîtier;Remarque
+2;C1, C2;Condensateur céramique X7R 50 V;100nF;0805;découplage VCC et VIO du transceiver
+1;D1;LED rouge;ERR rouge;0805;error-passive
+1;D2;LED jaune;BUS-OFF jaune;0805;bus-off
+1;J1;Bornier à vis 3 points, pas 5,08 mm (type Phoenix MKDS 1,5/3-5,08);Bus entrée;traversant;bus CAN : H, L, G
+1;J2;Bornier à vis 3 points, pas 5,08 mm (type Phoenix MKDS 1,5/3-5,08);Bus sortie;traversant;bus CAN : H, L, G
+1;J3;Barrette femelle 1 x 15, pas 2,54 mm;Nucleo CN3;traversant;reçoit la Nucleo-G431KB
+1;J4;Barrette femelle 1 x 15, pas 2,54 mm;Nucleo CN4;traversant;reçoit la Nucleo-G431KB
+1;J5;Barrette femelle 1 x 4, pas 2,54 mm;OLED;traversant;"écran OLED SSD1306 0,96"" (I2C)"
+1;J6;Barrette femelle 1 x 8, pas 2,54 mm;MPU-6050;traversant;module GY-521, sur N2 seulement
+1;J7;Barrette mâle 1 x 2, pas 2,54 mm + cavalier;TERM;traversant;"terminaison 120 ohms ; sur N4, câblée vers SW1"
+1;R1;Résistance 1 %, 1/8 W;120R;0805;terminaison CAN, active avec un cavalier sur TERM
+2;R2, R3;Résistance 1 %, 1/8 W;1k;0805;LED
+3;R7, R9, R10;Résistance 0 ohm (ou strap);0R;0805;"R7 : broche S à la masse ; R9, R10 : ordre GND/VCC de l'OLED"
+1;U1;Transceiver CAN TJA1051T/3, SOIC-8;TJA1051T/3;SOIC-8;suffixe /3 : broche VIO (3,3 V)
