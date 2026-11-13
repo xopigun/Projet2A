@@ -15,4 +15,4 @@ monte à l'envers dans sa barrette : le firmware retournera l'affichage.
 Chaîne : `generate_schematic.py` → `generate_pcb.py` → `route_freerouting.py <jar>` →
 `generate_fabrication.py` (depuis PowerShell) → `generate_commande.py`.
 État : ERC 0 ; DRC 0 erreur, 0 non connecté (avertissements de sérigraphie seulement).
-Reste à faire : teardrops (éditeur de PCB, menu Éditer > Éditer Teardrops), relecture.
+105 teardrops (éditeur de PCB, Éditer > Éditer Teardrops). Reste : relecture sur les pièces reçues.
