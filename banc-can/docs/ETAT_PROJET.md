@@ -81,9 +81,10 @@ schéma fonctionnel `schema/` reste celui de la phase 0. Le câblage réel fait 
 
 ### Matériel
 
-1. **Monter N4** : retirer HW1, souder SB9/SB10, souder les quatre TJA1051T/3 sur leurs
-   adaptateurs SOP8 avec leurs 100 nF, et la résistance de 120 Ω sur celui de N4
-   ([bringup.md](bringup.md) étape 8).
+1. **Préparer la 4ᵉ Nucleo (N4)** : retirer HW1, souder SB9/SB10
+   ([bringup.md](bringup.md) étape 8). Les quatre transceivers sont déjà montés : TJA1051T/3
+   soudés sur adaptateurs SOP8, borniers de 4 points de chaque côté, condensateurs de 100 nF
+   traversants serrés dans les borniers (l'adaptateur nu n'en porte pas).
 2. **Faire fabriquer l'adaptateur USB-CAN** : déposer `fabrication/` à la factory, en faisant
    valider les fentes ovales de 2,5 × 0,9 mm des pattes de blindage de la fiche USB-A ;
    commander les composants (`adaptateur_usb_can_commande.xlsx`).

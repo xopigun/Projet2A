@@ -123,9 +123,11 @@ TXD y basculant normalement.
 ## 6. Terminaisons
 
 > **Montage retenu** ([schéma de câblage](../hardware/cablage_bus_can/cablage_bus_can.pdf)) :
-> les transceivers TJA1051T/3 sont soudés sur des adaptateurs SOP8 nus, sans résistance.
+> les transceivers TJA1051T/3 sont soudés sur des adaptateurs SOP8 nus (DFRobot FIT0290, sans
+> aucun composant), équipés de borniers de 4 points de chaque côté ; les 100 nF de VCC et de
+> VIO sont des condensateurs traversants serrés dans ces borniers.
 > Les deux seules terminaisons sont l'interrupteur 120 Ω du ZLG USBCAN-UC12 (extrémité 1)
-> et une résistance de 120 Ω soudée sur l'adaptateur de N4 (extrémité 2). C'est le cas A
+> et une résistance de 120 Ω montée sur l'adaptateur de N4 (extrémité 2). C'est le cas A
 > ci-dessous ; la mesure de contrôle reste valable.
 
 
