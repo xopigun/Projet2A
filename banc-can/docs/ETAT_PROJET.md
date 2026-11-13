@@ -90,8 +90,8 @@ schéma fonctionnel `schema/` reste celui de la phase 0. Le câblage réel fait 
 3. **Imprimer le boîtier** au FabLab sur la X1 Carbon : badge, ticket signé par un
    facilitateur, plateau à vérifier (`hardware/adaptateur_usb_can/boitier/README.md`).
 4. **Câbler les interrupteurs de faute** SW1, SW2, SW3 et la terminaison commutée.
-5. **Compléter la commande pour N4** : 3 adaptateurs SOP8 et 3 écrans OLED ont été commandés
-   pour 4 nœuds ; vérifier aussi que les 3 OLED sont bien arrivés.
+5. **Écrans OLED pour N4** : 3 écrans ont été commandés pour 4 nœuds ; vérifier qu'ils sont
+   tous arrivés et en commander un de plus. Les adaptateurs SOP8 suffisent : 10 reçus.
 6. **Rendre le banc propre** : plaque modulaire imprimée et carte porteuse par nœud, pour
    supprimer les fils Dupont (en discussion).
 
