@@ -1,7 +1,7 @@
 # Mise en route du banc — procédure pas à pas
 
 Cette procédure amène trois cartes NUCLEO-G431KB neuves à un bus CAN qui communique,
-puis y ajoute le nœud N4 sur Blue Pill (étape 8).
+puis y ajoute la quatrième, N4 (étape 8).
 Elle est conçue pour être exécutée **dans l'ordre**, chaque étape ne dépendant que des
 précédentes, et pour que chaque échec désigne une cause unique.
 
@@ -398,48 +398,20 @@ l'oscilloscope.
 
 ---
 
-## Étape 8 — Ajouter N4 (Blue Pill)
+## Étape 8 — Ajouter N4
 
-N4 s'ajoute **après** que les trois Nucleo communiquent : s'il pose problème, on sait que le
-reste du bus est sain. Le brochage et ses sources sont dans [pinout.md](pinout.md) §4.
+N4 est une **NUCLEO-G431KB**, comme N1 à N3 : la Blue Pill STM32F103 prévue à l'origine a
+été abandonnée (voir [ETAT_PROJET.md](ETAT_PROJET.md)). N4 s'ajoute **après** que les
+trois premières Nucleo communiquent : s'il pose problème, on sait que le reste du bus est
+sain.
 
-| Matériel | Remarque |
-|---|---|
-| Blue Pill STM32F103C8T6 | |
-| ST-Link V2 | la Blue Pill n'a pas de programmateur intégré |
-| Adaptateur USB-série **3,3 V** (CP2102, FT232…) | seul moyen de lire le journal : l'USB de la carte ne peut pas servir avec le CAN |
-| TJA1051T/3 + 100 nF | comme pour les autres nœuds |
-
-### 8.1 Contrôles sur la carte reçue, avant tout
-
-La Blue Pill n'est pas une carte ST et les clones varient. Trois vérifications de 30
-secondes, qui lèvent les `TODO(verif)` restants :
-
-| Quoi | Comment | Attendu |
-|---|---|---|
-| Quartz (`V12`) | lire le marquage du quartz près du microcontrôleur | `8.000` |
-| Microcontrôleur | lire le marquage de la puce | `STM32F103C8T6`. Un `CKS32`, `GD32` ou `APM32` est une copie : le noter et me le signaler |
-| Cavalier `BOOT0` | position du cavalier jaune | sur **0** |
-
-La LED PC13 (`V13`) se vérifie à l'étape 8.4.
-
-### 8.2 Câblage
-
-| Blue Pill | → | Vers |
-|---|---|---|
-| PB9 | → | `TXD` (1) du transceiver |
-| PB8 | ← | `RXD` (4) du transceiver |
-| 5V | → | `VCC` (3) du transceiver |
-| 3.3 | → | `VIO` (5) du transceiver |
-| G | — | `GND` (2) du transceiver |
-| PB12 | → | `S` (8) du transceiver, ou `S` directement à GND |
-| SWDIO, SWCLK, GND | — | ST-Link V2 — **pas son 3,3 V** |
-| PA9 | → | RX de l'adaptateur USB-série, **GND commun, pas son VCC** |
-
-La carte est **alimentée par son propre USB**, branché sur le même PC que les Nucleo : c'est
-lui qui fournit le 5 V du transceiver et la masse commune.
-
-### 8.3 Programmer l'autotest
+1. **Préparer la carte** comme à l'étape 1 : retirer le cavalier HW1, souder SB9 et SB10.
+   Tant que les ponts ne sont pas soudés, utiliser `n4-selftest-hsi` à la place de
+   `n4-selftest`.
+2. **Câbler** le transceiver comme à l'étape 4 ([pinout.md](pinout.md) §2 et §5). N4 est le
+   nœud en bout de ligne : son adaptateur SOP8 porte la terminaison de 120 Ω
+   ([schéma de câblage](../hardware/cablage_bus_can/cablage_bus_can.pdf)).
+3. **Programmer l'autotest** :
 
 ```bash
 cmake --preset n4-selftest
@@ -449,24 +421,15 @@ cmake --preset n4-selftest
 cmake --build --preset n4-selftest --target flash_n4
 ```
 
-Terminal série sur le port de l'**adaptateur USB-série**, 115200 bauds, 8N1.
+Terminal série sur le port COM virtuel du ST-LINK de N4, 115200 bauds, 8N1.
 
-### 8.4 Résultat attendu
+### Résultat attendu
 
-- Phase 1 : `bxCAN : 36000000 Hz`, puis 8 trames sur 8 en bouclage silencieux.
-- La LED PC13 clignote à chaque trame émise : elle confirme `V13`.
+- Phase 1 : les mêmes lignes qu'à l'étape 3, en bouclage interne FDCAN.
 - Phase 2 : N4 répond à chaque trame de N1 avec l'identifiant `0x013`. Côté N1, le compteur
   `recues` augmente d'autant ; `reponses` ne compte que N2 et N3 et ne change pas.
 
-### 8.5 Diagnostic
-
-| Symptôme | Cause probable |
-|---|---|
-| Le programmateur ne trouve pas la cible | câblage SWD, ou cavalier `BOOT0` ; sur un clone, un identifiant SWD différent. **Ne pas modifier `cmake/openocd_f1.cfg` à l'aveugle** : m'envoyer le message d'erreur exact |
-| Rien sur le terminal | adaptateur branché sur PA10 au lieu de PA9, ou masse non commune |
-| `ARRET FATAL : le quartz HSE ou le PLL ne demarre pas` | quartz différent de 8 MHz ou absent (`V12`) |
-| Phase 1 : « aucune trame recue » | remappage ou filtre : ce serait un défaut du port, à me signaler avec le journal |
-| Phase 2 : N4 n'est jamais entendu | transceiver branché sur PA11/PA12 au lieu de PB8/PB9 |
+En cas d'échec, les diagnostics des étapes 3 à 6 s'appliquent tels quels.
 
 Puis le firmware nominal :
 
@@ -492,4 +455,4 @@ cmake --build --preset n4 --target flash_n4
 | 6 | Communication réelle entre trois nœuds — **pas le débit** | Banc complet |
 | 6 bis | **Le débit**, contre une référence indépendante | + CANable et oscilloscope |
 | 7 | — | Banc complet |
-| 8 | Nœud N4 : carte, câblage, bouclage puis bus réel | + Blue Pill, ST-Link, adaptateur USB-série |
+| 8 | Nœud N4 : carte, câblage, bouclage puis bus réel | + 4ᵉ Nucleo et son transceiver |

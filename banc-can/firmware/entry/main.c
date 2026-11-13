@@ -1,17 +1,17 @@
 /**
  * @file main.c
- * @brief Point d'entrée du firmware d'un nœud, commun aux deux cartes.
+ * @brief Point d'entrée du firmware d'un nœud, commun à toutes les cartes.
  *
  * Boucle principale coopérative : l'ISR ne fait que remplir le tampon
  * circulaire, tout le traitement se passe ici. Le rôle du nœud vient de
  * `BENCH_NODE_ID`, fixé par le preset CMake ; la carte et le contrôleur en
- * découlent (N1 à N3 sur Nucleo-G431KB, N4 sur Blue Pill F103).
+ * découlent (N1 à N4 sur Nucleo-G431KB).
  *
  * Ce fichier ne dépend du port que par des noms que chaque port fournit à
  * l'identique : `bench_port_can_t`, `bench_port_can_bind()`,
  * `bench_port_can_poll()`, et les constantes de son `board.h`. Les appels HAL
  * utilisés ici (`HAL_Init`, `HAL_GetTick`, `HAL_GPIO_*`) existent sous le même
- * nom dans les HAL G4 et F1.
+ * nom dans les HAL G4 et L4.
  */
 
 #include "app/faults.h"
@@ -40,8 +40,7 @@ static void update_leds(const bench_can_status_t *status, uint32_t now_ms,
                                                                  : GPIO_PIN_RESET);
     HAL_GPIO_WritePin(BENCH_LED_BUSOFF_PORT, BENCH_LED_BUSOFF_PIN,
                       (status->state == BENCH_CAN_BUS_OFF) ? GPIO_PIN_SET : GPIO_PIN_RESET);
-    /* La polarité de la LED TX dépend de la carte : LD2 de la Nucleo s'allume
-     * au niveau haut, la LED PC13 de la Blue Pill au niveau bas. */
+    /* La polarité de la LED TX dépend de la carte : elle vient de son board.h. */
     HAL_GPIO_WritePin(BENCH_LED_TX_PORT, BENCH_LED_TX_PIN,
                       ((now_ms - last_tx_ms) < BENCH_LED_TX_PULSE_MS) ? BENCH_LED_TX_ON
                                                                       : BENCH_LED_TX_OFF);

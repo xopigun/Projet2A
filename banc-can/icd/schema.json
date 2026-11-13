@@ -110,7 +110,7 @@
       "properties": {
         "node_id": { "type": "integer", "minimum": 1, "maximum": 15 },
         "name": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" },
-        "board": { "enum": ["nucleo_g431kb", "bluepill_f103"] },
+        "board": { "enum": ["nucleo_g431kb"] },
         "role": { "type": "string" },
         "contender": { "type": "boolean" }
       }

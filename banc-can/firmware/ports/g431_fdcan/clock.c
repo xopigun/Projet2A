@@ -13,7 +13,7 @@
  *
  * Dans les deux cas l'objectif est une horloge noyau FDCAN de **80 MHz**, qui
  * donne un point d'échantillonnage exactement à 87,5 % avec un prescaler de 10
- * et 16 quanta de temps — le même que sur le F103.
+ * et 16 quanta de temps.
  */
 
 #include "clock.h"

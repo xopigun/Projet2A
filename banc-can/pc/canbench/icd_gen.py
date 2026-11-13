@@ -87,7 +87,7 @@ NODES = [
     {'node_id': 1, 'name': 'N1', 'board': 'nucleo_g431kb', 'role': 'energy_command', 'contender': True},
     {'node_id': 2, 'name': 'N2', 'board': 'nucleo_g431kb', 'role': 'imu_speed', 'contender': True},
     {'node_id': 3, 'name': 'N3', 'board': 'nucleo_g431kb', 'role': 'temp_battery', 'contender': True},
-    {'node_id': 4, 'name': 'N4', 'board': 'bluepill_f103', 'role': 'faulty', 'contender': False},
+    {'node_id': 4, 'name': 'N4', 'board': 'nucleo_g431kb', 'role': 'faulty', 'contender': False},
 ]
 
 #: Trames contendantes du test d'arbitrage, par priorité croissante d'identifiant.

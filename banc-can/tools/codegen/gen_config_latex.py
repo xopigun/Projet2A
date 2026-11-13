@@ -4,8 +4,8 @@ Les valeurs sont **relues dans les `board.h`**, jamais recopiées : c'est la seu
 façon de garantir que le tableau du dossier décrit bien le firmware qui tourne.
 Les tolérances d'oscillateur sont recalculées par `scripts/bit_timing.py`.
 
-Une carte absente (le F103, tant que le lot 5 n'est pas fait) est signalée dans
-le tableau plutôt que silencieusement omise.
+Les quatre nœuds sont des Nucleo-G431KB : une seule colonne. Une valeur
+illisible dans le board.h est signalée dans le tableau plutôt qu'omise.
 """
 
 from __future__ import annotations
@@ -44,74 +44,46 @@ def _num(value: float, decimals: int = 2) -> str:
 
 def generate(icd: Icd) -> str:
     bt = _bit_timing_module()
-
-    rows: list[tuple[str, object]] = []
-    for board_name in bt.BOARDS:
-        timing = bt.read_board(board_name)
-        rows.append((board_name, timing))
-
-    out = [
-        HEADER,
-        r"\begin{table}[H]",
-        r"\centering\small",
-        r"\begin{tabular}{lcc}",
-        r"\toprule",
-        r"\textbf{Paramètre} & \textbf{N1--N3 (STM32G431)} & \textbf{N4 (STM32F103)} \\",
-        r"\midrule",
-    ]
-
-    g431 = dict(rows).get("nucleo_g431kb")
-    f103 = dict(rows).get("bluepill_f103")
+    g431 = bt.read_board("nucleo_g431kb")
 
     def cell(timing, attribute, formatter=str) -> str:
         if timing is None:
             return NOT_PORTED
         return formatter(getattr(timing, attribute))
 
-    out += [
-        r"Périphérique & FDCAN1, mode \emph{Classic} & bxCAN \\",
-        (
-            r"Référence d'horloge & HSE \SI{24}{MHz} (quartz, \SI{20}{ppm}) & "
-            r"HSE \SI{8}{MHz} \\"
-        ),
-        rf"Horloge noyau CAN & {_clock(g431)} & {_clock(f103)} \\",
-        rf"Prescaler & {cell(g431, 'prescaler')} & {cell(f103, 'prescaler')} \\",
-        rf"Durée du bit & {_nbt(g431)} & {_nbt(f103)} \\",
-        rf"Segments (sync + 1 + 2) & {_segments(g431)} & {_segments(f103)} \\",
-        rf"SJW & {cell(g431, 'sjw')} & {cell(f103, 'sjw')} \\",
-        rf"Point d'échantillonnage & {_sp(g431)} & {_sp(f103)} \\",
-        rf"Tolérance d'oscillateur & {_tol(g431)} & {_tol(f103)} \\",
-        r"Débit & \SI{500}{kbit/s} & \SI{500}{kbit/s} \\",
+    out = [
+        HEADER,
+        r"\begin{table}[H]",
+        r"\centering\small",
+        r"\begin{tabular}{lc}",
+        r"\toprule",
+        r"\textbf{Paramètre} & \textbf{N1--N4 (STM32G431)} \\",
         r"\midrule",
-        (
-            r"Filtres d'acceptation & aucun & "
-            r"un banc, masque nul (tout accepter) \\"
-        ),
-        r"Retransmission automatique & activée & activée \\",
-        (
-            r"Reprise après \emph{bus-off} & logicielle (\texttt{CCCR.INIT}) & "
-            r"matérielle (\texttt{ABOM}) \\"
-        ),
-        r"Mode silencieux & \texttt{CCCR.MON} & \texttt{BTR.SILM} \\",
-        (
-            r"Bouclage interne & \texttt{FDCAN\_MODE\_INTERNAL\_LOOPBACK} & "
-            r"\texttt{BTR.LBKM} + \texttt{SILM} (CANTX récessive) \\"
-        ),
+        r"Périphérique & FDCAN1, mode \emph{Classic} \\",
+        r"Référence d'horloge & HSE \SI{24}{MHz} (quartz, \SI{20}{ppm}) \\",
+        rf"Horloge noyau CAN & {_clock(g431)} \\",
+        rf"Prescaler & {cell(g431, 'prescaler')} \\",
+        rf"Durée du bit & {_nbt(g431)} \\",
+        rf"Segments (sync + 1 + 2) & {_segments(g431)} \\",
+        rf"SJW & {cell(g431, 'sjw')} \\",
+        rf"Point d'échantillonnage & {_sp(g431)} \\",
+        rf"Tolérance d'oscillateur & {_tol(g431)} \\",
+        r"Débit & \SI{500}{kbit/s} \\",
+        r"\midrule",
+        r"Filtres d'acceptation & aucun \\",
+        r"Retransmission automatique & activée \\",
+        r"Reprise après \emph{bus-off} & logicielle (\texttt{CCCR.INIT}) \\",
+        r"Mode silencieux & \texttt{CCCR.MON} \\",
+        r"Bouclage interne & \texttt{FDCAN\_MODE\_INTERNAL\_LOOPBACK} \\",
         r"\bottomrule",
         r"\end{tabular}",
     ]
 
     caption = (
-        r"Configuration retenue du contrôleur CAN. Le point d'échantillonnage est "
-        r"identique sur les deux familles, ce dont dépend la tolérance d'écart "
-        r"d'horloge commune. Valeurs relues dans les \texttt{board.h} et vérifiées par "
+        r"Configuration retenue du contrôleur CAN, commune aux quatre nœuds. "
+        r"Valeurs relues dans le \texttt{board.h} de la Nucleo-G431KB et vérifiées par "
         r"\texttt{scripts/bit\_timing.py}."
     )
-    if f103 is None:
-        caption += (
-            r" La colonne N4 est calculée mais le port n'est pas encore écrit : il "
-            r"attend RM0008, DS5319 et le schéma de la carte."
-        )
 
     out += [
         rf"\caption{{{caption}}}",

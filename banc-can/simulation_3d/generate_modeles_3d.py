@@ -9,7 +9,7 @@ Avec --emballer à la place de <gltf-transform>, seuls ces .json sont réécrits
 les GLB (simplification et quantification) ; sans lui, les fichiers pèsent cinq à dix fois plus.
 
 L'adaptateur USB-CAN est exporté depuis son vrai PCB. Les autres cartes (Nucleo-G431KB,
-Blue Pill, module TJA1051, MPU-6050, LM2596…) n'ont pas de modèle officiel dans KiCad :
+module TJA1051, MPU-6050, LM2596…) n'ont pas de modèle officiel dans KiCad :
 elles sont reconstituées ici en plaçant les boîtiers de la bibliothèque KiCad sur un contour
 aux dimensions de la carte. Ce sont des maquettes visuelles : l'encombrement et les
 connecteurs sont respectés, pas le routage ni la position exacte de chaque composant.
@@ -55,24 +55,6 @@ CARTES = {
         ("Package_TO_SOT_SMD", "SOT-223-3_TabPin2", 4.0, 0, 0, "B"),
         (HDR, "PinHeader_1x15_P2.54mm_Vertical", -17.78, -7.62, 270, "B"),
         (HDR, "PinHeader_1x15_P2.54mm_Vertical", -17.78, 7.62, 270, "B"),
-    ]),
-    # Blue Pill STM32F103C8T6 : 53 × 22,9 mm, deux rangées de 20 broches à 15,24 mm
-    "bluepill": ((53.3, 22.9), "Blue", [
-        ("Connector_USB", "USB_Micro-B_Molex-105017-0001", -24.4, 0, 270, "F"),
-        ("Package_QFP", "LQFP-48_7x7mm_P0.5mm", 2.0, 0, 45, "F"),
-        ("Crystal", "Crystal_SMD_HC49-SD", -10.0, 0, 90, "F"),              # 8 MHz
-        ("Crystal", "Crystal_C26-LF_D2.1mm_L6.5mm_Horizontal", 9.5, 4.0, 0, "F"),  # 32,768 kHz
-        (HDR, "PinHeader_2x03_P2.54mm_Vertical", 14.0, -4.5, 0, "F"),       # BOOT0 / BOOT1
-        ("Button_Switch_SMD", "SW_SPST_TL3342", -17.5, 0, 0, "F"),          # RESET
-        ("LED_SMD", "LED_0603_1608Metric", 20.0, 4.0, 0, "F"),              # PC13
-        ("LED_SMD", "LED_0603_1608Metric", 20.0, 2.0, 0, "F"),              # alimentation
-        ("Resistor_SMD", "R_0603_1608Metric", -4.0, -5.0, 0, "F"),
-        ("Capacitor_SMD", "C_0603_1608Metric", 2.0, -6.0, 0, "F"),
-        ("Capacitor_SMD", "C_0603_1608Metric", 2.0, 6.0, 0, "F"),
-        ("Package_TO_SOT_SMD", "SOT-223-3_TabPin2", -10.0, 0, 90, "B"),     # régulateur 3,3 V
-        (HDR, "PinHeader_1x04_P2.54mm_Vertical", 25.0, -3.81, 0, "F"),      # SWD
-        (HDR, "PinHeader_1x20_P2.54mm_Vertical", -24.13, -7.62, 270, "B"),
-        (HDR, "PinHeader_1x20_P2.54mm_Vertical", -24.13, 7.62, 270, "B"),
     ]),
     # Module transceiver TJA1051T/3 : broches logiques d'un côté, bornier CAN de l'autre
     "tja1051": ((24.0, 18.0), "Blue", [

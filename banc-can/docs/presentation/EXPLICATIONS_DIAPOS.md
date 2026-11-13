@@ -96,7 +96,7 @@ On la lit de bas en haut :
 
 1. **`board.h`** : tout le brochage d'une carte, dans un seul fichier par carte.
 2. **Pilotes FDCAN / bxCAN** : un pilote par type de contrôleur CAN. FDCAN pour le
-   STM32G431 de nos Nucleo, bxCAN pour la Blue Pill (F103) et la L476.
+   STM32G431 de nos Nucleo, bxCAN pour la L476 du pont slcan.
 3. **Interface CAN abstraite (`can_if.h`)** : les mêmes fonctions (ouvrir, émettre,
    recevoir, lire l'état d'erreur) quel que soit le microcontrôleur.
 4. **Application commune**, identique sur toutes les cartes :

@@ -95,7 +95,7 @@
  * PLLR 2 (SYSCLK 160 MHz), PLLQ 4 (horloge noyau FDCAN 80 MHz).
  *
  * SYSCLK est volontairement à 160 MHz et non au maximum de 170 MHz : c'est le
- * prix d'un point d'échantillonnage exactement à 87,5 %, partagé avec le F103.
+ * prix d'un point d'échantillonnage exactement à 87,5 %.
  * À 170 MHz le meilleur candidat tombe à 88,24 %, qui ne s'aligne pas.
  *
  * Contraintes vérifiées (DS12589 Rev 6 Table 45, RM0440 Rev 9 §7.4.4) :

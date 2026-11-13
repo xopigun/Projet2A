@@ -2,7 +2,7 @@
  * @file clock.h
  * @brief Configuration et qualification de l'horloge du pont CAN-USB (L476).
  *
- * Meme interface que les ports G431 et F103.
+ * Meme interface que le port G431.
  */
 
 #ifndef BENCH_CLOCK_H

@@ -2,7 +2,7 @@
 #
 # Le code commun doit rester independant du microcontroleur : c'est ce qui permet
 # de le tester nativement et de le partager entre le port FDCAN (G431) et le port
-# bxCAN (F103). Ce test echoue avec la liste des fichiers fautifs.
+# bxCAN (L476). Ce test echoue avec la liste des fichiers fautifs.
 
 file(GLOB_RECURSE sources "${BENCH_COMMON_DIR}/*.c" "${BENCH_COMMON_DIR}/*.h")
 

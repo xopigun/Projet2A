@@ -59,7 +59,7 @@ L'horloge du FDCAN est prise sur **`PLLQ`** et non sur `PCLK1` : c'est ce qui pe
 d'obtenir 80 MHz tout en gardant 160 MHz pour le cœur.
 
 **SYSCLK est volontairement à 160 MHz et non au maximum de 170 MHz.** C'est le prix d'un
-point d'échantillonnage exactement à 87,5 %, partagé avec le F103 : à 170 MHz sur `PCLK1`,
+point d'échantillonnage exactement à 87,5 % : à 170 MHz sur `PCLK1`,
 le meilleur candidat tombe à 88,24 %, qui ne s'aligne pas. 160 MHz reste très largement
 suffisant pour ce banc, dont la charge de calcul est négligeable.
 
@@ -127,9 +127,6 @@ n'appartiennent pas à l'ICD.
 > conservé par précaution, mais **le signal principal d'une trame FD sur le bus reste
 > l'erreur de forme**. À retenir pour le dépouillement de T6.
 
-Sur le F103, `non_classic_rx` reste **toujours nul** : bxCAN ne connaît pas le CAN FD, et
-une telle trame n'y est jamais qu'une erreur de forme.
-
 > **DLC de 9 à 15.** En CAN 2.0, ces valeurs sont légales et signifient 8 octets. Les deux
 > ports ramènent donc le DLC reçu à 8 au plus, pour que tout le code commun puisse supposer
 > `dlc ≤ 8`. Sur le G431, c'est aussi une **protection mémoire** : la HAL G4 recopie
@@ -149,8 +146,7 @@ Côté PC, `canbench` ouvre l'interface en classic (`fd=False`) et signale toute
 
 | Nœud | Horloge noyau | Prescaler | Durée du bit | Segments | SJW | Point d'éch. |
 |---|---|---|---|---|---|---|
-| **G431** (N1–N3) | 80 MHz | **10** | **16 tq** | 1 + 13 + 2 | **2** | **87,50 %** |
-| **F103** (N4) | 36 MHz (APB1) | **9** | **8 tq** | 1 + 6 + 1 | **1** | **87,50 %** |
+| **G431** (N1–N4) | 80 MHz | **10** | **16 tq** | 1 + 13 + 2 | **2** | **87,50 %** |
 
 Vérification : 80 000 000 / (10 × 16) = 500 000 bit/s, et (16 − 2) / 16 = 0,875 exactement.
 Le point d'échantillonnage à 87,5 % est la recommandation CiA.
@@ -161,12 +157,12 @@ partagent pas le même point d'échantillonnage. La CI l'exécute à chaque comp
 
 ### 3.2 Correspondance avec les registres
 
-| Grandeur | FDCAN (G431) | bxCAN (F103) |
-|---|---|---|
-| Prescaler | `NBTP.NBRP` = 10 | `BTR.BRP` = 9 |
-| Segment 1 | `NBTP.NTSEG1` = 13 | `BTR.TS1` = 6 |
-| Segment 2 | `NBTP.NTSEG2` = 2 | `BTR.TS2` = 1 |
-| Saut de resynchronisation | `NBTP.NSJW` = 2 | `BTR.SJW` = 1 |
+| Grandeur | FDCAN (G431) |
+|---|---|
+| Prescaler | `NBTP.NBRP` = 10 |
+| Segment 1 | `NBTP.NTSEG1` = 13 |
+| Segment 2 | `NBTP.NTSEG2` = 2 |
+| Saut de resynchronisation | `NBTP.NSJW` = 2 |
 
 Attention à la convention d'écriture : les champs de registre valent souvent la valeur
 moins un. La HAL s'en charge ; les valeurs ci-dessus sont celles passées à la HAL, en
@@ -184,25 +180,6 @@ df ≤ min(PS1, PS2) / (2 · (13 · NBT − PS2))
 | Nœud | Condition 1 | Condition 2 | **Retenu** |
 |---|---|---|---|
 | G431 | 2 / (20 × 16) = 0,625 % | 2 / (2 × (208 − 2)) = 0,485 % | **0,485 %** |
-| F103 | 1 / (20 × 8) = 0,625 % | 1 / (2 × (104 − 1)) = 0,485 % | **0,485 %** |
-
-### 3.4 Le SJW de 1 du F103 n'est pas un handicap
-
-C'est le point le plus contre-intuitif de cette configuration, et il mérite d'être explicité
-dans le dossier.
-
-À point d'échantillonnage égal, la tolérance ne dépend que du **rapport** SJW/NBT, pas de
-SJW en valeur absolue. Ici 1/8 = 2/16, et les deux nœuds obtiennent **exactement la même
-tolérance de 0,485 %**.
-
-Les alternatives à plus grand nombre de quanta sont d'ailleurs **moins bonnes**, parce que
-bxCAN limite `TS1` à 16 tq et `TS2` à 8 tq. Le seul autre candidat raisonnable à 36 MHz est
-`BRP = 4`, 18 tq, segments 1 + 15 + 2 : il donne 88,89 %, donc un point d'échantillonnage
-**différent de celui du G431** — rédhibitoire — pour une tolérance **inférieure** (0,431 %).
-
-La seule conséquence réelle du SJW de 1 est la **granularité** de la resynchronisation : un
-pas vaut 12,5 % du temps de bit sur le F103 contre 6,25 % sur le G431. Cela joue sur la
-finesse de rattrapage d'un déphasage, pas sur l'écart d'horloge tolérable.
 
 ---
 
@@ -216,7 +193,7 @@ finesse de rattrapage d'un déphasage, pas sur l'écart d'horloge tolérable.
 | Trames standard non filtrées | `FDCAN_ACCEPT_IN_RX_FIFO0` |
 | Trames étendues non filtrées | `FDCAN_ACCEPT_IN_RX_FIFO0` |
 | Trames distantes | `FDCAN_FILTER_REMOTE` |
-| bxCAN (F103) | banc 0 en mode masque 32 bits, identifiant et masque nuls, vers la FIFO 0 |
+| bxCAN (pont L476) | banc 0 en mode masque 32 bits, identifiant et masque nuls, vers la FIFO 0 |
 
 Sur bxCAN, « aucun filtre » ne veut pas dire « tout accepter » : **sans banc de filtres
 actif, rien n'est reçu**. Un masque nul est la façon d'accepter toutes les trames.
@@ -233,7 +210,7 @@ Le tri est fait en logiciel, à partir de la table de trames générée depuis l
 
 ## 5. Retransmission automatique
 
-**Activée**, sur les deux ports.
+**Activée**, sur les deux ports (FDCAN des nœuds, bxCAN du pont L476).
 
 C'est une condition de validité du test d'arbitrage, pas une option de confort : sans
 retransmission automatique, un nœud qui perd l'arbitrage **abandonne sa trame**. N2 et N3
@@ -405,23 +382,22 @@ interprétation du protocole, pas le comportement réel du matériel.
 
 ## 11. Résumé pour la nomenclature logicielle
 
-| Paramètre | G431 (N1–N3) | F103 (N4) |
-|---|---|---|
-| Périphérique | FDCAN1 en mode Classic | bxCAN |
-| Référence d'horloge | HSE 24 MHz (quartz X2, 20 ppm) | HSE 8 MHz |
-| Horloge noyau CAN | 80 MHz (PLLQ) | 36 MHz (APB1) |
-| Prescaler | 10 | 9 |
-| Durée du bit | 16 tq | 8 tq |
-| Segments (sync + 1 + 2) | 1 + 13 + 2 | 1 + 6 + 1 |
-| SJW | 2 | 1 |
-| Point d'échantillonnage | 87,50 % | 87,50 % |
-| Tolérance d'oscillateur | 0,485 % | 0,485 % |
-| Débit | 500 kbit/s | 500 kbit/s |
-| Filtres | aucun | aucun |
-| Retransmission automatique | activée | activée |
-| Bus-off | reprise logicielle (`CCCR.INIT`) | `ABOM` matériel |
-| Mode silencieux | `CCCR.MON` | `BTR.SILM` |
+| Paramètre | G431 (N1–N4) |
+|---|---|
+| Périphérique | FDCAN1 en mode Classic |
+| Référence d'horloge | HSE 24 MHz (quartz X2, 20 ppm) |
+| Horloge noyau CAN | 80 MHz (PLLQ) |
+| Prescaler | 10 |
+| Durée du bit | 16 tq |
+| Segments (sync + 1 + 2) | 1 + 13 + 2 |
+| SJW | 2 |
+| Point d'échantillonnage | 87,50 % |
+| Tolérance d'oscillateur | 0,485 % |
+| Débit | 500 kbit/s |
+| Filtres | aucun |
+| Retransmission automatique | activée |
+| Bus-off | reprise logicielle (`CCCR.INIT`) |
+| Mode silencieux | `CCCR.MON` |
 
-> Les valeurs de la colonne F103 sont **calculées et vérifiées** par
-> `scripts/bit_timing.py`, mais le port n'est pas encore écrit : il attend RM0008, DS5319 et
-> le schéma de la carte (lot 5).
+> Les quatre nœuds sont des Nucleo-G431KB. La colonne F103 (Blue Pill, N4) a été retirée
+> avec l'abandon de cette carte : voir [ETAT_PROJET.md](ETAT_PROJET.md).

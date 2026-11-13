@@ -2,7 +2,7 @@
  * @file can_port.c
  * @brief Réalisation bxCAN de l'interface CAN abstraite, pour le STM32L476 (pont CAN-USB).
  *
- * Copie du port F103 (même bxCAN), adaptée au L476. Mêmes principes que le port FDCAN du G431 :
+ * Port bxCAN du L476 (dérivé de l'ancien port F103, retiré). Mêmes principes que le port FDCAN du G431 :
  *
  * **L'ISR ne fait que recopier.** La routine de réception date la trame et la
  * dépose dans le tampon circulaire ; tout le reste est dans la boucle principale.

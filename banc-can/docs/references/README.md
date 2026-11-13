@@ -67,8 +67,8 @@ Sections utilisées :
 | STM32G4 series — reference manual | **RM0440** | Rev 9, 03/2025 | `RM0440.pdf` | §2.4 mémoire (V11), §2.6 démarrage et `FLASH_OPTR` (V2), §7.4.4 PLL (V3), Table 9 latence flash, §44.4.6 `FDCAN_CCCR` |
 | STM32G431x6/x8/xB — datasheet | **DS12589** | Rev 6, 10/2021 | `DS12589.pdf` | Table 13 fonctions alternées (V1), Table 42 HSI16 (V4), Table 45 PLL (V3) |
 | STM32G431/441 — errata sheet | **ES0431** | Rev 9, 06/2024 | `ES0431.pdf` | §2.15 FDCAN (V10) |
-| STM32F10xxx — reference manual | **RM0008** | Rev 21, 02/2021 | `RM0008.pdf` | §9.3.4 Table 34 remap CAN (V5), § bxCAN (SRAM partagée avec l'USB, modes de test), `FLASH_ACR` |
-| STM32F103x8/xB — datasheet | **DS5319** | Rev 20, 07/2025 | `DS5319.pdf` | Table 5 broches du LQFP48 et remap (V5), note 5 sur PC13 (V13) |
+| STM32F10xxx — reference manual *(sans objet : Blue Pill abandonnée)* | **RM0008** | Rev 21, 02/2021 | `RM0008.pdf` | §9.3.4 Table 34 remap CAN (V5), § bxCAN (SRAM partagée avec l'USB, modes de test), `FLASH_ACR` |
+| STM32F103x8/xB — datasheet *(sans objet : Blue Pill abandonnée)* | **DS5319** | Rev 20, 07/2025 | `DS5319.pdf` | Table 5 broches du LQFP48 et remap (V5), note 5 sur PC13 (V13) |
 
 Tous sont disponibles sur <https://www.st.com>, page produit du microcontrôleur, onglet
 « Documentation ».
@@ -77,6 +77,7 @@ Tous sont disponibles sur <https://www.st.com>, page produit du microcontrôleur
 
 | Document | Pourquoi | Ce qui le remplace |
 |---|---|---|
-| Schéma de la carte « Blue Pill » | carte générique non ST : aucun schéma officiel | contrôles sur la carte reçue (V12 quartz, V13 LED, V6 pull-up PA12), voir [bringup.md](../bringup.md) §8.1 |
-| Errata STM32F103 | non fourni ; référence ES096 à confirmer sur st.com | à lire avant le lot 6 (I2C du F1) — V14 |
-| Manuel des Nucleo-64 (**UM1724**) | non fourni | nécessaire seulement pour programmer la Blue Pill avec le ST-LINK d'une Nucleo-L476RG |
+| Manuel des Nucleo-64 (**UM1724**) | non fourni | utile seulement pour le pont slcan sur Nucleo-L476RG |
+
+Les documents propres à la Blue Pill (schéma de la carte, errata STM32F103) ne sont plus
+nécessaires : N4 est une Nucleo-G431KB depuis l'abandon de cette carte.

@@ -3,8 +3,7 @@
 # Aucun materiel n'est necessaire : les outils PC sont testes sur le bus « virtual »
 # de python-can, et les firmwares sont seulement compiles.
 #
-# Le noeud N4 (Blue Pill / bxCAN) rejoindra la matrice de compilation au lot 5, une fois
-# RM0008, DS5319 et le schema de la carte disponibles.
+# Les quatre noeuds N1 a N4 sont des Nucleo-G431KB (port FDCAN).
 
 name: CI
 

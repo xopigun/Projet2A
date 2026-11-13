@@ -58,7 +58,7 @@
     {
       "name": "n4",
       "inherits": "arm",
-      "displayName": "N4 - noeud fautif (Blue Pill STM32F103)",
+      "displayName": "N4 - noeud fautif (Nucleo-G431KB)",
       "cacheVariables": {
         "BENCH_NODE_ID": "4"
       }
@@ -116,7 +116,7 @@
       "name": "n4-selftest",
       "inherits": "n4",
       "displayName": "N4 - autotest de mise en route",
-      "description": "Bouclage silencieux bxCAN puis ping/pong ; sortie sur USART1 (PA9).",
+      "description": "Bouclage interne FDCAN puis ping/pong ; sortie sur le VCP.",
       "binaryDir": "${sourceDir}/build/n4-selftest",
       "cacheVariables": {
         "BENCH_SELFTEST": "ON"
@@ -148,6 +148,16 @@
       "displayName": "N3 - autotest sur HSI (avant soudure de SB9/SB10)",
       "description": "Repli sans quartz : valide cablage et logique, JAMAIS le debit.",
       "binaryDir": "${sourceDir}/build/n3-selftest-hsi",
+      "cacheVariables": {
+        "BENCH_CLOCK_SOURCE": "HSI"
+      }
+    },
+    {
+      "name": "n4-selftest-hsi",
+      "inherits": "n4-selftest",
+      "displayName": "N4 - autotest sur HSI (avant soudure de SB9/SB10)",
+      "description": "Repli sans quartz : valide cablage et logique, JAMAIS le debit.",
+      "binaryDir": "${sourceDir}/build/n4-selftest-hsi",
       "cacheVariables": {
         "BENCH_CLOCK_SOURCE": "HSI"
       }
@@ -313,6 +323,10 @@
     {
       "name": "n3-selftest-hsi",
       "configurePreset": "n3-selftest-hsi"
+    },
+    {
+      "name": "n4-selftest-hsi",
+      "configurePreset": "n4-selftest-hsi"
     },
     {
       "name": "n1-selftest-direct",

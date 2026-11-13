@@ -25,7 +25,7 @@ const NODE_X = { N1: -40, N2: -16, N3: 8, N4: 32 };
 const NODE_Z = 6;
 const PC_X = 47;
 const SW2_X = -3;
-const MODELS = ["nucleo_g431kb", "bluepill", "tja1051", "gy521", "lm2596", "carte_db9", "terminaison", "lcd1602", "to92", "adaptateur_usb_can"];
+const MODELS = ["nucleo_g431kb", "tja1051", "gy521", "lm2596", "carte_db9", "terminaison", "lcd1602", "to92", "adaptateur_usb_can"];
 const STUB_T = 0.4; // s réelles pour parcourir une dérivation
 const BUS_SPEED = 85; // cm/s réelles le long du bus
 
@@ -396,7 +396,7 @@ export class BenchScene {
     bb.castShadow = bb.receiveShadow = true;
     g.add(bb);
 
-    const mcu = this.instance(name === "N4" ? "bluepill" : "nucleo_g431kb");
+    const mcu = this.instance("nucleo_g431kb");
     mcu.position.set(-2.4, bbH + 0.26, 0);
     g.add(mcu);
     const tja = this.instance("tja1051");
@@ -477,7 +477,7 @@ export class BenchScene {
     }
 
     const role = { N1: "energy_command", N2: "imu_speed", N3: "temp_battery", N4: "nœud fautif" }[name];
-    const board = name === "N4" ? "Blue Pill F103" : "Nucleo-G431KB";
+    const board = "Nucleo-G431KB";
     const lbl = label(`${name} <small>${role}</small><br><span class="st" id="st-${name}">error-active</span>`, color);
     lbl.position.set(0, 5.2, 0);
     g.add(lbl);

@@ -6,28 +6,28 @@
 
 \begin{table}[H]
 \centering\small
-\begin{tabular}{lcc}
+\begin{tabular}{lc}
 \toprule
-\textbf{Paramètre} & \textbf{N1--N3 (STM32G431)} & \textbf{N4 (STM32F103)} \\
+\textbf{Paramètre} & \textbf{N1--N4 (STM32G431)} \\
 \midrule
-Périphérique & FDCAN1, mode \emph{Classic} & bxCAN \\
-Référence d'horloge & HSE \SI{24}{MHz} (quartz, \SI{20}{ppm}) & HSE \SI{8}{MHz} \\
-Horloge noyau CAN & \SI{80}{MHz} & \SI{36}{MHz} \\
-Prescaler & 10 & 9 \\
-Durée du bit & 16 tq & 8 tq \\
-Segments (sync + 1 + 2) & 1 + 13 + 2 & 1 + 6 + 1 \\
-SJW & 2 & 1 \\
-Point d'échantillonnage & \SI{87.50}{\percent} & \SI{87.50}{\percent} \\
-Tolérance d'oscillateur & \SI{0.485}{\percent} & \SI{0.485}{\percent} \\
-Débit & \SI{500}{kbit/s} & \SI{500}{kbit/s} \\
+Périphérique & FDCAN1, mode \emph{Classic} \\
+Référence d'horloge & HSE \SI{24}{MHz} (quartz, \SI{20}{ppm}) \\
+Horloge noyau CAN & \SI{80}{MHz} \\
+Prescaler & 10 \\
+Durée du bit & 16 tq \\
+Segments (sync + 1 + 2) & 1 + 13 + 2 \\
+SJW & 2 \\
+Point d'échantillonnage & \SI{87.50}{\percent} \\
+Tolérance d'oscillateur & \SI{0.485}{\percent} \\
+Débit & \SI{500}{kbit/s} \\
 \midrule
-Filtres d'acceptation & aucun & un banc, masque nul (tout accepter) \\
-Retransmission automatique & activée & activée \\
-Reprise après \emph{bus-off} & logicielle (\texttt{CCCR.INIT}) & matérielle (\texttt{ABOM}) \\
-Mode silencieux & \texttt{CCCR.MON} & \texttt{BTR.SILM} \\
-Bouclage interne & \texttt{FDCAN\_MODE\_INTERNAL\_LOOPBACK} & \texttt{BTR.LBKM} + \texttt{SILM} (CANTX récessive) \\
+Filtres d'acceptation & aucun \\
+Retransmission automatique & activée \\
+Reprise après \emph{bus-off} & logicielle (\texttt{CCCR.INIT}) \\
+Mode silencieux & \texttt{CCCR.MON} \\
+Bouclage interne & \texttt{FDCAN\_MODE\_INTERNAL\_LOOPBACK} \\
 \bottomrule
 \end{tabular}
-\caption{Configuration retenue du contrôleur CAN. Le point d'échantillonnage est identique sur les deux familles, ce dont dépend la tolérance d'écart d'horloge commune. Valeurs relues dans les \texttt{board.h} et vérifiées par \texttt{scripts/bit\_timing.py}.}
+\caption{Configuration retenue du contrôleur CAN, commune aux quatre nœuds. Valeurs relues dans le \texttt{board.h} de la Nucleo-G431KB et vérifiées par \texttt{scripts/bit\_timing.py}.}
 \label{tab:config-logicielle}
 \end{table}

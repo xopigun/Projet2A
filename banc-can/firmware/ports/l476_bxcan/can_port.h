@@ -2,7 +2,7 @@
  * @file can_port.h
  * @brief Port bxCAN du STM32L476 pour l'interface CAN abstraite (pont CAN-USB).
  *
- * Copie du port F103, dont il garde les noms (`bench_port_can_t`,
+ * Dérivé de l'ancien port F103 (retiré), dont il garde les noms (`bench_port_can_t`,
  * `bench_port_can_bind`, `bench_port_can_poll`) : le L476 embarque le meme
  * bxCAN. Y sont ajoutes bench_port_can_close() et le mode « bus direct ».
  */

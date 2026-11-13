@@ -311,7 +311,7 @@ static void port_set_silent(void *ctx, bool silent) {
     bench_port_can_t *port = (bench_port_can_t *)ctx;
 
     /* Le mode silencieux passe par le mode moniteur du contrôleur plutôt que par
-     * la broche S du transceiver : sémantique identique sur G431 et F103, pas de
+     * la broche S du transceiver : sémantique identique sur FDCAN et bxCAN, pas de
      * dégradation du récepteur, et indépendance vis-à-vis du modèle de
      * transceiver. Il couvre aussi le mode « arrêt d'acquittement » de N4, qui
      * n'existe pas séparément sur ces contrôleurs. */

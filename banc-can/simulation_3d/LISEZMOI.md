@@ -48,8 +48,8 @@ que montre l'éclairage du bus (dominant = allumé) aux vitesses lentes.
 `modeles/*.glb` est produit par `generate_modeles_3d.py` (Python de KiCad 9) :
 
 - **adaptateur USB-CAN** : exporté du vrai PCB, `hardware/adaptateur_usb_can/` ;
-- **Nucleo-G431KB, Blue Pill, module TJA1051, GY-521, LM2596, cartes DB9, terminaisons** :
-  maquettes reconstituées avec les boîtiers 3D de la bibliothèque KiCad (QFN-32, LQFP-48,
+- **Nucleo-G431KB, module TJA1051, GY-521, LM2596, cartes DB9, terminaisons** :
+  maquettes reconstituées avec les boîtiers 3D de la bibliothèque KiCad (QFN-32,
   SOIC-8, micro-USB, barrettes, DB9…) sur un contour aux dimensions de la carte. Le format
   et les connecteurs sont respectés, pas l'implantation exacte ;
 - **afficheur 16×2** (WC1602A) et **TO-92** : modèles KiCad tels quels.

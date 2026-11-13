@@ -49,7 +49,8 @@ Sources : `banc-can/tools/codegen/`, `banc-can/icd/reference_vectors.json`,
   (TJA1051T/3), sur une paire torsadée CAN_H / CAN_L avec une masse commune.
 - Interface PC : **MyActuator USBCAN-Z**, à une extrémité du bus. Les terminaisons de 120 Ω
   sont sur l'USBCAN-Z et sur la CAN Pal de N3, les deux extrémités.
-- Firmware prévu aussi pour un 4ᵉ nœud sur **Blue Pill STM32F103** et pour la Nucleo-L476RG.
+- 4ᵉ nœud N4 : une **Nucleo-G431KB** de plus (la Blue Pill STM32F103 prévue au départ a été
+  abandonnée). Firmware aussi pour un pont CAN-USB sur Nucleo-L476RG.
 - Deux modifications sur chaque Nucleo, trouvées en lisant la documentation de ST (UM2397) :
   - **retirer le cavalier HW1**, qui relie PA12 (FDCAN1_TX) à la masse et bloquerait le bus
     en état dominant ;
@@ -73,7 +74,7 @@ Sources : `banc-can/hardware/cablage_bus_can/` (projet KiCad, PDF, ERC sans erre
 - Code commun indépendant du microcontrôleur (`firmware/common/`) : tampon circulaire,
   protocole ARM/GO pour le test d'arbitrage, heartbeat, modes de faute commandés à distance
   par `BENCH_CFG` (babbling idiot, débit erroné, DLC incohérent, silencieux, bus-off).
-- Une couche par contrôleur : FDCAN pour le G431, bxCAN pour le F103 et le L476.
+- Une couche par contrôleur : FDCAN pour le G431, bxCAN pour le L476 (pont slcan).
 - Tout le brochage est dans un seul fichier par carte, `firmware/boards/*/board.h`.
 - Autotest de mise en route : bouclage interne du contrôleur, puis ping/pong sur le bus.
 - Tests unitaires du code commun sur PC, sans matériel (`ctest --preset host`).

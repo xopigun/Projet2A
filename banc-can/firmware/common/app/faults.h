@@ -4,7 +4,7 @@
  *
  * @ref bench_node_t enregistre le mode demandé et son échéance ; ce module le
  * **réalise** sur le contrôleur, à travers l'interface @ref bench_can_t
- * uniquement. Il reste donc testable nativement, et identique sur G431 et F103.
+ * uniquement. Il reste donc testable nativement, et identique sur tous les ports (FDCAN, bxCAN).
  *
  * Le comportement est calqué sur celui du simulateur (`pc/canbench/simulator.py`),
  * pour que `canbench faults --logical` donne le même verdict en simulation et

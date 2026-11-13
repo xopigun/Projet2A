@@ -49,7 +49,7 @@ ROLES = {
     "temp_battery": "Température batterie",
     "faulty": "Nœud fautif",
 }
-BOARDS = {"nucleo_g431kb": "Nucleo-G431KB", "bluepill_f103": "Blue Pill F103"}
+BOARDS = {"nucleo_g431kb": "Nucleo-G431KB"}
 
 
 class BenchService:

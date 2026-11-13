@@ -3,9 +3,9 @@
  * @brief Mise en route matérielle : autotest d'un nœud, en deux phases.
  *
  * Remplace `main.c` lorsque le firmware est compilé avec `-DBENCH_SELFTEST=ON`
- * (presets `n1-selftest` à `n4-selftest`). Commun aux deux cartes. Tout est
+ * (presets `n1-selftest` à `n4-selftest`). Commun à toutes les cartes. Tout est
  * reporté sur le journal série, à 115200 bauds : port COM virtuel du ST-LINK
- * sur la Nucleo, adaptateur USB-série sur USART1 pour la Blue Pill.
+ * de la Nucleo.
  *
  * **Phase 1 — bouclage interne.** Le contrôleur est ouvert en bouclage sans
  * rien émettre sur sa broche TX (FDCAN : `INTERNAL_LOOPBACK` ; bxCAN : bouclage

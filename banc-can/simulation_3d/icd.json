@@ -41,7 +41,7 @@
   {
    "node_id": 4,
    "name": "N4",
-   "board": "bluepill_f103",
+   "board": "nucleo_g431kb",
    "role": "faulty",
    "contender": false
   }

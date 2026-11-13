@@ -1,7 +1,8 @@
 # Firmware d'un nœud du banc.
 #
 # Un seul exécutable par configuration, le rôle venant de BENCH_NODE_ID.
-# La carte cible en découle : N1 à N3 sur Nucleo-G431KB, N4 sur Blue Pill F103,
+# La carte cible en découle : N1 à N4 sur Nucleo-G431KB (la Blue Pill F103 prévue pour N4
+# a été abandonnée, voir docs/ETAT_PROJET.md),
 # et le rôle 5 est le pont CAN-USB sur Nucleo-L476RG (entry/slcan_bridge.c).
 
 set(VENDOR ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
@@ -9,22 +10,7 @@ set(VENDOR ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
 # ---------------------------------------------------------------------------
 #  Choix de la cible d'après le rôle
 # ---------------------------------------------------------------------------
-if(BENCH_NODE_ID EQUAL 4)
-    set(BENCH_BOARD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boards/bluepill_f103)
-    set(BENCH_PORT_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/ports/f103_bxcan)
-    set(BENCH_MCU_FAMILY f1)
-    # Le STM32F103C8 est un « medium density » : il partage l'en-tete xB.
-    set(BENCH_MCU_DEVICE STM32F103xB)
-    set(BENCH_CPU_FLAGS -mcpu=cortex-m3 -mthumb -mfloat-abi=soft)
-    set(BENCH_STARTUP ${VENDOR}/cmsis_device_f1/Source/Templates/gcc/startup_stm32f103xb.s)
-    set(BENCH_LINKER_SCRIPT ${BENCH_PORT_DIR}/STM32F103C8Tx_FLASH.ld)
-    set(BENCH_VECTORS SysTick_Handler USB_LP_CAN1_RX0_IRQHandler USB_HP_CAN1_TX_IRQHandler)
-    if(BENCH_CLOCK_SOURCE STREQUAL "HSI")
-        message(FATAL_ERROR
-            "Pas de repli HSI pour N4 : le quartz de la Blue Pill est cable d'origine, "
-            "et le HSI du F103 ne permet pas le meme arbre d'horloge. Utiliser HSE.")
-    endif()
-elseif(BENCH_NODE_ID EQUAL 5)
+if(BENCH_NODE_ID EQUAL 5)
     set(BENCH_BOARD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boards/nucleo_l476rg)
     set(BENCH_PORT_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/ports/l476_bxcan)
     set(BENCH_MCU_FAMILY l4)
@@ -93,10 +79,6 @@ elseif(BENCH_MCU_FAMILY STREQUAL "l4")
         ${HAL_DIR}/Src/${HAL_PREFIX}_i2c_ex.c
         ${HAL_DIR}/Src/${HAL_PREFIX}_pwr_ex.c
         ${HAL_DIR}/Src/${HAL_PREFIX}_uart_ex.c)
-else()
-    list(APPEND HAL_MODULES
-        ${HAL_DIR}/Src/${HAL_PREFIX}_can.c
-        ${HAL_DIR}/Src/${HAL_PREFIX}_gpio_ex.c)
 endif()
 
 add_library(bench_hal STATIC

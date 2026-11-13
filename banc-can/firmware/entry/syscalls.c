@@ -8,7 +8,7 @@
  * proprement plutôt que bruyamment.
  *
  * `_write` est branché sur le journal série lorsqu'il est actif — port COM
- * virtuel du ST-LINK sur la Nucleo, USART1 sur la Blue Pill — ce qui rend
+ * virtuel du ST-LINK de la Nucleo — ce qui rend
  * `printf()` utilisable pour le diagnostic sans rien changer d'autre.
  */
 

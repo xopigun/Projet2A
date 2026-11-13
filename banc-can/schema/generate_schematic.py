@@ -56,8 +56,8 @@ text(278, 115, "SW1 · SPST", 0.85)
 text(277, 108, "commute RT2", 0.8)
 
 xs = [55, 105, 155, 205]
-names = ["N1 · Nucleo-G431KB", "N2 · Nucleo-G431KB", "N3 · Nucleo-G431KB", "N4 · Blue Pill F103C8T6"]
-maps = ["PA12→TXD · PA11←RXD"] * 3 + ["PB9→TXD · PB8←RXD"]
+names = ["N1 · Nucleo-G431KB", "N2 · Nucleo-G431KB", "N3 · Nucleo-G431KB", "N4 · Nucleo-G431KB"]
+maps = ["PA12→TXD · PA11←RXD"] * 4
 roles = ["TJA1051T/3 · nœud ARM/GO", "TJA1051T/3 · MPU6050 + Hall*", "TJA1051T/3 · DS18B20*", "TJA1051T/3 · nœud fautes"]
 for i, x in enumerate(xs):
     rect(x - 19, 39, x + 19, 103)
@@ -101,15 +101,12 @@ text(12, 160, "J1…J5 : broche 2 = CAN_L · 3 = masse de référence · 7 = CAN
 rect(306, 28, 408, 107)
 text(310, 34, "2 — PC, PROGRAMMATION ET MESURE", 1.2)
 text(310, 41, "PC Windows · BancCAN / canbench", 0.9)
-text(310, 47, "USB → CANable (capture / injection)", 0.86)
-text(310, 53, "USB → N1–N3 (ST-LINK / port série)", 0.86)
-text(310, 59, "N4 : USB pour alimentation de la carte", 0.86)
-text(310, 65, "ST-LINK V2 → SWDIO, SWCLK, GND", 0.86)
-text(310, 71, "USB-série 3,3 V : RX ← PA9, GND", 0.86)
+text(310, 47, "USB → ZLG USBCAN-UC12 (capture / injection)", 0.86)
+text(310, 53, "USB → N1–N4 (ST-LINK / port série)", 0.86)
 text(310, 77, "Oscilloscope + sonde différentielle", 0.86)
 text(310, 83, "Sonde entre CAN_H et CAN_L", 0.86)
 text(310, 89, "Multimètre : continuité, ≈60 Ω hors tension", 0.86)
-text(310, 98, "ST-LINK et USB-série : ne pas injecter leur 3,3 V.", 0.82)
+text(310, 98, "Câblage réel : hardware/cablage_bus_can (fait foi).", 0.82)
 
 # Power distribution.
 rect(12, 177, 295, 240)
@@ -137,7 +134,7 @@ text(16, 233, "* USB et rail externe ne doivent pas alimenter simultanément une
 # BOM and unresolved component choices.
 rect(306, 116, 408, 240)
 text(310, 122, "4 — COMPOSANTS PRÉVUS / À CONFIRMER", 1.14)
-text(310, 130, "4 cartes : 3 × NUCLEO-G431KB + 1 × Blue Pill F103C8T6", 0.82)
+text(310, 130, "4 cartes : 4 × NUCLEO-G431KB", 0.82)
 text(310, 137, "4 × TJA1051T/3 · vérifier variante et résistances intégrées", 0.82)
 text(310, 144, "8 × 100 nF · 2 × 120 Ω · RT1 fixe, RT2 commutée", 0.82)
 text(310, 151, "SW1 SPST · SW2 SPST · SW3 DPST", 0.82)
@@ -150,7 +147,6 @@ text(310, 193, "8 LED défauts + 8 résistances série 330 Ω (prévision dossie
 text(310, 200, "Pull-up I²C 4,7 kΩ si absente des modules OLED/capteur.", 0.82)
 text(310, 207, "RT1 et RT2 aux extrémités ; retirer toute terminaison module.", 0.82)
 text(310, 214, "N1–N3 : retirer HW1 ; souder SB9/SB10 pour quartz HSE.", 0.82)
-text(310, 221, "N4 : vérifier quartz 8 MHz et référence de carte reçue.", 0.82)
 text(310, 232, "Pas d’isolation galvanique dans cette configuration.", 0.82)
 
 line(12, 249, 408, 249)

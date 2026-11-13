@@ -69,7 +69,7 @@ nodes:
   - { node_id: 1, name: N1, board: nucleo_g431kb, role: energy_command, contender: true  }
   - { node_id: 2, name: N2, board: nucleo_g431kb, role: imu_speed,      contender: true  }
   - { node_id: 3, name: N3, board: nucleo_g431kb, role: temp_battery,   contender: true  }
-  - { node_id: 4, name: N4, board: bluepill_f103, role: faulty,         contender: false }
+  - { node_id: 4, name: N4, board: nucleo_g431kb, role: faulty,         contender: false }
 
 # -----------------------------------------------------------------------------
 #  Trames

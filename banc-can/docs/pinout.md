@@ -26,7 +26,7 @@ heartbeat, ce qui interdit tout verdict de réussite.
 
 ---
 
-## 2. Nucleo-G431KB (nœuds N1, N2, N3)
+## 2. Nucleo-G431KB (nœuds N1 à N4)
 
 | Fonction | Broche | Repère Nano | Connecteur | Remarque |
 |---|---|---|---|---|
@@ -99,63 +99,13 @@ A5 en entrées analogiques, ce dont le banc n'a pas besoin.
 
 ---
 
-## 4. Blue Pill STM32F103 (nœud N4)
+## 4. Nœud N4
 
-Sources : **DS5319 Rev 20**, Table 5 (broches du LQFP48, fonctions par défaut et
-remappées, tolérance 5 V), et **RM0008 Rev 21**, §9.3.4 Table 34 (remappage du CAN). La
-Blue Pill n'étant **pas une carte ST**, aucun schéma officiel n'existe : ce qui dépend de la
-carte plutôt que du microcontrôleur est marqué `TODO(verif)` et se contrôle sur la carte
-reçue.
-
-| Fonction | Broche | Broche LQFP48 | Remarque |
-|---|---|---|---|
-| `CAN_RX` | PB8 | 45 | **remappée** (`CAN_REMAP = 10`), FT |
-| `CAN_TX` | PB9 | 46 | **remappée**, FT |
-| Broche S transceiver | PB12 | 25 | FT, aucune autre fonction utilisée |
-| `I2C1_SCL` (écran, lot 6) | PB6 | 42 | affectation par défaut, FT |
-| `I2C1_SDA` (écran, lot 6) | PB7 | 43 | affectation par défaut, FT |
-| Journal `USART1_TX` | PA9 | 30 | vers le RX d'un adaptateur USB-série 3,3 V |
-| Journal `USART1_RX` | PA10 | 31 | optionnel |
-| LED TX | PC13 | 2 | LED de la carte, allumée au niveau bas — `TODO(verif) V13` |
-| LED erreur | PA0 | 10 | error-passive, LED externe |
-| LED bus-off | PA1 | 11 | bus-off, LED externe |
-
-### Pourquoi PB8/PB9 et pas PA11/PA12
-
-Par défaut, le CAN du F103 sort sur PA11/PA12, qui portent aussi l'**USB**. La Blue Pill y
-ajoute une résistance de tirage sur PA12 (D+), dont la valeur varie d'un clone à l'autre.
-Deux raisons font préférer le remappage :
-
-1. **L'USB et le CAN ne peuvent pas fonctionner ensemble** sur ce microcontrôleur. RM0008
-   (§ bxCAN) : ils partagent 512 octets de SRAM dédiée et « cannot be used concurrently ».
-   Sur PB8/PB9, rien ne relie le CAN au connecteur USB.
-2. PB8/PB9 sont tolérantes au 5 V et libres sur la carte.
-
-Piège de lecture : dans RM0008 Table 34, la ligne du TX est libellée « CAN_RX » par
-coquille. La description du registre `AFIO_MAPR` lève l'ambiguïté : `10` place CAN_RX sur
-PB8 et **CAN_TX sur PB9**.
-
-La résistance de PA12 n'a donc plus d'effet sur le CAN (`V6`, non bloquant). Sa valeur se
-mesure à l'ohmmètre, hors tension, entre PA12 et 3,3 V, si l'on veut la connaître.
-
-### LED de la carte
-
-DS5319 Table 5, note 5 : PC13 ne peut absorber que 3 mA et **ne doit pas servir de source
-de courant pour une LED**. La LED de la carte est donc câblée en puits et s'allume au
-**niveau bas** ; `board.h` en tient compte. À confirmer sur la carte reçue (`V13`) : au
-démarrage de l'autotest, la LED doit clignoter à chaque trame émise.
-
-### Alimentation et programmation
-
-| Liaison | Brancher | Ne **pas** brancher |
-|---|---|---|
-| USB de la Blue Pill | vers le PC : alimente la carte et fournit le **5 V** du transceiver | — |
-| ST-Link V2 | SWDIO, SWCLK, GND | **le 3,3 V** : la carte est déjà alimentée par son USB |
-| Adaptateur USB-série | GND, et son RX sur PA9 | **son VCC** |
-
-Le transceiver de N4 se câble comme les autres (§5), en prenant son VCC sur la broche
-**5V** de la Blue Pill et son VIO sur **3.3**. Le quartz de 8 MHz est supposé
-(`TODO(verif) V12`) : lire son marquage sur la carte reçue.
+N4 est une **NUCLEO-G431KB**, câblée exactement comme N1 à N3 (§2) et compilée avec le
+preset `n4`. La Blue Pill STM32F103 prévue à l'origine a été **abandonnée** : son port
+bxCAN, son `board.h` et sa configuration OpenOCD ont été retirés du dépôt (dernière
+version dans l'historique git, avant le commit de retrait). Voir
+[ETAT_PROJET.md](ETAT_PROJET.md).
 
 ---
 
@@ -169,12 +119,12 @@ logiques 5 V, incompatibles sans adaptation.
 | Broche TJA1051T/3 | Vers | Remarque |
 |---|---|---|
 | 1 `TXD` | PA12 | niveau 3,3 V |
-| 2 `GND` | GND | masse commune avec le GND du bus (DB9-3) |
+| 2 `GND` | GND | masse commune avec le GND du bus |
 | 3 `VCC` | **+5 V** | 4,5 à 5,5 V — CN3-4 ou le rail 5 V du banc, **jamais les deux** |
 | 4 `RXD` | PA11 | niveau VIO |
 | 5 `VIO` | **+3,3 V** | fixe les seuils logiques |
-| 6 `CANL` | DB9-2 | |
-| 7 `CANH` | DB9-7 | |
+| 6 `CANL` | CAN_L de la paire | |
+| 7 `CANH` | CAN_H de la paire | |
 | 8 `S` | GND, ou PB6 | bas = normal, haut = silencieux |
 
 Découplage : 100 nF au plus près de `VCC` et de `VIO`.
@@ -192,7 +142,14 @@ TXD y basculant normalement.
 
 ---
 
-## 6. Terminaisons — **point à trancher (Q5b)**
+## 6. Terminaisons
+
+> **Montage retenu** ([schéma de câblage](../hardware/cablage_bus_can/cablage_bus_can.pdf)) :
+> les transceivers TJA1051T/3 sont soudés sur des adaptateurs SOP8 nus, sans résistance.
+> Les deux seules terminaisons sont l'interrupteur 120 Ω du ZLG USBCAN-UC12 (extrémité 1)
+> et une résistance de 120 Ω soudée sur l'adaptateur de N4 (extrémité 2). C'est le cas A
+> ci-dessous ; la mesure de contrôle reste valable.
+
 
 Le dossier (§4.2, §4.3) définit **deux terminaisons discrètes de 120 Ω**, aux deux
 extrémités physiques de la ligne : `R_T1` fixe, et `R_T2` commutée par SW1. Les quatre
@@ -244,6 +201,11 @@ Cette mesure est le premier point du test **T1**.
 ---
 
 ## 7. Connecteurs du bus — DB9, CiA 303-1
+
+> **Non retenu sur le banc actuel** : le bus est une paire torsadée CAN_H / CAN_L avec une
+> masse commune, raccordée par borniers et fils. Le brochage ci-dessous reste la référence
+> si un nœud partenaire arrive avec un connecteur DB9.
+
 
 Tous les connecteurs J1 à J5 utilisent le même brochage, afin qu'un nœud puisse être
 raccordé à n'importe quel point sans risque d'erreur (dossier §4.2).

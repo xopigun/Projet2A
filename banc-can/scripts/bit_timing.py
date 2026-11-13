@@ -10,10 +10,9 @@ Pourquoi l'alignement compte
 ----------------------------
 Deux nœuds dont les points d'échantillonnage diffèrent ne tolèrent pas le même
 écart d'horloge. Le point commun retenu est 87,5 %, recommandation CiA, atteint
-exactement par les deux familles :
+exactement par les quatre nœuds (tous sur STM32G431) :
 
     G431 : 80 MHz / 10 / 16 tq, segments 1 + 13 + 2, SJW 2
-    F103 : 36 MHz /  9 /  8 tq, segments 1 +  6 + 1, SJW 1
 
 Tolérance d'oscillateur
 -----------------------
@@ -23,9 +22,7 @@ Deux conditions d'ISO 11898-1 ; la plus contraignante est retenue ::
     df <= min(PS1, PS2) / (2 * (13 * NBT - PS2))
 
 À point d'échantillonnage égal, la tolérance ne dépend que du **rapport**
-SJW/NBT, pas de SJW en valeur absolue : le SJW de 1 du F103 n'est donc pas un
-handicap, 1/8 valant exactement 2/16. Sa seule conséquence est la granularité de
-resynchronisation, de 12,5 % du temps de bit contre 6,25 % sur le G431.
+SJW/NBT, pas de SJW en valeur absolue.
 """
 
 from __future__ import annotations
@@ -123,7 +120,6 @@ def enumerate_timings(
 
 BOARDS = {
     "nucleo_g431kb": ("fdcan", "BENCH_FDCAN_CLK_HZ"),
-    "bluepill_f103": ("bxcan", "BENCH_BXCAN_CLK_HZ"),
 }
 
 

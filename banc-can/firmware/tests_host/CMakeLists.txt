@@ -2,7 +2,7 @@
 #
 # Le code de firmware/common/ doit compiler sans le moindre en-tête HAL : c'est
 # ce qui permet de le tester sur l'hôte et ce qui garantit qu'il reste portable
-# entre le G431 (FDCAN) et le F103 (bxCAN). La cible bench_common ci-dessous ne
+# entre le G431 (FDCAN) et le L476 (bxCAN). La cible bench_common ci-dessous ne
 # reçoit donc aucun chemin d'inclusion vers firmware/vendor/.
 
 set(BENCH_COMMON_DIR ${CMAKE_SOURCE_DIR}/firmware/common)
