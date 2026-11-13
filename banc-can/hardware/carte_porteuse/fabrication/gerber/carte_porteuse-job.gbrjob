@@ -5,7 +5,7 @@
       "Application": "Pcbnew",
       "Version": "9.0.7"
     },
-    "CreationDate": "2026-11-13T22:52:18+01:00"
+    "CreationDate": "2026-11-13T23:24:06+01:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
@@ -41,6 +41,16 @@
     {
       "Path": "carte_porteuse-B_Cu.gbr",
       "FileFunction": "Copper,L2,Bot",
+      "FilePolarity": "Positive"
+    },
+    {
+      "Path": "carte_porteuse-F_Paste.gbr",
+      "FileFunction": "SolderPaste,Top",
+      "FilePolarity": "Positive"
+    },
+    {
+      "Path": "carte_porteuse-B_Paste.gbr",
+      "FileFunction": "SolderPaste,Bot",
       "FilePolarity": "Positive"
     },
     {

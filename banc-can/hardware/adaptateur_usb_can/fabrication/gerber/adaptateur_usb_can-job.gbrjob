@@ -5,7 +5,7 @@
       "Application": "Pcbnew",
       "Version": "9.0.7"
     },
-    "CreationDate": "2026-11-13T23:07:03+01:00"
+    "CreationDate": "2026-11-13T23:23:55+01:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
@@ -41,6 +41,16 @@
     {
       "Path": "adaptateur_usb_can-B_Cu.gbr",
       "FileFunction": "Copper,L2,Bot",
+      "FilePolarity": "Positive"
+    },
+    {
+      "Path": "adaptateur_usb_can-F_Paste.gbr",
+      "FileFunction": "SolderPaste,Top",
+      "FilePolarity": "Positive"
+    },
+    {
+      "Path": "adaptateur_usb_can-B_Paste.gbr",
+      "FileFunction": "SolderPaste,Bot",
       "FilePolarity": "Positive"
     },
     {

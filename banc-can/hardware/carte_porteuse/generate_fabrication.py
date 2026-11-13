@@ -2,7 +2,8 @@
 
     python generate_fabrication.py
 
-- gerber/ : cuivre avant et arrière, contour, sérigraphie (Gerber X2), perçages Excellon
+- gerber/ : cuivre avant et arrière, contour, sérigraphie, pâte à braser des deux faces
+  (F_Paste, B_Paste : pour découper les pochoirs du four) en Gerber X2, perçages Excellon
   en mm séparés métallisés / non métallisés, plans de perçage PDF ;
 - carte_porteuse_gerber.zip : le contenu de gerber/, à joindre au ticket ;
 - BOM : nomenclature CSV (Excel) et PDF à imprimer pour le retrait au magasin ;
@@ -160,7 +161,7 @@ def echelle_1():
 def main():
     shutil.rmtree(OUT, ignore_errors=True)
     GERBER.mkdir(parents=True)
-    cli("pcb", "export", "gerbers", "--layers", "F.Cu,B.Cu,Edge.Cuts,F.Silkscreen",
+    cli("pcb", "export", "gerbers", "--layers", "F.Cu,B.Cu,Edge.Cuts,F.Silkscreen,F.Paste,B.Paste",
         "--no-protel-ext", "-o", f"{GERBER}\\", str(PCB))
     cli("pcb", "export", "drill", "--format", "excellon", "--excellon-units", "mm",
         "--excellon-separate-th", "--generate-map", "--map-format", "pdf",
