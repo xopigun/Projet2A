@@ -59,9 +59,9 @@ plaque du banc devra soutenir les deux coins arrière, sous les borniers, où l'
 | Connecteurs au bord, câbles vers l'extérieur | borniers sur les bords gauche et droit, USB vers l'arrière, modules debout au-delà des bords |
 | Microcontrôleur au centre, composants près de leurs broches | Nucleo au centre ; LED près de PA0/PA1 (CN3), MPU près de l'I2C (CN4) |
 | Découplage au plus près | 100 nF à 2,5 mm de VCC et 2,9 mm de VIO |
-| Plan de masse | deux faces ; masse aussi routée sous la Nucleo. Vias de masse superflus retirés (`../elaguer_vias.py`, 137 → 16) : les vias de couture sont à poser à la main. Relancer `route_freerouting.py` les remet tous |
+| Plan de masse | deux faces, masse aussi routée sous la Nucleo ; vias de masse superflus retirés (`../elaguer_vias.py`), puis vias de couture posés à la main : 34 vias au total. Relancer `route_freerouting.py` remettrait les vias automatiques |
 | Classes de nets, pistes larges pour l'alimentation | classe Puissance : +5V et +3V3 en 0,6 mm, signaux en 0,4 mm |
-| Teardrops | 111 |
+| Teardrops | 99 |
 | Champ MPN dans les symboles | 26 composants renseignés |
 | ERC et DRC propres | voir plus haut |
 | Règles factory | piste 0,4 mm, isolation 0,3 mm, vias 0,8/0,4 mm, 0,5 mm au contour, 0805 HandSolder |
