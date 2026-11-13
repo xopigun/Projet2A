@@ -197,7 +197,7 @@ pastilles. Le HC-49 de la version 0.1 (12 mm de long) ne tenait pas sur la carte
 | ERC du schéma | 0 violation | `kicad-cli sch erc` (KiCad 9.0.7), rapport joint |
 | DRC avec les règles ENSEA, et cohérence avec le schéma | 0 erreur, 0 liaison manquante ; 15 avertissements de sérigraphie (textes tronqués par le bord ou par des pastilles, connecteurs qui dépassent volontairement du bord) | `kicad-cli pcb drc --schematic-parity`, rapport joint |
 | Carte | 60 × 30 mm, sans trou de fixation ; composants sur les deux faces : connecteurs, circuits intégrés, quartz, boutons et LED dessus, régulateur, protection USB et passifs dessous | `generate_pcb.py` |
-| Routage | 2 couches, pistes de 0,4 mm, vias de 0,8/0,4 mm, plan de masse sur les deux faces relié par des vias de couture | Freerouting 2.5.0 pour les signaux, dernières liaisons tracées à la main (`route_freerouting.py`) |
+| Routage | 2 couches, pistes de 0,4 mm, vias de 0,8/0,4 mm, plan de masse sur les deux faces ; vias de masse superflus retirés (`../elaguer_vias.py`, 254 → 35), vias de couture à poser à la main | Freerouting 2.5.0 pour les signaux, dernières liaisons tracées à la main (`route_freerouting.py`) |
 
 ## Points restant à confirmer (⚠️ ou ℹ️)
 
