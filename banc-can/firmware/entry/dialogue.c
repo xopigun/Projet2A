@@ -4,7 +4,7 @@
  *
  * Remplace `main.c` lorsque le firmware est compilé avec `-DBENCH_DIALOGUE=ON`
  * (presets `n1-dialogue`, `n2-dialogue`, `n3-dialogue`). Le but est de **voir le
- * CAN fonctionner** dans un analyseur (ZCANPRO, BancCAN) et sur les écrans LCD :
+ * CAN fonctionner** dans un analyseur (ZCANPRO, BancCAN) et sur le journal série :
  *
  * | Qui | Identifiant | Message           | Quand                                       |
  * |-----|-------------|-------------------|---------------------------------------------|
@@ -24,7 +24,7 @@
  *     22 64 73 20 74 75 20 3F    morceau 2/2 : "ds tu ?"
  *
  * Le récepteur recolle les morceaux et n'agit qu'une fois le message complet.
- * Le texte n'est pas accentué : l'écran HD44780 n'a pas de « è ».
+ * Le texte n'est pas accentué : ASCII seulement.
  *
  * **Appel du PC.** Depuis ZCANPRO : trame standard 0x0B0, DLC 1, donnée `01`
  * pour appeler N1, `02` pour N2, `03` pour N3, `00` pour tous. Chaque nœud
@@ -35,20 +35,17 @@
  * 0x100-0x300, 0x780-0x78F) : ce firmware de démonstration ne se mélange pas
  * au protocole du banc.
  *
- * **Écran LCD** : ligne 1, le dernier message reçu (`<` puis le texte) ;
- * ligne 2, le dernier message envoyé (`>` puis le texte). Le journal série
- * (VCP, 115200 bauds) trace chaque message complet, envoyé ou reçu.
+ * Le journal série (VCP, 115200 bauds) trace chaque message complet, envoyé ou
+ * reçu.
  */
 
 #include <stdio.h>
 #include <string.h>
 
-#include "app/lcd_text.h"
 #include "board.h"
 #include "can_port.h"
 #include "clock.h"
 #include "icd_gen.h"
-#include "lcd.h"
 #include "serial.h"
 #include "util/ring_buffer.h"
 
@@ -97,7 +94,6 @@ typedef struct {
 static bench_ring_t     s_rx_ring;
 static bench_port_can_t s_port;
 static bench_can_t      s_can;
-static bench_lcd_text_t s_screen;
 
 static bool open_can(void) {
     bench_can_config_t config = {0};
@@ -167,27 +163,11 @@ static bool collect(dlg_rx_t *rx, const bench_can_frame_t *frame) {
 }
 #endif
 
-/** Écrit « <c> texte » sur une ligne de l'écran, complétée d'espaces. */
-static void screen_line(uint8_t row, char mark, const char *text) {
-    char *line = s_screen.row[row];
-
-    memset(line, ' ', BENCH_LCD_COLS);
-    line[BENCH_LCD_COLS] = '\0';
-    line[0] = mark;
-    for (uint8_t i = 0u; text[i] != '\0' && i + 2u < BENCH_LCD_COLS; i++) {
-        const char c = text[i];
-        /* Mêmes règles que lcd_text.c : 0x20-0x7D affichés, sauf « \ ». */
-        line[2u + i] = (c >= 0x20 && c <= 0x7D && c != 0x5C) ? c : '.';
-    }
-    bench_lcd_show(&s_screen);
-}
-
 static void say(uint16_t id, const char *text) {
     const bool ok = send_text(id, text);
 
     printf("  >> N%u envoie sur 0x%03X : \"%s\"%s\r\n", (unsigned)BENCH_NODE_ID,
            (unsigned)id, text, ok ? "" : "  (refusee : file d'emission pleine)");
-    screen_line(1u, '>', text);
 }
 
 static void schedule(dlg_pending_t *out, uint32_t at_ms, uint16_t id, const char *text) {
@@ -202,11 +182,6 @@ int main(void) {
     HAL_Init();
     bench_clock_config();
     (void)bench_serial_open();
-
-    bench_lcd_init();
-    bench_lcd_text_splash(&s_screen, BENCH_NODE_ID, DLG_MY_ID, bench_clock_source_name());
-    bench_lcd_show(&s_screen);
-    bench_lcd_flush();
 
     printf("\r\n\r\n============================================================\r\n");
     printf(" Dialogue CAN - noeud N%u - %s\r\n", (unsigned)BENCH_NODE_ID, BENCH_BOARD_NAME);
@@ -237,7 +212,7 @@ int main(void) {
     dlg_pending_t reply = {0};
     dlg_pending_t answer = {0};
 #if BENCH_NODE_ID == 1
-    uint32_t next_question_ms = HAL_GetTick() + 2000u; /* après l'écran d'accueil */
+    uint32_t next_question_ms = HAL_GetTick() + 2000u; /* laisse démarrer N2 */
 #endif
 
     for (;;) {
@@ -253,7 +228,6 @@ int main(void) {
                 snprintf(text, sizeof text, "Ici N%u", (unsigned)BENCH_NODE_ID);
                 printf("  << appel du PC (0x%03X, %02X)\r\n", (unsigned)DLG_ID_CALL,
                        (unsigned)rx.data[0]);
-                screen_line(0u, '<', rx.data[0] == 0u ? "PC appelle tous" : "PC m'appelle");
                 schedule(&answer, now_ms + DLG_ANSWER_STEP_MS * BENCH_NODE_ID,
                          DLG_ID_ANSWER(BENCH_NODE_ID), text);
             }
@@ -261,7 +235,6 @@ int main(void) {
             (void)from_n2;
             if (rx.id == DLG_ID_N1 && collect(&from_n1, &rx)) {
                 printf("  << N1 : \"%s\"\r\n", from_n1.text);
-                screen_line(0u, '<', from_n1.text);
                 if (strcmp(from_n1.text, DLG_QUESTION) == 0) {
                     schedule(&reply, now_ms + DLG_REPLY_DELAY_MS, DLG_ID_N2, DLG_YES);
                 }
@@ -270,7 +243,6 @@ int main(void) {
             (void)from_n1;
             if (rx.id == DLG_ID_N2 && collect(&from_n2, &rx)) {
                 printf("  << N2 : \"%s\"\r\n", from_n2.text);
-                screen_line(0u, '<', from_n2.text);
                 if (strcmp(from_n2.text, DLG_YES) == 0) {
                     schedule(&reply, now_ms + DLG_REPLY_DELAY_MS, DLG_ID_N1, DLG_GOOD);
                 }
@@ -295,7 +267,6 @@ int main(void) {
             answer.pending = false;
             say(answer.id, answer.text);
         }
-        bench_lcd_service();
     }
 }
 

@@ -22,15 +22,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Options communes aux deux modes. -Wall -Wextra est exige par la definition de « termine ».
 add_compile_options(-Wall -Wextra -Wshadow -Wundef -Wconversion -Wsign-conversion)
 
-set(BENCH_NODE_ID 0 CACHE STRING "Role du noeud a compiler : 1 a 4, 5 pour le pont CAN-USB (L476), ou 0 pour la compilation hote")
+set(BENCH_NODE_ID 0 CACHE STRING "Role du noeud a compiler : 1 a 4, ou 0 pour la compilation hote")
 
 if(CMAKE_CROSSCOMPILING)
     # ---------------------------------------------------------------- firmware
-    if(NOT BENCH_NODE_ID MATCHES "^[1-5]$")
+    if(NOT BENCH_NODE_ID MATCHES "^[1-4]$")
         message(FATAL_ERROR
-            "BENCH_NODE_ID doit valoir 1 a 4 (noeuds) ou 5 (pont CAN-USB) pour une "
-            "compilation croisee (valeur recue : « ${BENCH_NODE_ID} »). Utiliser un "
-            "preset n1 a n4, bridge ou bridge-direct.")
+            "BENCH_NODE_ID doit valoir 1 a 4 pour une compilation croisee "
+            "(valeur recue : « ${BENCH_NODE_ID} »). Utiliser un preset n1 a n4.")
     endif()
 
     if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/firmware/vendor/cmsis_core/Core/Include)
@@ -42,11 +41,7 @@ if(CMAKE_CROSSCOMPILING)
     include(BenchFlash)
     bench_report_flash_tool()
 
-    if(BENCH_NODE_ID EQUAL 5)
-        message(STATUS "Cible : pont CAN-USB (Nucleo-L476RG, slcan)")
-    else()
-        message(STATUS "Cible : firmware du noeud N${BENCH_NODE_ID}")
-    endif()
+    message(STATUS "Cible : firmware du noeud N${BENCH_NODE_ID}")
     add_subdirectory(firmware)
 else()
     # -------------------------------------------------------------- tests hote

@@ -95,17 +95,15 @@ CAN_L :
 On la lit de bas en haut :
 
 1. **`board.h`** : tout le brochage d'une carte, dans un seul fichier par carte.
-2. **Pilotes FDCAN / bxCAN** : un pilote par type de contrôleur CAN. FDCAN pour le
-   STM32G431 de nos Nucleo, bxCAN pour la L476 du pont slcan.
+2. **Pilote FDCAN** : la couche propre au contrôleur CAN du STM32G431 de nos Nucleo.
 3. **Interface CAN abstraite (`can_if.h`)** : les mêmes fonctions (ouvrir, émettre,
    recevoir, lire l'état d'erreur) quel que soit le microcontrôleur.
 4. **Application commune**, identique sur toutes les cartes :
    - le **heartbeat** : chaque nœud annonce régulièrement son état ;
    - l'**arbitrage ARM/GO** : le PC arme les nœuds, puis leur dit d'émettre en même temps ;
-   - les **fautes commandées à distance** (`BENCH_CFG`) ;
-   - l'**écran LCD**.
+   - les **fautes commandées à distance** (`BENCH_CFG`).
 
-L'intérêt : le même code applicatif tourne sur trois microcontrôleurs, et on peut le tester
+L'intérêt : le code applicatif ne dépend pas du microcontrôleur, et on peut le tester
 sur PC sans carte.
 
 À droite de la diapo :
@@ -114,8 +112,7 @@ sur PC sans carte.
   une autre carte ;
 - **tests unitaires sur PC** : le code commun est testé sans matériel ;
 - **presets CMake** : une commande pour compiler le bon firmware selon le nœud et le mode
-  (`n1`, `n1-selftest`, `n1-dialogue`…) ;
-- **afficheurs LCD 16×2** : dernière trame reçue et état du contrôleur.
+  (`n1`, `n1-selftest`, `n1-dialogue`…).
 
 ## Diapo 9 : la démonstration du 03/11
 
@@ -156,7 +153,7 @@ Autour, il y a :
 - un connecteur de programmation SWD.
 
 **À savoir si on nous pose la question** : la carte n'est pas encore fabriquée, et son
-firmware reste à écrire. On pourra adapter le pont série-CAN qui existe déjà pour la L476.
+firmware reste à écrire. Il reprendra le module slcan du dépôt, déjà testé.
 
 Sources : `banc-can/hardware/adaptateur_usb_can/` et sa vérification composant par
 composant, `SOURCES_COMPOSANTS.md`.

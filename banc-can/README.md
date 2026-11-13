@@ -221,7 +221,7 @@ trames manquées, mesurées sur l'horodatage matériel à 0,1 ms. Le type d'erre
 | `icd/` | `bench_icd.yaml` — **source unique** des identifiants, signaux et encodages |
 | `tools/codegen/` | génération depuis l'ICD : C, Python, DBC, LaTeX |
 | `firmware/common/` | code indépendant du microcontrôleur — aucun en-tête HAL |
-| `firmware/ports/` | couches matérielles : `g431_fdcan` (nœuds), `l476_bxcan` (pont slcan) |
+| `firmware/ports/` | couche matérielle : `g431_fdcan` (FDCAN du STM32G431) |
 | `firmware/boards/` | `board.h` — **tout** le brochage, et nulle part ailleurs |
 | `firmware/vendor/` | sous-modules ST épinglés (HAL, CMSIS) |
 | `firmware/tests_host/` | tests unitaires natifs du code commun |
@@ -262,7 +262,7 @@ Le projet lui-même est sous licence MIT — voir [LICENSE](LICENSE).
 - [docs/ETAT_PROJET.md](docs/ETAT_PROJET.md) — état du projet, ce qui a été abandonné et pourquoi
 - [docs/PLAN.md](docs/PLAN.md) — plan de travail, écarts relevés, points à vérifier
 - [docs/pinout.md](docs/pinout.md) — brochage, vérifié depuis les `board.h`
-- [docs/config_logicielle.md](docs/config_logicielle.md) — paramètres FDCAN/bxCAN : horloges,
+- [docs/config_logicielle.md](docs/config_logicielle.md) — paramètres FDCAN : horloges,
   calcul du temps de bit et de la tolérance d'oscillateur (§3), filtres, bus-off,
   architecture temps réel : interruption de réception, tampon, boucle principale (§9)
 - [docs/protocole_validation.md](docs/protocole_validation.md) — les sept tests T1 à T7, dont

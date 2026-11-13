@@ -11,7 +11,7 @@
  * l'identique : `bench_port_can_t`, `bench_port_can_bind()`,
  * `bench_port_can_poll()`, et les constantes de son `board.h`. Les appels HAL
  * utilisés ici (`HAL_Init`, `HAL_GetTick`, `HAL_GPIO_*`) existent sous le même
- * nom dans les HAL G4 et L4.
+ * nom dans toutes les HAL ST.
  */
 
 #include "app/faults.h"

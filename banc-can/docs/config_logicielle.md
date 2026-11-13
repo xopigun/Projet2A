@@ -193,10 +193,6 @@ df ≤ min(PS1, PS2) / (2 · (13 · NBT − PS2))
 | Trames standard non filtrées | `FDCAN_ACCEPT_IN_RX_FIFO0` |
 | Trames étendues non filtrées | `FDCAN_ACCEPT_IN_RX_FIFO0` |
 | Trames distantes | `FDCAN_FILTER_REMOTE` |
-| bxCAN (pont L476) | banc 0 en mode masque 32 bits, identifiant et masque nuls, vers la FIFO 0 |
-
-Sur bxCAN, « aucun filtre » ne veut pas dire « tout accepter » : **sans banc de filtres
-actif, rien n'est reçu**. Un masque nul est la façon d'accepter toutes les trames.
 
 C'est un choix, pas un oubli. Un banc de test doit voir **tout** le trafic, y compris les
 trames qu'il n'attend pas : c'est ce qui permet de détecter un *babbling idiot*, un
@@ -210,7 +206,7 @@ Le tri est fait en logiciel, à partir de la table de trames générée depuis l
 
 ## 5. Retransmission automatique
 
-**Activée**, sur les deux ports (FDCAN des nœuds, bxCAN du pont L476).
+**Activée**.
 
 C'est une condition de validité du test d'arbitrage, pas une option de confort : sans
 retransmission automatique, un nœud qui perd l'arbitrage **abandonne sa trame**. N2 et N3
@@ -220,11 +216,9 @@ démontrerait rien.
 | Contrôleur | Réglage |
 |---|---|
 | FDCAN | `Init.AutoRetransmission = ENABLE` (soit `CCCR.DAR = 0`) |
-| bxCAN | `NART = 0` |
 
-L'**ordre d'émission** des trames en attente est aussi aligné : par identifiant, sur les
-deux contrôleurs. FDCAN est en mode file d'attente (`TFQM = 1`), bxCAN en priorité par
-identifiant (`TXFP = 0`). Le mode file du FDCAN écarte en outre l'erratum ES0431 §2.15.2,
+L'**ordre d'émission** des trames en attente suit l'identifiant : le FDCAN est en mode
+file d'attente (`TFQM = 1`). Le mode file du FDCAN écarte en outre l'erratum ES0431 §2.15.2,
 qui ne touche que le mode FIFO.
 
 Le champ est exposé dans `bench_can_config_t.auto_retransmit` afin de pouvoir le désactiver
@@ -234,7 +228,7 @@ volontairement lors d'un test de robustesse, jamais en fonctionnement nominal.
 
 ## 6. Politique de bus-off
 
-Deux politiques, identiques dans leur effet sur les deux ports, choisies par
+Deux politiques, choisies par
 `bench_can_config_t.busoff_policy` et reconfigurables en marche par `BENCH_CFG` :
 
 | Politique | Comportement |
@@ -245,14 +239,9 @@ Deux politiques, identiques dans leur effet sur les deux ports, choisies par
 Le mode manuel existe pour les tests de fautes : il laisse le temps d'observer et de
 photographier l'état `bus-off` sur l'écran et les LEDs avant que le nœud ne reparte.
 
-### Différence de mise en œuvre entre les deux contrôleurs
+### Mise en œuvre sur le FDCAN
 
-C'est le point où les deux ports divergent réellement, et il mérite d'être noté dans le
-dossier :
-
-- **bxCAN** dispose du bit matériel `ABOM` (*automatic bus-off management*) : la reprise est
-  entièrement gérée par le périphérique.
-- **FDCAN n'a pas d'équivalent.** La reprise est **logicielle** : il faut remettre à zéro le
+- **Le FDCAN n'a pas de reprise matérielle** (pas d'équivalent du bit `ABOM` du bxCAN). La reprise est **logicielle** : il faut remettre à zéro le
   bit `CCCR.INIT` pour lancer la séquence de reprise. C'est fait par
   `bench_port_can_poll()`, appelée depuis la boucle principale.
 
@@ -268,11 +257,10 @@ et non la broche `S` du transceiver.
 | Contrôleur | Réglage |
 |---|---|
 | FDCAN | `CCCR.MON` (`FDCAN_MODE_BUS_MONITORING`) |
-| bxCAN | `BTR.SILM` |
 
 Trois raisons à ce choix :
 
-1. **Sémantique identique** sur les deux microcontrôleurs, alors que la broche 8 des deux
+1. **Sémantique indépendante du transceiver**, alors que la broche 8 des deux
    transceivers envisagés ne fait pas la même chose : `S` du TJA1051 coupe l'émetteur en
    gardant le récepteur pleinement actif, tandis que `RS` du SN65HVD230 place le composant en
    *standby*, où le récepteur est dégradé.
@@ -293,11 +281,6 @@ sur les broches : **ni transceiver ni bus câblé ne sont nécessaires**.
 | Contrôleur | Réglage |
 |---|---|
 | FDCAN | `FDCAN_MODE_INTERNAL_LOOPBACK` |
-| bxCAN | `CAN_MODE_SILENT_LOOPBACK` (`LBKM` + `SILM`) |
-
-Le piège est côté bxCAN : en bouclage **simple**, il émet quand même ses trames sur CANTX
-(RM0008, § modes de test). Seul le bouclage **combiné au mode silencieux** maintient CANTX
-récessive et laisse le bus intact.
 
 C'est la base de la phase 1 de l'autotest de mise en route ([bringup.md](bringup.md) §3).
 
@@ -375,7 +358,7 @@ le sont, le résultat du test est suspect et doit être signalé comme tel.
 
 De la même manière, **aucun compteur d'erreur n'est réimplémenté en logiciel**. `TEC`, `REC`,
 l'état du contrôleur et le dernier code d'erreur sont lus directement dans les registres
-`PSR` et `ECR` (FDCAN) ou `ESR` (bxCAN). Un compteur logiciel refléterait notre
+`PSR` et `ECR` du FDCAN. Un compteur logiciel refléterait notre
 interprétation du protocole, pas le comportement réel du matériel.
 
 ---

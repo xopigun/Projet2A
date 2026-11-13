@@ -2,8 +2,8 @@
  * @file can_if.h
  * @brief Interface CAN abstraite, indépendante du microcontrôleur.
  *
- * Tout le code de @c firmware/common/ passe par cette interface. Les ports
- * — @c ports/g431_fdcan et @c ports/l476_bxcan — en fournissent une réalisation.
+ * Tout le code de @c firmware/common/ passe par cette interface ; le port
+ * @c ports/g431_fdcan en fournit la réalisation.
  * Aucun en-tête HAL ne doit apparaître ici : un test natif le vérifie
  * (@c firmware/tests_host/check_no_hal.cmake).
  *

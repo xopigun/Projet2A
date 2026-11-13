@@ -3,9 +3,11 @@
  * @brief Protocole slcan (« Lawicel »), côté adaptateur : analyse des commandes
  *        du PC et mise en forme des trames envoyées au PC.
  *
- * Sert au pont CAN-USB du banc (`entry/slcan_bridge.c`) : une carte devient un
- * adaptateur que `canbench --interface slcan` (python-can) pilote comme un
- * CANable. Ce fichier ne dépend d'aucun en-tête HAL, donc il est testé sur
+ * Destiné au firmware de l'adaptateur USB-CAN du banc (hardware/adaptateur_usb_can,
+ * STM32G431 + CH340C) : la carte devient un adaptateur que
+ * `canbench --interface slcan` (python-can) pilote comme un CANable. Il a d'abord
+ * servi au pont sur Nucleo-L476RG, abandonné (entry/slcan_bridge.c, dans
+ * l'historique git). Ce fichier ne dépend d'aucun en-tête HAL, donc il est testé sur
  * l'hôte (`tests_host/test_slcan.c`).
  *
  * Seul le CAN 2.0A classic est pris en charge, comme tout le banc : les trames

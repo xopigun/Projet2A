@@ -75,9 +75,5 @@ Tous sont disponibles sur <https://www.st.com>, page produit du microcontrôleur
 
 ## Documents inexistants ou manquants
 
-| Document | Pourquoi | Ce qui le remplace |
-|---|---|---|
-| Manuel des Nucleo-64 (**UM1724**) | non fourni | utile seulement pour le pont slcan sur Nucleo-L476RG |
-
-Les documents propres à la Blue Pill (schéma de la carte, errata STM32F103) ne sont plus
+Aucun document manquant ne bloque le projet. Les documents propres à la Blue Pill (schéma de la carte, errata STM32F103) ne sont plus
 nécessaires : N4 est une Nucleo-G431KB depuis l'abandon de cette carte.

@@ -1,47 +1,24 @@
 # Firmware d'un nœud du banc.
 #
 # Un seul exécutable par configuration, le rôle venant de BENCH_NODE_ID.
-# La carte cible en découle : N1 à N4 sur Nucleo-G431KB (la Blue Pill F103 prévue pour N4
-# a été abandonnée, voir docs/ETAT_PROJET.md),
-# et le rôle 5 est le pont CAN-USB sur Nucleo-L476RG (entry/slcan_bridge.c).
+# Les quatre noeuds N1 a N4 sont des Nucleo-G431KB. La Blue Pill F103 prevue pour N4 et
+# le pont slcan sur Nucleo-L476RG ont ete abandonnes : voir docs/ETAT_PROJET.md.
 
 set(VENDOR ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
 
 # ---------------------------------------------------------------------------
-#  Choix de la cible d'après le rôle
+#  Cible : Nucleo-G431KB pour tous les noeuds
 # ---------------------------------------------------------------------------
-if(BENCH_NODE_ID EQUAL 5)
-    set(BENCH_BOARD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boards/nucleo_l476rg)
-    set(BENCH_PORT_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/ports/l476_bxcan)
-    set(BENCH_MCU_FAMILY l4)
-    set(BENCH_MCU_DEVICE STM32L476xx)
-    set(BENCH_CPU_FLAGS -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard)
-    set(BENCH_STARTUP ${VENDOR}/cmsis_device_l4/Source/Templates/gcc/startup_stm32l476xx.s)
-    set(BENCH_LINKER_SCRIPT ${BENCH_PORT_DIR}/STM32L476RGTx_FLASH.ld)
-    set(BENCH_VECTORS SysTick_Handler CAN1_RX0_IRQHandler CAN1_TX_IRQHandler)
-    if(BENCH_CLOCK_SOURCE STREQUAL "HSI")
-        message(FATAL_ERROR
-            "Pas de preset HSI pour le pont : il choisit seul entre le HSE (8 MHz du "
-            "ST-LINK) et le HSI16 au demarrage, et le signale.")
-    endif()
-else()
-    set(BENCH_BOARD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boards/nucleo_g431kb)
-    set(BENCH_PORT_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/ports/g431_fdcan)
-    set(BENCH_MCU_FAMILY g4)
-    set(BENCH_MCU_DEVICE STM32G431xx)
-    set(BENCH_CPU_FLAGS -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard)
-    set(BENCH_STARTUP ${VENDOR}/cmsis_device_g4/Source/Templates/gcc/startup_stm32g431xx.s)
-    set(BENCH_LINKER_SCRIPT ${BENCH_PORT_DIR}/STM32G431KBTx_FLASH.ld)
-    set(BENCH_VECTORS SysTick_Handler FDCAN1_IT0_IRQHandler)
-    # Afficheur LCD 16x2 des noeuds N1 et N2 (firmware scope).
-    set(BENCH_PORT_EXTRA ${BENCH_PORT_DIR}/lcd.c)
-endif()
+set(BENCH_BOARD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boards/nucleo_g431kb)
+set(BENCH_PORT_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/ports/g431_fdcan)
+set(BENCH_MCU_FAMILY g4)
+set(BENCH_MCU_DEVICE STM32G431xx)
+set(BENCH_CPU_FLAGS -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard)
+set(BENCH_STARTUP ${VENDOR}/cmsis_device_g4/Source/Templates/gcc/startup_stm32g431xx.s)
+set(BENCH_LINKER_SCRIPT ${BENCH_PORT_DIR}/STM32G431KBTx_FLASH.ld)
+set(BENCH_VECTORS SysTick_Handler FDCAN1_IT0_IRQHandler)
 
-if(BENCH_NODE_ID EQUAL 5)
-    set(BENCH_ELF bridge)
-else()
-    set(BENCH_ELF n${BENCH_NODE_ID})
-endif()
+set(BENCH_ELF n${BENCH_NODE_ID})
 
 # ---------------------------------------------------------------------------
 #  Bibliothèque HAL — uniquement les modules dont le banc a besoin
@@ -69,13 +46,6 @@ if(BENCH_MCU_FAMILY STREQUAL "g4")
     list(APPEND HAL_MODULES
         ${HAL_DIR}/Src/${HAL_PREFIX}_dma_ex.c
         ${HAL_DIR}/Src/${HAL_PREFIX}_fdcan.c
-        ${HAL_DIR}/Src/${HAL_PREFIX}_i2c_ex.c
-        ${HAL_DIR}/Src/${HAL_PREFIX}_pwr_ex.c
-        ${HAL_DIR}/Src/${HAL_PREFIX}_uart_ex.c)
-elseif(BENCH_MCU_FAMILY STREQUAL "l4")
-    list(APPEND HAL_MODULES
-        ${HAL_DIR}/Src/${HAL_PREFIX}_can.c
-        ${HAL_DIR}/Src/${HAL_PREFIX}_dma_ex.c
         ${HAL_DIR}/Src/${HAL_PREFIX}_i2c_ex.c
         ${HAL_DIR}/Src/${HAL_PREFIX}_pwr_ex.c
         ${HAL_DIR}/Src/${HAL_PREFIX}_uart_ex.c)
@@ -110,7 +80,6 @@ add_library(bench_app STATIC
     ${COMMON}/app/node.c
     ${COMMON}/app/faults.c
     ${COMMON}/app/slcan.c
-    ${COMMON}/app/lcd_text.c
 )
 target_include_directories(bench_app PUBLIC ${COMMON} ${COMMON}/icd_gen ${BENCH_BOARD_DIR})
 
@@ -147,13 +116,7 @@ if(BENCH_CAN_DIRECT)
     message(WARNING "Bus direct sans transceiver : toutes les cartes reliees doivent porter "
                     "ce firmware, jamais un firmware normal (sortie push-pull).")
 endif()
-if(BENCH_NODE_ID EQUAL 5)
-    # Pont CAN-USB : le tampon de reception est plus grand, l'USART est plus lent
-    # que le bus. Defini sur bench_app pour que tout le firmware le voie.
-    target_compile_definitions(bench_app PUBLIC BENCH_RING_CAPACITY=256)
-    set(BENCH_MAIN ${ENTRY}/slcan_bridge.c)
-    message(STATUS "Mode pont CAN-USB : protocole slcan sur le port COM virtuel")
-elseif(BENCH_DIALOGUE)
+if(BENCH_DIALOGUE)
     set(BENCH_MAIN ${ENTRY}/dialogue.c)
     message(STATUS "Mode dialogue : N1 et N2 echangent du texte, reponse a l'appel du PC")
 elseif(BENCH_SCOPE)
@@ -173,7 +136,6 @@ add_executable(${BENCH_ELF}
     ${BENCH_PORT_DIR}/serial.c
     ${BENCH_PORT_DIR}/clock.c
     ${BENCH_PORT_DIR}/can_port.c
-    ${BENCH_PORT_EXTRA}
     ${BENCH_STARTUP}
 )
 target_include_directories(${BENCH_ELF} PRIVATE ${BENCH_PORT_DIR})
