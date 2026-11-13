@@ -28,6 +28,9 @@ FP_R = "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 FP_C = "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 FP_LED = "LED_SMD:LED_0805_2012Metric_Pad1.15x1.40mm_HandSolder"
 FP_SOCK = "Connector_PinSocket_2.54mm:PinSocket_1x{:02d}_P2.54mm_Vertical"
+# Barrettes coudées : les modules OLED et GY-521 (broches droites) y tiennent debout, au
+# bord de la carte, au lieu de se coucher sur la Nucléo.
+FP_SOCK_H = "Connector_PinSocket_2.54mm:PinSocket_1x{:02d}_P2.54mm_Horizontal"
 FP_BORNIER = "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-3-5.08_1x03_P5.08mm_Horizontal"
 
 # Valeur -> (fabricant, référence fabricant, datasheet). Vide : datasheet de la bibliothèque.
@@ -48,8 +51,10 @@ PIECES = {
     "OLED": ("au choix", "barrette femelle 1 x 4, pas 2,54 mm", ""),
     "MPU-6050": ("au choix", "barrette femelle 1 x 8, pas 2,54 mm", ""),
     "TERM": ("Würth Elektronik", "61300211121", ""),
-    "Hall": ("au choix", "barrette femelle 1 x 3, pas 2,54 mm", ""),
-    "1-Wire": ("au choix", "barrette femelle 1 x 3, pas 2,54 mm", ""),
+    "Capteurs": ("au choix", "barrette mâle 1 x 4, pas 2,54 mm", ""),
+    "OLED coudé": ("au choix", "barrette femelle coudée 1 x 4, pas 2,54 mm", ""),
+    "MPU-6050 coudé": ("au choix", "barrette femelle coudée 1 x 8, pas 2,54 mm", ""),
+    "M3": ("au choix", "trou de fixation 3,2 mm, vis M3", ""),
 }
 
 items = []
@@ -336,8 +341,8 @@ text(213.36, 167.64, "J7 : cavalier = 120 ohms (noeud en bout de bus). N4 : J7 v
 
 # --- 4. I2C : écran OLED et MPU-6050 --------------------------------------------------
 text(127.0, 139.7, "4 - ECRAN OLED SSD1306 ET MPU-6050 (I2C1 : PA15 SCL, PB7 SDA)", 1.5)
-part("Connector_Generic:Conn_01x04", "J5", "OLED", 160.02, 167.64,
-     {"1": "OLED_1", "2": "OLED_2", "3": "I2C_SCL", "4": "I2C_SDA"}, FP_SOCK.format(4),
+part("Connector_Generic:Conn_01x04", "J5", "OLED coudé", 160.02, 167.64,
+     {"1": "OLED_1", "2": "OLED_2", "3": "I2C_SCL", "4": "I2C_SDA"}, FP_SOCK_H.format(4),
      text_side="right")
 # Ordre GND / VCC : celui de la plupart des modules 0,96". R9 et R10 le câblent ; si le
 # module reçu est en VCC / GND, monter R11 et R12 à la place (jamais les quatre).
@@ -347,9 +352,9 @@ part("Device:R", "R11", "0R", 205.74, 175.26, {"1": "+3V3", "2": "OLED_1"}, FP_R
      text_side="right", dnp=True)
 part("Device:R", "R12", "0R", 215.9, 175.26, {"1": "GND", "2": "OLED_2"}, FP_R,
      text_side="right", dnp=True)
-part("Connector_Generic:Conn_01x08", "J6", "MPU-6050", 160.02, 200.66,
+part("Connector_Generic:Conn_01x08", "J6", "MPU-6050 coudé", 160.02, 200.66,
      {"1": "+3V3", "2": "GND", "3": "I2C_SCL", "4": "I2C_SDA", "5": None, "6": None,
-      "7": "GND", "8": "MPU_INT"}, FP_SOCK.format(8), text_side="right")
+      "7": "GND", "8": "MPU_INT"}, FP_SOCK_H.format(8), text_side="right")
 text(127.0, 220.98, "J6 (GY-521) : VCC GND SCL SDA XDA XCL AD0 INT ; AD0 a la masse = adresse 0x68.")
 text(127.0, 224.79, "J5 : OLED 0x3C. Verifier l'ordre GND/VCC du module avant de monter R9-R12.")
 # Tirages I2C : les modules OLED et GY-521 ont les leurs. R4 et R5 seulement si besoin.
@@ -365,13 +370,16 @@ for ref_r, ref_d, value, net, x in (("R2", "D1", "ERR rouge", "LED_ERR", 30.48),
     D = part("Device:LED", ref_d, value, x, 226.06, {"2": WIRED, "1": "GND"}, FP_LED, rot=90,
              text_side="right", gap=3.81)
     path(at(R, "2"), at(D, "2"))
-part("Connector_Generic:Conn_01x03", "J8", "Hall", 91.44, 220.98,
-     {"1": "+3V3", "2": "GND", "3": "HALL"}, FP_SOCK.format(3), text_side="right", dnp=True)
-part("Connector_Generic:Conn_01x03", "J9", "1-Wire", 91.44, 246.38,
-     {"1": "+3V3", "2": "GND", "3": "ONEWIRE"}, FP_SOCK.format(3), text_side="right", dnp=True)
-part("Device:R", "R6", "4.7k", 111.76, 246.38, {"1": "+3V3", "2": "ONEWIRE"}, FP_R,
-     text_side="right", dnp=True)
-text(20.32, 260.35, "J8 : DRV5013, sortie a drain ouvert (tirage interne de PA4). J9 : DS18B20, R6 = tirage 4,7 k.")
+# Une seule barrette pour les deux capteurs reportés : 3V3, GND, PA4 (Hall), PA7 (1-Wire).
+part("Connector_Generic:Conn_01x04", "J8", "Capteurs", 91.44, 220.98,
+     {"1": "+3V3", "2": "GND", "3": "HALL", "4": "ONEWIRE"},
+     "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical", text_side="right", dnp=True)
+# Fixations M3 entre les barrettes de la Nucléo : la carte est vissée sur la plaque du banc,
+# puis la Nucléo enfichée par-dessus (trous de 3,2 mm, admis par la factory).
+for i, x in enumerate((30.48, 45.72)):
+    place("Mechanical:MountingHole", f"H{i + 1}", "M3", x, 250.19,
+          "MountingHole:MountingHole_3.2mm_M3", text_side="right")
+text(20.32, 260.35, "J8 : 3V3, GND, PA4 (DRV5013, drain ouvert, tirage interne), PA7 (DS18B20 : tirage 4,7 k sur le module).")
 
 lib = " ".join(kisym.dump(kisym.load(l)) for l in sorted(lib_ids))
 OUT.write_text(

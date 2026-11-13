@@ -24,50 +24,61 @@ TEMPLATE = HERE.parent / "regles_fabrication" / "20260112_ENSEA_2_layers_drc.kic
 KICAD = Path(r"C:\Program Files\KiCad\9.0")
 FOOTPRINTS = KICAD / "share" / "kicad" / "footprints"
 
-# Contour (mm) : 65 x 50 mm. Nucléo à gauche (USB vers le bord gauche), borniers du bus sur
-# le bord droit (fils vers l'extérieur), écran OLED, MPU-6050 et LED sur le bord avant (bas).
-X0, Y0, X1, Y1 = 100.0, 100.0, 165.0, 150.0
+# Contour (mm), en escalier : le cuivre ne couvre que ce qui porte des composants (environ
+# 2 050 mm² au lieu de 3 250 pour la v0.1 rectangulaire). Vue de dessus, arrière en haut :
+# - bande arrière : bornier d'entrée du bus à gauche, de sortie à droite (fils vers
+#   l'extérieur), fixation H1 au milieu ; le bus la traverse derrière les barrettes ;
+# - colonne centrale : les deux barrettes de la Nucléo, posée dans la profondeur, USB vers
+#   l'arrière (câble vers le hub) ; barrette coudée de l'écran OLED au bord avant ;
+# - bande gauche : barrette coudée du MPU-6050, au plus près de l'I2C et de INT (CN4) ;
+# - bande droite : cavalier TERM, barrette des capteurs (PA4, PA7 sur CN3) et LED.
+# Deux angles rentrants seulement, loin des borniers : la carte ne doit pas avoir de point
+# faible là où l'on serre les vis des fils.
+CONTOUR = [(97.7, 100.0), (139.5, 100.0), (139.5, 145.0), (129.0, 145.0), (129.0, 157.6),
+           (109.4, 157.6), (109.4, 138.8), (97.7, 138.8)]
 
-# Nucléo-G431KB vue de dessus, USB à gauche : CN3 en haut, CN4 en bas, broche 1 côté USB
-# (UM2397 figure 12), rangées à 15,24 mm. Les barrettes femelles sont sur la face avant.
-CN_X = 108.0          # broche 1 de CN3 et de CN4
-CN3_Y = 108.0
-CN4_Y = CN3_Y + 15.24
+# Nucléo-G431KB vue de dessus, USB à l'arrière : CN4 à gauche, CN3 à droite, broche 1 côté
+# USB (UM2397 figure 12), rangées à 15,24 mm. Barrettes femelles sur la face avant.
+CN4_X = 111.43
+CN3_X = CN4_X + 15.24
+CN_Y = 115.0          # broche 1 de CN3 et de CN4
 
 # Référence : (x, y, rotation en degrés). Tout est sur la face avant.
 PLACEMENT = {
-    "J3": (CN_X, CN3_Y, 90),      # Nucleo CN3 (VIN ... D13)
-    "J4": (CN_X, CN4_Y, 90),      # Nucleo CN4 (D1 ... D12)
-    # Sous la Nucléo, entre les deux rangées : transceiver et découplages.
-    "U1": (130.0, 115.62, 90),
-    "C1": (123.0, 115.62, 90),     # VCC 5 V
-    "C2": (137.0, 115.62, 90),     # VIO 3,3 V
-    "R7": (124.0, 111.2, 0),       # S à la masse (monté)
-    "R8": (124.0, 120.0, 0),       # S vers PB6 (non monté)
-    # Bus : borniers entrée (haut) et sortie (bas), broche 1 (GND) en bas de chacun.
-    "J1": (161.3, 117.6, 90),
-    "J2": (161.3, 138.0, 90),
-    "R1": (149.0, 129.5, 90),      # terminaison 120 ohms
-    "J7": (149.0, 134.5, 0),       # cavalier TERM (N4 : vers SW1)
-    # Bord avant : écran OLED à gauche, MPU-6050 à droite, LED entre les deux.
-    "J5": (108.2, 146.0, 90),
-    "J6": (137.1, 146.0, 90),
-    "R9": (104.0, 140.0, 90),      # GND -> OLED broche 1 (monté)
-    "R10": (107.0, 140.0, 90),     # 3V3 -> OLED broche 2 (monté)
-    "R11": (110.0, 140.0, 90),     # variante VCC/GND (non monté)
-    "R12": (113.0, 140.0, 90),
-    # LED sur la bande libre au-dessus de la Nucléo, près de PA1 (CN3-11) et PA0 (CN3-12) :
-    # visibles une fois la carte montée, et le bord avant reste libre pour l'I2C.
-    "R3": (130.0, 103.2, 0),
-    "D2": (134.0, 103.2, 180),     # BUS-OFF jaune
-    "R2": (139.0, 103.2, 0),
-    "D1": (143.0, 103.2, 180),     # ERR rouge
-    "R4": (118.5, 134.5, 90),      # tirages I2C (non montés)
-    "R5": (121.5, 134.5, 90),
-    # Capteurs reportés (non montés) : Hall et 1-Wire.
-    "J8": (104.0, 128.6, 90),
-    "J9": (113.5, 128.6, 90),
-    "R6": (122.5, 128.6, 90),
+    "J1": (103.75, 103.0, 270),    # bus entrée : G, L, H de l'arrière vers l'avant, fils à gauche
+    "J2": (134.3, 113.16, 90),     # bus sortie : H, L, G de l'arrière vers l'avant, fils à droite
+    "J4": (CN4_X, CN_Y, 0),        # Nucleo CN4 (D1 ... D12)
+    "J3": (CN3_X, CN_Y, 0),        # Nucleo CN3 (VIN ... D13)
+    # Fixation arrière sous le bout USB de la Nucléo (la tête de vis reste 6 mm sous elle).
+    "H1": (119.05, 106.3, 0),
+    # Entre les barrettes, sous la Nucléo (8 mm libres sous elle), sur 11,6 mm de large :
+    # le transceiver, ses découplages et les résistances de choix ou de tirage de part et
+    # d'autre, la seconde fixation devant.
+    "U1": (119.05, 121.0, 90),     # CANH/CANL et S vers l'arrière (bus), TXD/RXD/VCC devant
+    "R7": (114.25, 117.5, 90),     # S à la masse (monté)
+    "R8": (114.25, 121.5, 90),     # S vers PB6 (non monté)
+    "C2": (123.85, 118.0, 90),     # VIO 3,3 V
+    "C1": (119.05, 125.9, 0),      # VCC 5 V
+    "R9": (119.05, 128.4, 0),      # GND -> OLED broche 1 (monté)
+    "R10": (119.05, 130.7, 0),     # 3V3 -> OLED broche 2 (monté)
+    "R4": (114.25, 125.5, 90),     # tirages I2C (non montés)
+    "R5": (114.25, 129.5, 90),
+    "R11": (123.85, 125.5, 90),    # variante VCC/GND de l'OLED (non montée)
+    "R12": (123.85, 129.5, 90),
+    "H2": (119.05, 137.5, 0),
+    # Barrettes coudées : le corps est couché sous la Nucléo ou en bord de carte, les modules
+    # tiennent debout au-delà du bord (OLED à l'avant, écran vers l'utilisateur ; MPU-6050
+    # à gauche, sous les fils du bornier d'entrée).
+    "J5": (115.24, 147.5, 90),
+    "J6": (107.8, 119.0, 0),
+    # Bande droite, accessible Nucléo en place : terminaison, capteurs (non montés), LED.
+    "J7": (131.5, 119.0, 0),
+    "R1": (135.2, 120.3, 90),     # terminaison 120 ohms
+    "J8": (131.5, 125.5, 0),
+    "R3": (132.4, 137.0, 0),
+    "D2": (132.4, 139.05, 180),    # BUS-OFF jaune
+    "R2": (132.4, 141.1, 0),
+    "D1": (132.4, 143.15, 180),    # ERR rouge
 }
 
 
@@ -149,7 +160,7 @@ def main():
         x, y, rot = PLACEMENT[ref]
         fp.SetPosition(point(x, y))
         fp.SetOrientationDegrees(rot)
-        if ref.startswith("J") or ref in ("D1", "D2"):
+        if ref.startswith(("J", "H")) or ref in ("D1", "D2"):
             fp.Reference().SetVisible(False)  # repères remplacés par la sérigraphie ci-dessous
         for pad in fp.Pads():
             net = pads.get((ref, pad.GetNumber()))
@@ -157,11 +168,10 @@ def main():
                 pad.SetNet(nets[net])
                 # Masse des barrettes des modules : connexion pleine au plan (un frein
                 # thermique y garde trop peu de rayons entre les pistes voisines).
-                if net == "GND" and ref in ("J5", "J6", "J8", "J9"):
+                if net == "GND" and ref in ("J1", "J2", "J3", "J4", "J5", "J6", "J8"):
                     pad.SetLocalZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
 
-    corners = [(X0, Y0), (X1, Y0), (X1, Y1), (X0, Y1)]
-    for a, b in zip(corners, corners[1:] + corners[:1]):
+    for a, b in zip(CONTOUR, CONTOUR[1:] + CONTOUR[:1]):
         segment(board, pcbnew.Edge_Cuts, a, b)
 
     # Plans de masse sur les deux faces.
@@ -176,18 +186,25 @@ def main():
         zone.SetPadConnection(pcbnew.ZONE_CONNECTION_THERMAL)
         outline = zone.Outline()
         outline.NewOutline()
-        for c in corners:
+        for c in CONTOUR:
             outline.Append(mm(c[0]), mm(c[1]))
         board.Add(zone)
 
-    # Bande de 0,6 mm le long des bords, interdite aux pistes et aux vias (isolation de
-    # 0,5 mm au contour demandée par la factory, que Freerouting ne connaît pas).
+    # Bande de 0,6 mm le long de tous les bords, interdite aux pistes et aux vias (isolation
+    # de 0,5 mm au contour demandée par la factory, que Freerouting ne connaît pas).
     lset = pcbnew.LSET()
     for c in (pcbnew.F_Cu, pcbnew.B_Cu):
         lset.AddLayer(c)
+    # Un rectangle par bord (bords tous horizontaux ou verticaux), côté intérieur : le script
+    # de routage et Freerouting lisent les zones interdites comme des rectangles.
+    aire = sum(x0 * y1 - x1 * y0 for (x0, y0), (x1, y1) in zip(CONTOUR, CONTOUR[1:] + CONTOUR[:1]))
+    sens = 1 if aire > 0 else -1  # aire > 0 : sens horaire à l'écran (Y vers le bas)
     b = 0.6
-    for x0, y0, x1, y1 in ((X0, Y0, X1, Y0 + b), (X0, Y1 - b, X1, Y1),
-                           (X0, Y0, X0 + b, Y1), (X1 - b, Y0, X1, Y1)):
+    for (xa, ya), (xb, yb) in zip(CONTOUR, CONTOUR[1:] + CONTOUR[:1]):
+        dx, dy = (xb > xa) - (xb < xa), (yb > ya) - (yb < ya)
+        nx, ny = -dy * sens, dx * sens  # normale vers l'intérieur
+        xs = (xa, xb, xa + nx * b, xb + nx * b)
+        ys = (ya, yb, ya + ny * b, yb + ny * b)
         keep = pcbnew.ZONE(board)
         keep.SetIsRuleArea(True)
         keep.SetLayerSet(lset)
@@ -198,34 +215,27 @@ def main():
         keep.SetDoNotAllowCopperPour(False)
         ko = keep.Outline()
         ko.NewOutline()
-        for cx, cy in ((x0, y0), (x1, y0), (x1, y1), (x0, y1)):
+        for cx, cy in ((min(xs), min(ys)), (max(xs), min(ys)), (max(xs), max(ys)), (min(xs), max(ys))):
             ko.Append(mm(cx), mm(cy))
         board.Add(keep)
 
     # Sérigraphie : sens de la Nucléo (une Nucléo à l'envers mettrait le 5 V sur une
     # broche d'E/S), repères du bus et des modules.
-    silk(board, "<- USB Nucleo", 115.0, 102.2, 1.0)
-    silk(board, "CN3", 104.0, CN3_Y, 0.9)
-    silk(board, "CN4", 104.0, CN4_Y, 0.9)
-    silk(board, "G69 porteuse v0.1", 126.5, 148.8, 0.9)
-    silk(board, "N__", 151.0, 102.2, 1.2, 0.2)
-    for txt, y in (("H", 107.44), ("L", 112.52), ("G", 117.6),
-                   ("H", 127.84), ("L", 132.92), ("G", 138.0)):
-        silk(board, txt, 154.2, y, 1.1, 0.18)
-    silk(board, "ENTREE", 160.0, 102.2, 0.8)
-    silk(board, "SORTIE", 150.5, 122.4, 0.8)
-    silk(board, "TERM", 152.5, 135.7, 0.8)
-    silk(board, "OLED G V C D", 112.0, 148.8, 0.8)
-    silk(board, "MPU-6050", 146.0, 148.8, 0.8)
-    silk(board, "ERR", 143.0, 105.4, 0.8)
-    silk(board, "BOFF", 134.0, 105.4, 0.8)
-    silk(board, "HALL", 106.5, 131.3, 0.8)
-    silk(board, "1-WIRE", 116.0, 131.3, 0.8)
+    silk(board, "IN G-L-H", 114.0, 112.0, 0.8)
+    silk(board, "H-L-G OUT", 124.2, 112.0, 0.8)
+    silk(board, "^ USB", 112.7, 101.5, 0.9)
+    silk(board, "N__", 125.5, 101.5, 1.1, 0.18)
+    silk(board, "TERM", 134.9, 117.6, 0.8)
+    silk(board, "CAPT", 135.6, 133.8, 0.8)
+    silk(board, "MPU", 101.0, 137.6, 0.8)
+    silk(board, "E", 135.6, 143.15, 0.9)
+    silk(board, "B", 135.6, 139.05, 0.9)
+    silk(board, "G69 v0.2", 119.05, 102.0, 0.8)
 
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
     board.Save(str(PCB))
-    print(f"{PCB.name} : {len(comps)} empreintes, {len(nets)} nets, carte "
-          f"{X1 - X0:.1f} x {Y1 - Y0:.1f} mm")
+    aire = sum(x0 * y1 - x1 * y0 for (x0, y0), (x1, y1) in zip(CONTOUR, CONTOUR[1:] + CONTOUR[:1])) / 2
+    print(f"{PCB.name} : {len(comps)} empreintes, {len(nets)} nets, contour {abs(aire):.0f} mm²")
 
 
 if __name__ == "__main__":

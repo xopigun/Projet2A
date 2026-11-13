@@ -37,18 +37,16 @@ LARGEUR = 0.4  # mm
 CLI = r"C:\Program Files\KiCad\9.0\bin\kicad-cli.exe"
 
 
-ESSAIS = 4  # Freerouting donne des résultats différents d'un essai à l'autre
+# Masse routée aussi par Freerouting : sous la Nucléo, entre les barrettes, la place est trop
+# étroite pour que les plans atteignent toutes les pastilles de masse.
+ROUTER_MASSE = True
+
+ESSAIS = 6  # Freerouting donne des résultats différents d'un essai à l'autre
 
 
-# Pistes posées avant Freerouting : le bus traverse la carte d'un bornier à l'autre, et
-# CAN_H et CAN_L doivent se croiser entre les deux borniers (ordre H, L, G sur chacun).
-# CAN_H longe le bord droit sur la face avant, CAN_L passe à gauche des pastilles sur la
-# face arrière ; R1 (terminaison) rejoint CAN_H au bornier de sortie.
-PREROUTAGE = [
-    ("/CANH", "F", [(161.3, 127.84), (163.5, 127.84), (163.5, 107.44), (161.3, 107.44)]),
-    ("/CANH", "F", [(149.0, 130.5), (151.0, 130.5), (153.66, 127.84), (161.3, 127.84)]),
-    ("/CANL", "B", [(161.3, 112.52), (159.0, 112.52), (159.0, 132.92), (161.3, 132.92)]),
-]
+# Pistes posées avant Freerouting, si besoin (aucune depuis la v0.2 : borniers sur deux bords
+# opposés, le bus traverse librement l'arrière de la carte, derrière les barrettes).
+PREROUTAGE = []
 
 
 def prerouter(_):
@@ -72,7 +70,7 @@ def prerouter(_):
     print(f"{PCB.name} : bus pré-routé")
 
 
-NON_MONTES = {"R8", "R11", "R12", "R4", "R5", "R6", "J8", "J9"}
+NON_MONTES = {"R8", "R11", "R12", "R4", "R5", "J8"}
 
 
 def main(jar):
@@ -80,7 +78,8 @@ def main(jar):
     dsn = work / "board.dsn"
     etape("--prerouter", PCB)
     etape("--exporter", dsn)
-    sans_masse(dsn)
+    if not ROUTER_MASSE:
+        sans_masse(dsn)
     essais = []
     for i in range(ESSAIS):  # en parallèle, chacun dans son dossier
         d = work / f"essai{i}"

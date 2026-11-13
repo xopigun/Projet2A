@@ -37,15 +37,15 @@ DESIGNATION = {
     "100nF": ("Condensateur céramique X7R 50 V", "découplage VCC et VIO du transceiver"),
     "120R": ("Résistance 1 %, 1/8 W", "terminaison CAN, active avec un cavalier sur TERM"),
     "1k": ("Résistance 1 %, 1/8 W", "LED"),
-    "0R": ("Résistance 0 ohm (ou strap)", "R7 : broche S à la masse ; R9, R10 : ordre GND/VCC de l'OLED"),
+    "0R": ("Résistance 0 ohm (ou strap)", "R7 : broche S à la masse ; R9, R10 : ordre GND/VCC de l'OLED (à vérifier)"),
     "ERR rouge": ("LED rouge", "error-passive"),
     "BUS-OFF jaune": ("LED jaune", "bus-off"),
     "Nucleo CN3": ("Barrette femelle 1 x 15, pas 2,54 mm", "reçoit la Nucleo-G431KB"),
     "Nucleo CN4": ("Barrette femelle 1 x 15, pas 2,54 mm", "reçoit la Nucleo-G431KB"),
     "Bus entrée": ("Bornier à vis 3 points, pas 5,08 mm (type Phoenix MKDS 1,5/3-5,08)", "bus CAN : H, L, G"),
     "Bus sortie": ("Bornier à vis 3 points, pas 5,08 mm (type Phoenix MKDS 1,5/3-5,08)", "bus CAN : H, L, G"),
-    "OLED": ("Barrette femelle 1 x 4, pas 2,54 mm", "écran OLED SSD1306 0,96\" (I2C)"),
-    "MPU-6050": ("Barrette femelle 1 x 8, pas 2,54 mm", "module GY-521, sur N2 seulement"),
+    "OLED coudé": ("Barrette femelle coudée 1 x 4, pas 2,54 mm", "écran OLED SSD1306 0,96\" debout au bord avant"),
+    "MPU-6050 coudé": ("Barrette femelle coudée 1 x 8, pas 2,54 mm", "module GY-521 debout au bord gauche, N2 seulement"),
     "TERM": ("Barrette mâle 1 x 2, pas 2,54 mm + cavalier", "terminaison 120 ohms ; sur N4, câblée vers SW1"),
 }
 
@@ -98,7 +98,7 @@ def bom():
  .box {{ width: 12mm; }}
 </style>
 <h1>Nomenclature — carte porteuse d'un nœud (G69, projet 2A banc CAN)</h1>
-<p>Carte 2 couches 65 × 50 mm, FR4 35 µm, composants sur la face avant. Passifs en 0805 (empreintes HandSolder). Quantités pour une carte (4 à fabriquer). Composants non montés exclus.
+<p>Carte 2 couches à contour découpé (41,8 × 57,6 mm hors tout, 2 050 mm²), FR4 35 µm, composants sur la face avant, 2 trous de fixation M3. Passifs en 0805 (empreintes HandSolder). Quantités pour une carte (4 à fabriquer). Composants non montés exclus.
 {len(rows)} lignes, {total} composants. Fichiers : {NAME}_gerber.zip.</p>
 <table><tr>{"".join(f"<th>{h}</th>" for h in head)}<th>Pris</th></tr>{cells}</table>
 </html>"""
@@ -141,7 +141,7 @@ def echelle_1():
     """PCB à l'échelle 1:1 sur A4 : page 1 face avant, page 2 face arrière vue de dessus.
 
     À imprimer en « taille réelle » (100 %, sans ajustement à la page) : la carte doit
-    alors mesurer 65 × 50 mm, ce qui permet de poser les composants sur le papier.
+    alors mesurer 41,8 × 57,6 mm hors tout, ce qui permet de poser les composants sur le papier.
     """
     pages = []
     for i, layers in enumerate(("F.Cu,F.Silkscreen,Edge.Cuts", "B.Cu,Edge.Cuts")):
