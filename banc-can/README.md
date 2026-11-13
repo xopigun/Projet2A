@@ -10,6 +10,8 @@ Ecomarathon, Formula Student, MIR1000) sont traités au même niveau.
 
 Auteurs (ordre alphabétique) : Samuel GOMRI, Dylan KIATI, Hugo MATHOUX.
 
+**État du projet, choix abandonnés et prochaines étapes : [docs/ETAT_PROJET.md](docs/ETAT_PROJET.md).**
+
 ---
 
 ## ⚠ À faire avant la première mise sous tension
@@ -73,7 +75,7 @@ ctest --preset host
 
 ### Compiler un firmware
 
-Un preset par nœud : `n1`, `n2`, `n3` (Nucleo-G431KB) et `n4` (Blue Pill STM32F103).
+Un preset par nœud : `n1` à `n4`, quatre Nucleo-G431KB.
 
 ```bash
 cmake --preset n1
@@ -175,6 +177,41 @@ canbench --interface gs_usb  monitor
 canbench --interface slcan --channel COM7 arbitration --cycles 1000
 ```
 
+### Adaptateur ZLG USBCAN-UC12 (sans désactiver l'intégrité de la mémoire)
+
+Le pilote noyau fourni par ZLG (`usbcan.sys`, 2017) est refusé par l'**intégrité de la
+mémoire** de Windows. Le banc ne s'en sert pas : `pc/canbench/zlg_usbcan/` parle à
+l'adaptateur directement, à travers **WinUSB**, le pilote générique signé par Microsoft.
+Le protocole a été reconstitué pour l'interopérabilité ; il est décrit dans
+[`PROTOCOLE.md`](pc/canbench/zlg_usbcan/PROTOCOLE.md).
+
+Mise en place, une seule fois :
+
+1. Gestionnaire de périphériques, sur l'adaptateur : *Mettre à jour le pilote* >
+   *Choisir parmi la liste* > **Périphérique WinUsb**.
+2. Installer les dépendances :
+
+```bash
+python -m pip install -e "pc[zlg]"
+```
+
+Ensuite :
+
+```bash
+canbench --interface zlg monitor
+```
+
+```bash
+lancer_banc.bat zlg
+```
+
+Dans l'interface graphique, le panneau **Qualité** affiche alors l'état du contrôleur de
+l'adaptateur (REC/TEC, error-active/warning/passive), ses événements d'erreur, les trames
+émises que personne n'acquitte, et, pour chaque identifiant, la période, la gigue et les
+trames manquées, mesurées sur l'horodatage matériel à 0,1 ms. Le type d'erreur CAN
+(bourrage, CRC…) n'est pas disponible sur cet adaptateur. L'outil bas niveau
+`python -m canbench.zlg_usbcan probe` interroge l'adaptateur sans passer par le banc.
+
 ---
 
 ## Organisation du dépôt
@@ -184,13 +221,15 @@ canbench --interface slcan --channel COM7 arbitration --cycles 1000
 | `icd/` | `bench_icd.yaml` — **source unique** des identifiants, signaux et encodages |
 | `tools/codegen/` | génération depuis l'ICD : C, Python, DBC, LaTeX |
 | `firmware/common/` | code indépendant du microcontrôleur — aucun en-tête HAL |
-| `firmware/ports/` | couches matérielles : `g431_fdcan`, `f103_bxcan` |
+| `firmware/ports/` | couches matérielles : `g431_fdcan` (nœuds), `l476_bxcan` (pont slcan) |
 | `firmware/boards/` | `board.h` — **tout** le brochage, et nulle part ailleurs |
 | `firmware/vendor/` | sous-modules ST épinglés (HAL, CMSIS) |
 | `firmware/tests_host/` | tests unitaires natifs du code commun |
 | `pc/canbench/` | outil en ligne de commande `canbench` |
 | `scripts/` | `bit_timing.py`, `bus_load.py` |
-| `docs/` | plan, architecture, brochage, bit timing, protocole de validation, extraits LaTeX |
+| `docs/` | état du projet, plan, brochage, bit timing, protocole de validation, extraits LaTeX |
+| `hardware/` | adaptateur USB-CAN (KiCad, fabrication, boîtier 3D), schéma de câblage du bus |
+| `simulation_3d/` | banc complet en 3D dans le navigateur, moteur CAN au bit près |
 
 Le code généré depuis l'ICD (`firmware/common/icd_gen/`, `pc/canbench/icd_gen.py`) **ne
 doit pas être édité à la main** : un test de CI vérifie qu'il est à jour.
@@ -203,9 +242,9 @@ Versions épinglées ; licences relevées dans les dépôts aux versions indiqu�
 |---|---|---|
 | `cmsis_core` | `v5.9.0_20250520` | Apache-2.0 |
 | `cmsis_device_g4` | `v1.2.6` | Apache-2.0 |
-| `cmsis_device_f1` | `v4.3.5` | Apache-2.0 |
+| `cmsis_device_l4` | `v1.7.5` | Apache-2.0 |
 | `stm32g4xx_hal_driver` | `v1.2.7` | BSD-3-Clause |
-| `stm32f1xx_hal_driver` | `v1.1.10` | BSD-3-Clause |
+| `stm32l4xx_hal_driver` | `v1.13.6` | BSD-3-Clause |
 
 Le projet lui-même est sous licence MIT — voir [LICENSE](LICENSE).
 
@@ -214,13 +253,13 @@ Le projet lui-même est sous licence MIT — voir [LICENSE](LICENSE).
 | Paramètre | Valeur |
 |---|---|
 | Débit | 500 kbit/s, CAN 2.0A *classic* (identifiants 11 bits) |
-| Point d'échantillonnage | 87,50 % exactement, identique sur G431 et F103 |
+| Point d'échantillonnage | 87,50 % exactement, identique sur les quatre nœuds |
 | Tolérance d'oscillateur | 0,485 % — voir [docs/config_logicielle.md](docs/config_logicielle.md) §3.3 |
 | G431 | horloge FDCAN 80 MHz, BRP 10, 16 tq (1+13+2), SJW 2 |
-| F103 | APB1 36 MHz, BRP 9, 8 tq (1+6+1), SJW 1 |
 
 ## Documentation
 
+- [docs/ETAT_PROJET.md](docs/ETAT_PROJET.md) — état du projet, ce qui a été abandonné et pourquoi
 - [docs/PLAN.md](docs/PLAN.md) — plan de travail, écarts relevés, points à vérifier
 - [docs/pinout.md](docs/pinout.md) — brochage, vérifié depuis les `board.h`
 - [docs/config_logicielle.md](docs/config_logicielle.md) — paramètres FDCAN/bxCAN : horloges,

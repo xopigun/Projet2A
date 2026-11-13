@@ -9,6 +9,12 @@ Révisions de ce plan :
 |---|---|
 | r1 | Phase 0 initiale, dossier de définition absent |
 | r2 | Dossier de définition lu ; réponses Q1–Q7 intégrées ; vérification SB2/SB3 |
+| r3 | 13/11/2026 : Blue Pill abandonnée, N4 sur Nucleo-G431KB ; état des lots mis à jour |
+
+> **État courant du projet et liste des choix abandonnés : [ETAT_PROJET.md](ETAT_PROJET.md).**
+> Ce plan garde l'analyse de la phase 0 telle qu'elle a été menée ; les passages sur la
+> Blue Pill F103 (§2.5, §4.1, V5, V6, V12 à V14) sont conservés pour mémoire et sont sans
+> objet depuis que N4 est une Nucleo-G431KB.
 
 ---
 
@@ -90,7 +96,7 @@ Confirmé par Table 12. Le dossier demandait précisément cette vérification.
 confirmer sur DS12589 — `TODO(verif) V1`. Le `board.h` la porte derrière une constante
 unique, signalée.
 
-### 2.5 — Blue Pill : PA11/PA12 partagés avec l'USB → **CONFIRMÉ, contourné**
+### 2.5 — Blue Pill : PA11/PA12 partagés avec l'USB → **CONFIRMÉ, contourné** *(sans objet : Blue Pill abandonnée)*
 
 RM0008 Rev 21 §9.3.4 Table 34 : le CAN se remappe sur PB8 (RX) / PB9 (TX) avec
 `CAN_REMAP = 10`, disponible sur le boîtier 48 broches. RM0008 (§ bxCAN) ajoute que l'USB
@@ -442,8 +448,8 @@ via les extraits `\input{}` de `docs/latex/`.
 |---|---|
 | `STMicroelectronics/stm32g4xx_hal_driver` | `v1.2.7` |
 | `STMicroelectronics/cmsis_device_g4` | `v1.2.6` |
-| `STMicroelectronics/stm32f1xx_hal_driver` | `v1.1.10` |
-| `STMicroelectronics/cmsis_device_f1` | `v4.3.5` |
+| `STMicroelectronics/stm32l4xx_hal_driver` | `v1.13.6` |
+| `STMicroelectronics/cmsis_device_l4` | `v1.7.5` |
 | `STMicroelectronics/cmsis_core` | `v5.9.0_20250520` |
 
 ### 6.2 État de la machine de développement
@@ -499,12 +505,12 @@ la mise en forme du rapport.
 | 2 | ICD : YAML, schéma, générateur, vecteurs de référence, tests de collision/chevauchement/ordre ARM-GO | **fait** |
 | 3 | `firmware/common` + `tests_host` | **fait** |
 | 4 | `ports/g431_fdcan` + `boards/nucleo_g431kb` + horloges (HSE/HSI sélectionnable) | **fait** — n1 à n3 : 17,8 Ko flash (13,6 %), 2,8 Ko RAM (8,7 %) |
-| 5 | `ports/f103_bxcan` + `boards/bluepill_f103`, `entry/` commun, exécution des modes de faute | **fait** — n4 : 23,4 Ko flash (36 %), 3,3 Ko RAM (16 %) ; non éprouvé sur carte |
-| 6 | IHM SSD1306 DMA + pages partielles, LEDs, capteurs + simulateurs | à faire |
-| 7 | `pc/canbench` : CLI, simulateur de nœuds, `monitor`/`arbitration`/`encoding` | à faire |
-| 8 | `faults`, `busload`, `record`/`replay`, `report` | à faire |
-| 9 | Documentation et extraits LaTeX | à faire |
-| 10 | CI complète, durcissement, récapitulatif matériel | à faire |
+| 5 | ~~`ports/f103_bxcan` + `boards/bluepill_f103`~~, `entry/` commun, exécution des modes de faute | **abandonné pour la partie F103** (13/11/2026) : N4 est une Nucleo-G431KB, port F103 retiré du dépôt ; `entry/` commun et modes de faute **faits** |
+| 6 | IHM SSD1306 DMA + pages partielles, LEDs, capteurs + simulateurs | **en partie** : LCD 16x2 sur N1 et N2 (firmware `scope`), LEDs ; écrans OLED SSD1306 et capteurs à faire |
+| 7 | `pc/canbench` : CLI, simulateur de nœuds, `monitor`/`arbitration`/`encoding` | **fait** — plus interface graphique, `BancCAN.exe`, adaptateur ZLG par WinUSB |
+| 8 | `faults`, `busload`, `record`/`replay`, `report` | **fait** |
+| 9 | Documentation et extraits LaTeX | **en grande partie** — mise en route, brochage, configuration, protocole, présentation |
+| 10 | CI complète, durcissement, récapitulatif matériel | **en partie** — CI (tests PC, tests natifs, compilation n1 à n4) en place |
 
 ---
 
@@ -583,12 +589,12 @@ gestionnaire : la compilation échoue avec un message explicite.
 | # | Question | État |
 |---|---|---|
 | Q1 | Dossier de définition | **résolu** (r2) |
-| Q2 | Soudure SB9/SB10 | **en attente encadrants** — repli HSI implémenté et signalé |
+| Q2 | Soudure SB9/SB10 | **fait sur N1 à N3** (quartz et PLL vérifiés) ; à faire sur N4 |
 | Q3 | Identifiants réservés | **résolu** — profils réseau, heartbeat 0x780+n (§4.5) |
 | Q4 | RM0440, RM0008, DS12589, DS5319, ES G431, schéma Blue Pill | **résolu** — documents reçus le 29/09/2026 ; pas de schéma officiel de la Blue Pill, remplacé par V12/V13 |
 | Q5a | Modèle de transceiver | **résolu par le dossier** : TJA1051T/3 (§3.3) |
-| Q5b | 120 Ω soudé sur les modules ? | **ouvert** — champ resté entre crochets (§3.7) |
-| Q5c | Retrait du 120 Ω : sur 4 nœuds et non 3 ? | **ouvert** — voir §3.7 |
+| Q5b | 120 Ω soudé sur les modules ? | **résolu** (13/11/2026) — adaptateurs SOP8 nus, sans résistance |
+| Q5c | Retrait du 120 Ω : sur 4 nœuds et non 3 ? | **résolu** (13/11/2026) — 120 Ω sur le ZLG et sur l'adaptateur de N4 seulement |
 | Q6 | PDF de référence | **résolu** — versionnés depuis le 06/10/2026 (dépôt privé) |
 | Q7 | Licence MIT | **résolu** (sous réserve encadrants) |
 
@@ -725,13 +731,13 @@ moniteur, qui n'acquitte pas.
 | V2 | Mécanisme `nSWBOOT0`/`nBOOT0` sur PB8 | RM0440 Rev 9, §2.6 Table 5 et §5.7.8 | ✅ valeur usine de `FLASH_OPTR` = 0xFFEF F8AA : `nSWBOOT0 = 1` et `nBOOT1 = 1`, donc BOOT0 est **lu sur PB8** et un niveau haut au reset démarre le **chargeur système**. Aucune pull-up sur PB8 : c'est déjà la règle |
 | V3 | Contraintes PLL G4 (M, N, Q, R, plages VCO) | DS12589 Table 45, RM0440 §7.4.4 et Table 9 | ✅ toutes respectées (voir `board.h`) |
 | V4 | Précision HSI16 | DS12589 Table 42 | ✅ ±1 % en thermique **plus** −0,75 / +0,5 % d'étalonnage : pire que supposé |
-| V5 | Brochage Blue Pill + remap bxCAN PB8/PB9 | RM0008 Rev 21, §9.3.4 Table 34 ; DS5319 Rev 20, Table 5 | ✅ remap confirmé (`CAN_REMAP = 10`) ; broches LQFP48 et tolérance 5 V relevées dans `board.h` |
-| V6 | Pull-up USB sur PA12 de la Blue Pill, clones F103 | mesure à l'ohmmètre sur la carte reçue | **non bloquant** : avec le remap, PA12 ne porte plus le CAN. RM0008 (§ bxCAN) : USB et CAN partagent 512 o de SRAM et ne peuvent pas fonctionner en même temps, donc N4 n'utilise pas l'USB |
+| V5 | Brochage Blue Pill + remap bxCAN PB8/PB9 | RM0008 Rev 21, §9.3.4 Table 34 ; DS5319 Rev 20, Table 5 | sans objet : Blue Pill abandonnée |
+| V6 | Pull-up USB sur PA12 de la Blue Pill, clones F103 | mesure à l'ohmmètre sur la carte reçue | sans objet : Blue Pill abandonnée |
 | V7 | Horodatage matériel du firmware candleLight | doc candleLight / gs_usb | Lot 7 |
 | V8 | Tolérance du MCO ST-LINK (option B, §3.2) | UM2448 | si option B |
 | V9 | Présence/valeur des terminaisons sur les modules | inspection visuelle | T1, Q5b |
 | V10 | Errata G431 : anomalies FDCAN | ES0431 Rev 9, §2.15 | ✅ sans effet : §2.15.1 exige `CCCR.EFBI`, jamais positionné (0 au reset) ; §2.15.2 exige le mode FIFO, or on utilise le mode file (`TFQM = 1`) |
 | V11 | Cartographie mémoire du G431KB | RM0440 Rev 9, §2.4 | ✅ SRAM1 + SRAM2 + CCM aliasée à 0x20005800 : 32 Ko contigus |
-| V12 | Quartz de 8 MHz sur la Blue Pill | marquage du quartz, carte reçue | à vérifier — `docs/bringup.md` §8.1 |
-| V13 | LED de la Blue Pill sur PC13, allumée au niveau bas | carte reçue ; DS5319 Table 5 note 5 impose le câblage en puits | à vérifier — `docs/bringup.md` §8.4 |
-| V14 | Errata STM32F103 (bxCAN, I2C) | ES096, référence à confirmer | document non fourni ; l'I2C du F1 a des limitations connues, à lire avant le lot 6 |
+| V12 | Quartz de 8 MHz sur la Blue Pill | marquage du quartz, carte reçue | sans objet : Blue Pill abandonnée |
+| V13 | LED de la Blue Pill sur PC13, allumée au niveau bas | carte reçue ; DS5319 Table 5 note 5 impose le câblage en puits | sans objet : Blue Pill abandonnée |
+| V14 | Errata STM32F103 (bxCAN, I2C) | ES096, référence à confirmer | sans objet : Blue Pill abandonnée |

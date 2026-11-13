@@ -17,9 +17,8 @@ du dépôt correspond au dossier `v0.1`.
   LaTeX, et parité d'encodage vérifiée entre quatre implémentations.
 - Code commun testable nativement : tampon circulaire, protocole ARM/GO, heartbeat.
 - Firmware des nœuds N1 à N3 (port FDCAN, horloges HSE/HSI sélectionnables).
-- **Firmware du nœud N4** sur Blue Pill STM32F103 (port bxCAN, CAN remappé sur PB8/PB9,
-  journal sur USART1), avec son autotest (`n4-selftest`). Programme principal commun
-  aux deux cartes (`firmware/entry/`).
+- ~~Firmware du nœud N4 sur Blue Pill STM32F103~~ (retiré depuis, voir *Retiré*).
+  Programme principal commun à toutes les cartes (`firmware/entry/`).
 - **Exécution des modes de faute** commandés par `BENCH_CFG` sur les nœuds réels
   (babbling idiot, débit erroné, DLC incohérent, silencieux, bus-off maintenu), avec le
   même comportement que le simulateur.
@@ -53,6 +52,34 @@ du dépôt correspond au dossier `v0.1`.
 - **`BENCH_STLINK_SN`** : choix de la sonde à programmer quand plusieurs cartes sont
   branchées ; sans lui, `flash_<noeud>` prend la première trouvée.
 
+- **Adaptateur ZLG USBCAN-UC12 sans son pilote noyau** (`canbench --interface zlg`) : le
+  pilote ZLG est refusé par l'intégrité de la mémoire de Windows ; `pc/canbench/zlg_usbcan/`
+  parle à l'adaptateur par WinUSB (protocole décrit dans `PROTOCOLE.md`).
+- **Panneau Qualité** de l'interface (`pc/canbench/quality.py`) : état du contrôleur de
+  l'adaptateur, trames non acquittées, période, gigue et trames manquées par identifiant.
+- **Adaptateur USB-CAN v0.2** fabricable à la factory ENSEA (`hardware/adaptateur_usb_can/`) :
+  carte 60 × 30 mm, fiche USB-A en clé, bornier à vis ; champs fabricant et MPN dans le
+  schéma, classe de nets « Puissance », teardrops ; boîtier imprimé en 3D (`boitier/`) tranché
+  pour la Bambu Lab X1 Carbon du FabLab.
+- **Point d'état du projet** (`docs/ETAT_PROJET.md`) : ce qui est fait, en cours, et la liste
+  des choix abandonnés avec leur raison.
+
+### Modifié
+
+- **Nœud N4 sur Nucleo-G431KB** : les quatre nœuds sont identiques. Presets `n4`,
+  `n4-selftest` et nouveau `n4-selftest-hsi` ; ICD, simulation 3D, schéma fonctionnel,
+  extrait LaTeX de configuration et documentation mis à jour.
+- **Schéma de câblage du bus** (`hardware/cablage_bus_can/`) : 4 Nucleo-G431KB et 4
+  TJA1051T/3 sur adaptateurs SOP8 au lieu de 3 Adafruit CAN Pal ; terminaisons sur le ZLG et
+  sur l'adaptateur de N4.
+
+### Retiré
+
+- **Blue Pill STM32F103** (nœud N4) : port `firmware/ports/f103_bxcan`, carte
+  `firmware/boards/bluepill_f103`, `cmake/openocd_f1.cfg`, sous-modules ST
+  `cmsis_device_f1` et `stm32f1xx_hal_driver`, modèle 3D de la simulation. Récupérables dans
+  l'historique git (commit `d1a745c` et antérieurs).
+
 ### Corrigé (écarts relevés par rapport au dossier v0.1)
 
 - **PB9 n'existe pas** sur le boîtier UFQFPN32 du STM32G431KB. Le schéma de l'IHM locale du
@@ -70,7 +97,7 @@ du dépôt correspond au dossier `v0.1`.
 
 ### Corrigé (firmware)
 
-- **Horodatages figés après une déconnexion du débogueur** (ports G431, F103 et L476) :
+- **Horodatages figés après une déconnexion du débogueur** (ports G431, F103 alors présent, et L476) :
   après une programmation suivie d'un reset ou une connexion HOTPLUG, STM32CubeProgrammer
   remet `DEMCR` à `0x00000001` en se déconnectant. `TRCENA` effacé fige `DWT->CYCCNT`, que
   le port n'activait qu'une fois : `now_us()` et le `timestamp_us` des trames restaient
