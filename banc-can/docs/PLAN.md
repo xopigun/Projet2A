@@ -10,6 +10,7 @@ Révisions de ce plan :
 | r1 | Phase 0 initiale, dossier de définition absent |
 | r2 | Dossier de définition lu ; réponses Q1–Q7 intégrées ; vérification SB2/SB3 |
 | r3 | 13/11/2026 : Blue Pill abandonnée, N4 sur Nucleo-G431KB ; état des lots mis à jour |
+| r4 | 13/11/2026 : pont L476 et LCD 16x2 retirés ; capteurs Hall et DS18B20 reportés |
 
 > **État courant du projet et liste des choix abandonnés : [ETAT_PROJET.md](ETAT_PROJET.md).**
 > Ce plan garde l'analyse de la phase 0 telle qu'elle a été menée ; les passages sur la
@@ -506,7 +507,7 @@ la mise en forme du rapport.
 | 3 | `firmware/common` + `tests_host` | **fait** |
 | 4 | `ports/g431_fdcan` + `boards/nucleo_g431kb` + horloges (HSE/HSI sélectionnable) | **fait** — n1 à n3 : 17,8 Ko flash (13,6 %), 2,8 Ko RAM (8,7 %) |
 | 5 | ~~`ports/f103_bxcan` + `boards/bluepill_f103`~~, `entry/` commun, exécution des modes de faute | **abandonné pour la partie F103** (13/11/2026) : N4 est une Nucleo-G431KB, port F103 retiré du dépôt ; `entry/` commun et modes de faute **faits** |
-| 6 | IHM SSD1306 DMA + pages partielles, LEDs, capteurs + simulateurs | **en partie** : LCD 16x2 sur N1 et N2 (firmware `scope`), LEDs ; écrans OLED SSD1306 et capteurs à faire |
+| 6 | IHM SSD1306 DMA + pages partielles, LEDs, capteurs + simulateurs | **en partie** : LEDs faites ; écrans OLED SSD1306 et MPU-6050 à faire ; Hall et DS18B20 reportés. Les LCD 16x2 un temps utilisés ont été retirés |
 | 7 | `pc/canbench` : CLI, simulateur de nœuds, `monitor`/`arbitration`/`encoding` | **fait** — plus interface graphique, `BancCAN.exe`, adaptateur ZLG par WinUSB |
 | 8 | `faults`, `busload`, `record`/`replay`, `report` | **fait** |
 | 9 | Documentation et extraits LaTeX | **en grande partie** — mise en route, brochage, configuration, protocole, présentation |

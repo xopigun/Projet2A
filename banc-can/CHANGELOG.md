@@ -44,11 +44,8 @@ du dépôt correspond au dossier `v0.1`.
   d'application dédiée, connexion choisie depuis l'interface avec repli en simulation,
   aide intégrée (TEC/REC, états CAN, tests T1 à T7, fautes), arrêt à la fermeture, perte
   de connexion signalée au lieu d'une page figée.
-- **Afficheurs LCD 16x2 de N1 et N2** (firmware `scope`, schéma
-  `docs/latex/schema_ecrans_lcd.tex`) : accueil avec le nœud et la source d'horloge
-  (`HSI - NON VALIDE`), puis dernière trame reçue, nombre de trames reçues et état du
-  contrôleur. Pilote HD44780 4 bits non bloquant (un octet par tour de boucle), mise en
-  forme sans HAL testée sur l'hôte (`test_lcd_text`).
+- ~~Afficheurs LCD 16x2 de N1 et N2~~ (retirés depuis au profit des écrans OLED, voir
+  *Retiré*).
 - **`BENCH_STLINK_SN`** : choix de la sonde à programmer quand plusieurs cartes sont
   branchées ; sans lui, `flash_<noeud>` prend la première trouvée.
 
@@ -79,6 +76,15 @@ du dépôt correspond au dossier `v0.1`.
   `firmware/boards/bluepill_f103`, `cmake/openocd_f1.cfg`, sous-modules ST
   `cmsis_device_f1` et `stm32f1xx_hal_driver`, modèle 3D de la simulation. Récupérables dans
   l'historique git (commit `d1a745c` et antérieurs).
+- **Pont slcan sur Nucleo-L476RG** (`bridge`, `bridge-direct`) : `entry/slcan_bridge.c`,
+  `firmware/boards/nucleo_l476rg`, port `firmware/ports/l476_bxcan`, `cmake/openocd_l4.cfg`,
+  sous-modules `cmsis_device_l4` et `stm32l4xx_hal_driver`. Il dépannait tant que le CANable
+  était introuvable ; le ZLG et l'adaptateur USB-CAN le remplacent. Le module de protocole
+  `common/app/slcan.c` et son test sont **conservés** pour le firmware de l'adaptateur.
+- **Afficheurs LCD 16x2** de N1 et N2 : pilote HD44780 (`ports/g431_fdcan/lcd.c`), mise en
+  forme `common/app/lcd_text.c` et son test, broches dans `board.h`, schéma
+  `docs/latex/schema_ecrans_lcd.tex`. Les écrans OLED SSD1306 les remplacent ; les firmwares
+  `scope` et `dialogue` gardent leur journal série.
 
 ### Corrigé (écarts relevés par rapport au dossier v0.1)
 

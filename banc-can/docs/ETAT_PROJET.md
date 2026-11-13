@@ -29,8 +29,8 @@ chaque changement de cap ; le détail technique reste dans les documents cités.
 | Domaine | Ce qui existe | Vérifié |
 |---|---|---|
 | Firmware des nœuds | N1 à N4 sur Nucleo-G431KB : port FDCAN, horloge HSE (repli HSI signalé), heartbeat, protocole ARM/GO, modes de faute commandés par `BENCH_CFG`, autotest de mise en route | compilation de n1 à n4 ; N1 à N3 éprouvés sur carte |
-| Afficheurs | LCD 16x2 sur N1 et N2 (firmware `scope`) | sur carte |
-| Pont CAN-USB | firmware slcan sur Nucleo-L476RG (`bridge`) | compilation |
+| Firmwares de démonstration | `scope` (trames fixes pour l'oscilloscope) et `dialogue` (échange de texte entre nœuds) | sur carte (démo du 03/11) |
+| Protocole slcan | module `common/app/slcan.c`, prêt pour le firmware de l'adaptateur USB-CAN | test natif |
 | Modifications des Nucleo | cavalier HW1 retiré, ponts SB9/SB10 soudés | sur N1, N2, N3 (quartz et PLL à 160 MHz vérifiés) |
 | ICD | `icd/bench_icd.yaml`, générateur vers C, Python, DBC et LaTeX, 248 vecteurs de référence | CI |
 | Outils PC | `canbench` : `monitor`, `arbitration`, `encoding`, `faults`, `busload`, `record`, `replay`, `report` ; interface graphique, `BancCAN.exe`, panneau Qualité | 121 tests Python |
@@ -40,9 +40,8 @@ chaque changement de cap ; le détail technique reste dans les documents cités.
 | Boîtier de l'adaptateur | deux coques encliquetables, tranchées pour la Bambu Lab X1 Carbon du FabLab | rendus et coupes |
 | Documentation | mise en route, brochage, configuration logicielle, protocole de validation, présentation | tests de cohérence avec les `board.h` |
 
-Vérifications du 13/11/2026 : tests natifs 10/10, tests Python 121/121, tests de la
-simulation 2/2, compilation de `n1`, `n2`, `n3`, `n4`, `n4-selftest`, `n4-selftest-hsi` et
-`bridge`.
+Vérifications du 13/11/2026 : tests natifs 9/9, tests Python 119/119, tests de la
+simulation 2/2, compilation de tous les presets (`n1` à `n4`, autotests, `scope`, `dialogue`).
 
 ---
 
@@ -60,20 +59,21 @@ simulation 2/2, compilation de `n1`, `n2`, `n3`, `n4`, `n4-selftest`, `n4-selfte
 | Adaptateur USB-CAN : **DB9**, carte v0.1, **trous de fixation** | bornier à vis, carte **60 × 30 mm**, fiche **USB-A en clé** ; plus de trous, le boîtier tient la carte par les bords | taille d'une clé USB, branchement direct sur le PC | commits `ec7d4f1`, `d1a745c` |
 | **Amazon Business** comme fournisseur | distributeurs professionnels (Farnell, RS, Mouser, DigiKey) | refusé par l'école pour les articles non vendus par Amazon (ticket GLPI 0015779) | `generate_commande.py` |
 | **SN65HVD230** (transceiver 3,3 V) | TJA1051T/3 | le dossier retient le TJA1051T/3 (broche VIO) | `docs/PLAN.md` §3.3 |
+| **Pont slcan sur Nucleo-L476RG** | ZLG USBCAN-UC12, puis l'adaptateur USB-CAN | solution de secours devenue inutile | carte, port bxCAN, presets `bridge` et sous-modules L4 retirés le 13/11/2026 ; le module `slcan.c` est gardé pour l'adaptateur |
+| **Afficheurs LCD 16x2** (N1, N2) | écrans **OLED SSD1306** 0,96" en I2C | les OLED suffisent, avec moins de fils | pilote, broches et schéma retirés le 13/11/2026 |
 
-### À confirmer par le groupe
+### Décisions du 13/11/2026
 
-Ces éléments figurent dans le dossier v0.1, le schéma fonctionnel ou la simulation 3D,
-mais pas dans le schéma de câblage actuel. Abandonnés ou seulement pas encore montés ?
+- **Interrupteurs de faute SW1, SW2, SW3** et terminaison commutée `R_T2` : **gardés**, à
+  câbler sur le banc ([pinout.md](pinout.md) §8). Ils provoquent les pannes électriques que
+  `BENCH_CFG` ne peut pas simuler.
+- **Capteurs** : seul le **MPU-6050** reçu (commande Gotronic, sur N2, en I2C avec l'OLED)
+  est ajouté. Le **capteur à effet Hall** (DRV5013 et ses aimants) et la sonde **DS18B20**
+  sont **reportés** : leurs broches restent réservées dans `board.h`.
+- **Pont slcan L476** et **LCD 16x2** : abandonnés (tableau ci-dessus).
 
-- les interrupteurs de faute **SW1, SW2, SW3** et la terminaison commutée `R_T2` (les fautes
-  logicielles passent par `BENCH_CFG`) ;
-- le **MPU-6050** sur N2 ;
-- le **capteur à effet Hall** (N2) et la sonde **DS18B20** (N3), prévus au lot 6 ;
-- le **pont slcan sur Nucleo-L476RG**, utile tant que l'adaptateur USB-CAN n'est pas fabriqué ;
-- les **LCD 16x2** : conservés à côté des futurs écrans OLED, ou remplacés ?
-
-Le schéma fonctionnel `schema/` reste celui de la phase 0 ; le câblage réel fait foi.
+La **simulation 3D** montre encore le banc du dossier v0.1 (LCD, DB9, LM2596, capteurs) ; le
+schéma fonctionnel `schema/` reste celui de la phase 0. Le câblage réel fait foi.
 
 ---
 
@@ -89,21 +89,29 @@ Le schéma fonctionnel `schema/` reste celui de la phase 0 ; le câblage réel f
    commander les composants (`adaptateur_usb_can_commande.xlsx`).
 3. **Imprimer le boîtier** au FabLab sur la X1 Carbon : badge, ticket signé par un
    facilitateur, plateau à vérifier (`hardware/adaptateur_usb_can/boitier/README.md`).
-4. **Rendre le banc propre** : plaque modulaire imprimée et carte porteuse par nœud, pour
+4. **Câbler les interrupteurs de faute** SW1, SW2, SW3 et la terminaison commutée.
+5. **Compléter la commande pour N4** : 3 adaptateurs SOP8 et 3 écrans OLED ont été commandés
+   pour 4 nœuds ; vérifier aussi que les 3 OLED sont bien arrivés.
+6. **Rendre le banc propre** : plaque modulaire imprimée et carte porteuse par nœud, pour
    supprimer les fils Dupont (en discussion).
 
 ### Logiciel
 
-5. **Écrans OLED SSD1306** sur les nœuds (lot 6) : I2C1 sur PA15/PB7 déjà réservé dans
+7. **Écrans OLED SSD1306** sur les nœuds (lot 6) : I2C1 sur PA15/PB7 déjà réservé dans
    `board.h`, rafraîchissement par DMA et par pages modifiées (`docs/PLAN.md` §2.3).
-6. **Défaut D1, côté PC** : `canbench arbitration` attend encore 2 ms entre ARM et GO, ce qui
+8. **MPU-6050 sur N2** : lecture en I2C (adresse 0x68, même bus que l'OLED) et envoi dans
+   la trame `IMU_SPEED`.
+9. **Firmware de l'adaptateur USB-CAN** : slcan sur l'USART relié au CH340C, en reprenant
+   `common/app/slcan.c`.
+10. **Mettre la simulation 3D à jour** : écrans OLED, sans LCD, DB9 ni LM2596.
+11. **Défaut D1, côté PC** : `canbench arbitration` attend encore 2 ms entre ARM et GO, ce qui
    fait échouer T3 sur le banc réel (`docs/PLAN.md` §8 bis). Le firmware est déjà corrigé.
 
 ### Validation
 
-7. **Passer T1 à T7** sur le banc réel ([protocole_validation.md](protocole_validation.md)),
+12. **Passer T1 à T7** sur le banc réel ([protocole_validation.md](protocole_validation.md)),
    T1 et T2 à l'oscilloscope.
-8. **Reporter dans le dossier v0.2** les écarts relevés (`docs/PLAN.md` §9 bis).
+13. **Reporter dans le dossier v0.2** les écarts relevés (`docs/PLAN.md` §9 bis).
 
 ### Questions encore ouvertes
 
