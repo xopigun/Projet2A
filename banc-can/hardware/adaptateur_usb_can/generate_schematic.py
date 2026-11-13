@@ -26,6 +26,40 @@ FP_R = "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 FP_C = "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 FP_LED = "LED_SMD:LED_0805_2012Metric_Pad1.15x1.40mm_HandSolder"
 
+# Valeur -> (fabricant, référence fabricant, datasheet). Champs « Manufacturer » et « MPN » des
+# symboles, comme le demande le cours PCB ; datasheet vide : celle de la bibliothèque KiCad.
+# Les passifs sont des références courantes (Samsung CL21, Yageo RC0805) : tout équivalent
+# de même valeur, tension et diélectrique convient.
+PIECES = {
+    "100nF": ("Samsung", "CL21B104KBCNNNC", ""),
+    "10uF": ("Samsung", "CL21A106KOQNNNE", ""),
+    "4.7uF": ("Samsung", "CL21A475KAQNNNE", ""),
+    "1uF": ("Samsung", "CL21B105KOFNNNE", ""),
+    "10nF": ("Samsung", "CL21B103KBANNNC", ""),
+    "22pF": ("Samsung", "CL21C220JBANNNC", ""),
+    "22uF": ("KEMET", "T491A226K010AT", ""),
+    "1k": ("Yageo", "RC0805FR-071KL", ""),
+    "10k": ("Yageo", "RC0805FR-0710KL", ""),
+    "120R": ("Yageo", "RC0805FR-07120RL", ""),
+    "0R": ("Yageo", "RC0805JR-070RL", ""),
+    "PWR vert": ("Würth Elektronik", "150080GS75000", ""),
+    "RX vert": ("Würth Elektronik", "150080GS75000", ""),
+    "TX jaune": ("Würth Elektronik", "150080YS75000", ""),
+    "8MHz": ("au choix", "quartz 8 MHz 5032, CL 16 pF (C10/C11 = 22 pF)", ""),
+    "500mA": ("Bourns", "MF-NSMF050-2", "https://www.bourns.com/docs/Product-Datasheets/mf-nsmf.pdf"),
+    "RESET": ("Omron", "B3U-1000P", "https://omronfs.omron.com/en_US/ecb/products/pdf/en-b3u.pdf"),
+    "BOOT0": ("Omron", "B3U-1000P", "https://omronfs.omron.com/en_US/ecb/products/pdf/en-b3u.pdf"),
+    "USB_A": ("CNC Tech", "1001-011-01101", "http://cnctech.us/pdfs/1001-011-01101.pdf"),
+    "Bornier CAN": ("Phoenix Contact", "1729131 (MKDS 1,5/ 3-5,08)", ""),
+    "SWD": ("Würth Elektronik", "61300411121", ""),
+    "TERM": ("Würth Elektronik", "61300211121", ""),
+    "STM32G431KBT6": ("STMicroelectronics", "STM32G431KBT6", ""),
+    "CH340C": ("WCH", "CH340C", ""),
+    "TJA1051T/3": ("NXP", "TJA1051T/3,118", ""),
+    "AMS1117-3.3": ("Advanced Monolithic Systems", "AMS1117-3.3", ""),
+    "USBLC6-2SC6": ("STMicroelectronics", "USBLC6-2SC6", ""),
+}
+
 items = []
 lib_ids = set()
 counters = {"#PWR": 0, "#FLG": 0}
@@ -89,6 +123,12 @@ def place(lib_id, ref, value, x, y, footprint="", rot=0, text_side="below", prop
     else:
         # Sous le symbole d'alimentation éventuel (masse) accroché aux broches du bas.
         tx, ty1, ty2, just = x, max(ys) + 10.16, max(ys) + 12.7, None
+    fab, mpn, datasheet = "", "", ""
+    if not hidden and not lib_id.startswith("power:"):
+        fab, mpn, datasheet = PIECES[value]
+        if not datasheet:
+            lib_ds = next((p[2] for p in kisym.find(sym, "property") if p[1] == "Datasheet"), "")
+            datasheet = "" if lib_ds == "~" else lib_ds
     # KiCad oriente les champs avec le symbole : on compense pour qu'ils restent horizontaux.
     fa = 90 if rot in (90, 270) else 0
     if rot in (90, 180) and just:
@@ -97,8 +137,10 @@ def place(lib_id, ref, value, x, y, footprint="", rot=0, text_side="below", prop
         prop("Reference", ref, tx, ty1, hidden, just, fa),
         prop("Value", value, tx, ty2, hidden and not lib_id.startswith("power:"), just, fa),
         prop("Footprint", footprint, x, y, True),
-        prop("Datasheet", "", x, y, True),
+        prop("Datasheet", datasheet, x, y, True),
     ]
+    if fab:
+        body += [prop("Manufacturer", fab, x, y, True), prop("MPN", mpn, x, y, True)]
     body += [prop(k, v, x, y, True) for k, v in props]
     pin_uuids = " ".join(f"(pin {q(n)} (uuid {q(uid())}))" for n in sorted(pts))
     items.append(
