@@ -26,6 +26,9 @@ est établie ailleurs, par les vecteurs de référence.
 
 from __future__ import annotations
 
+import contextlib
+import ctypes
+import sys
 import threading
 import time
 from dataclasses import dataclass
@@ -139,11 +142,18 @@ class NodeSimulator:
     # -- boucle principale --------------------------------------------------
 
     def _run(self) -> None:
+        with _fine_timer():
+            self._loop()
+
+    def _loop(self) -> None:
         next_heartbeat = time.monotonic() + self.options.heartbeat_period
         next_app = time.monotonic() + self.options.app_period
 
         while not self._stop.is_set():
-            frame = self.bench.recv(timeout=0.005)
+            # Attendre une trame, mais jamais au-delà de la prochaine échéance.
+            now = time.monotonic()
+            soon = min(next_heartbeat, next_app if self.options.periodic_app else next_heartbeat)
+            frame = self.bench.recv(timeout=min(0.005, max(0.0, soon - now)))
             if frame is not None:
                 self._on_frame(frame)
 
@@ -153,15 +163,17 @@ class NodeSimulator:
             # trames contendantes : tout le reste est suspendu.
             busy = self._arbitration_active
 
+            # Échéances absolues : un retard sur une émission ne décale pas les
+            # suivantes, la période moyenne reste exacte (comme un timer matériel).
             if now >= next_heartbeat:
                 if not busy:
                     self._emit_heartbeats()
-                next_heartbeat = now + self.options.heartbeat_period
+                next_heartbeat = _next_deadline(next_heartbeat, self.options.heartbeat_period, now)
 
             if self.options.periodic_app and now >= next_app:
                 if not busy:
                     self._emit_application()
-                next_app = now + self.options.app_period
+                next_app = _next_deadline(next_app, self.options.app_period, now)
 
             self._expire_modes(now)
 
@@ -311,6 +323,40 @@ class NodeSimulator:
     def snapshot(self) -> dict[int, SimulatedNode]:
         with self._lock:
             return {k: SimulatedNode(**vars(v)) for k, v in self.nodes.items()}
+
+
+def _next_deadline(deadline: float, period: float, now: float) -> float:
+    """Échéance suivante, calée sur la grille des périodes.
+
+    Après un long blocage (cycle d'arbitrage, machine chargée), on saute les
+    échéances passées au lieu d'émettre une rafale de rattrapage.
+    """
+    deadline += period
+    if deadline <= now:
+        deadline += period * ((now - deadline) // period + 1)
+    return deadline
+
+
+@contextlib.contextmanager
+def _fine_timer():
+    """Minuteur système à 1 ms sous Windows, le temps de la simulation.
+
+    Par défaut, Windows arrondit toute attente à ~15,6 ms : une trame prévue
+    toutes les 20 ms partait alors toutes les ~31 ms. ``timeBeginPeriod`` est la
+    demande standard pour une résolution d'1 ms ; elle est rendue en sortie.
+    """
+    winmm = None
+    if sys.platform == "win32":
+        try:
+            winmm = ctypes.WinDLL("winmm")
+            winmm.timeBeginPeriod(1)
+        except (AttributeError, OSError):
+            winmm = None
+    try:
+        yield
+    finally:
+        if winmm is not None:
+            winmm.timeEndPeriod(1)
 
 
 def _contender_id(node_name: str) -> int | None:

@@ -3,6 +3,7 @@ rem Lance l'interface graphique du banc CAN dans le navigateur.
 rem
 rem   Double-clic         : simulation sur bus virtuel (aucun materiel requis)
 rem   lancer_banc.bat gs_usb   : banc reel, via un CANable 2.0 (candleLight)
+rem   lancer_banc.bat zlg      : banc reel, via l'adaptateur ZLG USBCAN-UC12 (WinUSB)
 rem   lancer_banc.bat slcan COM5 : banc reel, CANable en firmware slcan
 rem
 rem Ne demande aucune installation : seul Python et les dependances de canbench

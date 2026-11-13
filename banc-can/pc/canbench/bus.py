@@ -6,8 +6,12 @@ et toute trame CAN FD ou à identifiant étendu reçue est **comptée et signal�
 plutôt qu'ignorée : c'est exactement le genre d'anomalie que le banc doit mettre
 en évidence chez un partenaire.
 
-Trois interfaces sont prévues :
+Quatre interfaces sont prévues :
 
+- ``zlg``     : adaptateur ZLG USBCAN-UC12 via WinUSB, sans le pilote ZLG, donc
+  compatible avec l'intégrité de la mémoire (nécessite ``pyusb`` et
+  ``libusb-package``, voir ``zlg_bus.py``) ; il remonte aussi REC/TEC et les
+  événements du contrôleur (:meth:`Bench.adapter_quality`) ;
 - ``gs_usb``  : CANable 2.0 en firmware candleLight (nécessite ``gs-usb`` et ``pyusb``) ;
 - ``slcan``   : CANable en firmware slcan (nécessite ``pyserial``) ;
 - ``virtual`` : bus en mémoire de python-can, pour tout exécuter sans matériel.
@@ -76,8 +80,11 @@ class NonConformity:
         return self.extended + self.fd + self.oversized
 
     def record(self, frame: Frame) -> bool:
-        """Enregistre la trame si elle n'est pas conforme ; renvoie True dans ce cas."""
-        if frame.is_classic_2a:
+        """Enregistre la trame si elle n'est pas conforme ; renvoie True dans ce cas.
+
+        Une trame d'erreur n'est pas une trame de données : elle n'est pas comptée ici
+        (voir :mod:`canbench.quality`)."""
+        if frame.is_classic_2a or frame.is_error_frame:
             return False
         if frame.is_extended:
             self.extended += 1
@@ -127,6 +134,13 @@ class Bench:
         self.ids = icd_gen.PROFILES[profile]["ids"]
         self.non_conformity = NonConformity()
 
+        if interface == "zlg":
+            # Pilote propre au banc : construit directement, hors registre python-can.
+            from .zlg_bus import ZlgBus
+
+            self._bus = ZlgBus(channel=channel or 0, bitrate=bitrate)
+            return
+
         kwargs: dict = {"interface": interface}
         if interface == "virtual":
             kwargs["channel"] = channel or VIRTUAL_CHANNEL
@@ -149,6 +163,12 @@ class Bench:
 
     def close(self) -> None:
         self._bus.shutdown()
+
+    def adapter_quality(self) -> dict | None:
+        """Indicateurs de qualité fournis par l'adaptateur lui-même (REC/TEC,
+        événements, trames non acquittées), ou None s'il n'en fournit pas."""
+        quality = getattr(self._bus, "quality", None)
+        return quality() if callable(quality) else None
 
     # -- émission -----------------------------------------------------------
 

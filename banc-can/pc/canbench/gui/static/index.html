@@ -153,6 +153,25 @@ button.mini { padding: 3px 8px; font-size: 12px; margin-left: 4px; }
   border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; }
 .phy-explain table { margin: 8px 0; }
 @media (max-width: 900px) { .phy-explain { grid-template-columns: 1fr; } }
+.g-quality { grid-template-columns: 1fr 2fr; }
+@media (max-width: 1000px) { .g-quality { grid-template-columns: 1fr; } }
+.q-state { display: inline-block; padding: 3px 10px; border-radius: 6px; font-weight: 700; font-size: 13px; }
+.q-actif { background: var(--ok-soft); color: var(--ok); }
+.q-avertissement { background: var(--warn-soft); color: var(--warn); }
+.q-passif { background: #fde9dc; color: var(--orange); }
+.q-bus-off { background: var(--bad-soft); color: var(--bad); }
+.q-inconnu { background: var(--line); color: var(--muted); }
+.gauge { position: relative; height: 8px; background: var(--line); border-radius: 4px; margin: 3px 0 10px; }
+.gauge i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: var(--ok); transition: width .3s; }
+.gauge i.warn { background: var(--warn); } .gauge i.bad { background: var(--bad); }
+.gauge b { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--muted); opacity: .6; }
+.q-big { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.q-events { list-style: none; padding: 0; margin: 6px 0 0; font-size: 13px; max-height: 150px; overflow: auto; }
+.q-events li { padding: 3px 0; border-bottom: 1px solid var(--line); }
+.q-events .mono { color: var(--muted); margin-right: 6px; }
+tr.alert td { background: var(--warn-soft); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.q-table { max-height: 330px; overflow: auto; }
 footer { text-align: center; color: var(--muted); font-size: 12px; padding-bottom: 20px; }
 </style>
 </head>
@@ -196,6 +215,29 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding-botto
       </div>
       <canvas id="spark" width="400" height="90" aria-label="Charge du bus"></canvas>
       <div class="note">Charge au pire cas du bourrage de bits, sur 1 s glissante.</div>
+    </div>
+  </section>
+
+  <section class="grid g-quality" id="quality">
+    <div class="panel">
+      <h2>Qualité · contrôleur de l'interface</h2>
+      <div id="q-adapter"></div>
+    </div>
+    <div class="panel">
+      <h2>Qualité · régularité des trames reçues</h2>
+      <div class="q-big">
+        <div class="stat"><div class="v" id="q-missed">0</div><div class="l">trames manquées (estimation)</div></div>
+        <div class="stat"><div class="v" id="q-errors">0</div><div class="l">trames d'erreur reçues</div></div>
+      </div>
+      <div class="q-table">
+        <table>
+          <thead><tr><th>ID</th><th>Trame</th><th class="num">Reçues</th><th class="num">Période</th>
+            <th class="num">Attendue</th><th class="num">Gigue <span class="help-dot" title="Écart-type des intervalles entre deux trames du même identifiant, sur les 200 derniers.">?</span></th>
+            <th class="num">Min</th><th class="num">Max</th><th class="num">Manquées</th></tr></thead>
+          <tbody id="q-ids"></tbody>
+        </table>
+      </div>
+      <div class="note" id="q-note"></div>
     </div>
   </section>
 
@@ -488,6 +530,61 @@ function spark(values) {
   ctx.fillText(`max ${max.toFixed(0)} %`, 4, 12 * devicePixelRatio);
 }
 
+// ---- qualité ---------------------------------------------------------------
+const fmtMs = (v) => v === null || v === undefined ? "—" : (v >= 100 ? v.toFixed(0) : v.toFixed(2));
+const Q_STATES = {actif: "error-active", avertissement: "error-warning", passif: "error-passive",
+                  "bus-off": "BUS-OFF", inconnu: "état inconnu"};
+function gauge(value) {
+  const v = value ?? 0, cls = v >= 128 ? "bad" : v >= 96 ? "warn" : "";
+  return `<div class="gauge"><i class="${cls}" style="width:${Math.min(100, v / 2.55)}%"></i>
+    <b style="left:${96 / 2.55}%" title="96 : avertissement"></b><b style="left:${128 / 2.55}%" title="128 : erreur passive"></b></div>`;
+}
+function renderAdapter(a, s) {
+  if (!a) {
+    $("q-adapter").innerHTML = `<p class="note">${s.virtual
+      ? "Bus virtuel : aucun contrôleur réel, donc ni compteurs d'erreurs ni événements."
+      : `L'interface <b>${esc(s.interface)}</b> ne remonte pas l'état de son contrôleur.`}
+      L'adaptateur <b>ZLG USBCAN-UC12</b> fournit REC/TEC, les événements d'erreur et les trames non acquittées.</p>
+      <p class="note">Les nœuds publient leurs propres compteurs dans leur heartbeat (cartes ci-dessous).</p>`;
+    return;
+  }
+  const events = Object.entries(a.events);
+  const t0 = a.recent_events.length ? a.recent_events[a.recent_events.length - 1].t : 0;
+  $("q-adapter").innerHTML = `
+    <div class="row" style="justify-content:space-between">
+      <span class="q-state q-${a.state}">${esc(Q_STATES[a.state] || a.state)}</span>
+      <span class="note" style="margin:0">${esc(a.adapter)} · fw ${esc(a.firmware ?? "?")} · n° ${esc(a.serial ?? "?")}</span>
+    </div>
+    <div class="kv" style="margin-top:12px"><span>REC <span class="help-dot" title="Compteur d'erreurs en réception du contrôleur de l'adaptateur. 96 : avertissement ; 128 : erreur passive.">?</span></span><span>${a.rec ?? "—"} <small class="note">(pic ${a.peak_rec})</small></span></div>
+    ${gauge(a.rec)}
+    <div class="kv"><span>TEC <span class="help-dot" title="Compteur d'erreurs en émission. Une trame que personne n'acquitte le fait monter de 8 à chaque tentative.">?</span></span><span>${a.tec ?? "—"} <small class="note">(pic ${a.peak_tec})</small></span></div>
+    ${gauge(a.tec)}
+    <div class="kv"><span>Trames émises acquittées</span><span>${a.tx_ok}</span></div>
+    <div class="kv"><span>Trames non acquittées <span class="help-dot" title="Aucun nœud n'a acquitté la trame : bus non câblé, terminaison absente, ou débit différent. L'adaptateur abandonne après environ 1,7 s.">?</span></span><span class="${a.tx_failed ? "ko" : ""}">${a.tx_failed}</span></div>
+    <h2 style="margin:14px 0 4px">Événements du contrôleur</h2>
+    ${events.length ? events.map(([k, v]) => `<div class="kv"><span>${esc(k)}</span><span class="ko">${v}</span></div>`).join("")
+      : `<p class="note" style="margin:0">Aucun événement d'erreur.</p>`}
+    ${a.recent_events.length ? `<ul class="q-events">${a.recent_events.map((e) =>
+      `<li><span class="mono">+${((e.t - t0) * 1000).toFixed(1)} ms</span>${esc(e.text)}</li>`).join("")}</ul>` : ""}
+    <p class="note">Le type d'erreur CAN (bourrage, CRC, forme…) n'est pas fourni par cet adaptateur.</p>`;
+}
+function renderQuality(q, s) {
+  renderAdapter(q.adapter, s);
+  $("q-missed").textContent = q.missed;
+  $("q-missed").className = "v" + (q.missed ? " ko" : "");
+  $("q-errors").textContent = q.error_frames;
+  $("q-errors").className = "v" + (q.error_frames ? " ko" : "");
+  $("q-ids").innerHTML = q.ids.map((r) => `<tr class="${r.alert ? "alert" : ""}">
+    <td class="mono">${r.id}</td><td>${esc(r.name)}</td><td class="num">${r.count}</td>
+    <td class="num mono">${fmtMs(r.period_ms)}</td><td class="num mono">${r.expected_ms ? fmtMs(r.expected_ms) : "—"}</td>
+    <td class="num mono">${fmtMs(r.jitter_ms)}</td><td class="num mono">${fmtMs(r.min_ms)}</td>
+    <td class="num mono">${fmtMs(r.max_ms)}</td><td class="num ${r.missed ? "ko" : ""}">${r.missed}</td></tr>`).join("")
+    || `<tr><td colspan="9" class="note">Aucune trame reçue.</td></tr>`;
+  $("q-note").textContent = (q.alerts ? `${q.alerts} identifiant(s) hors tolérance (±10 % ou trame manquée), surlignés. ` : "")
+    + "Durées en ms. " + (q.adapter ? "Horodatage matériel de l'adaptateur (0,1 ms) : la gigue est celle du bus."
+                                    : "Horodatage par le PC : la gigue inclut la latence USB et système.");
+}
+
 // ---- trames --------------------------------------------------------------
 function renderFrames(frames) {
   if (paused || !frames.length) return;
@@ -579,6 +676,7 @@ async function tick() {
     lightBus(s);
     spark(s.load_history);
     renderFrames(s.frames);
+    if (s.quality) renderQuality(s.quality, s);
     $("counts").innerHTML = s.counts.map((c) => `<tr><td class="mono">${c.id}</td><td>${esc(c.name)}</td>
       <td style="text-align:right" class="mono">${c.count}</td></tr>`).join("");
     setBusy(s.busy);

@@ -6,6 +6,7 @@ d'exécuter la chaîne complète en intégration continue, sans matériel.
 
     canbench --interface virtual --simulate arbitration --cycles 100
     canbench --interface gs_usb arbitration --cycles 1000
+    canbench --interface zlg monitor
 
 > **Sur bus virtuel, aucun verdict de réussite n'est prononcé.** Le simulateur
 > reproduit le comportement attendu des nœuds ; il ne le démontre pas. Les
@@ -19,7 +20,7 @@ import sys
 import time
 from pathlib import Path
 
-from . import arbitration, decode, encoding, faults, icd_gen, record, report
+from . import arbitration, decode, encoding, faults, icd_gen, quality, record, report
 from .bus import Bench
 from .simulator import NodeSimulator, SimulatorOptions
 
@@ -121,10 +122,16 @@ def cmd_monitor(args: argparse.Namespace) -> int:
         counts: dict[int, int] = {}
         started = time.monotonic()
         frames = []
+        tracker = quality.QualityTracker(args.profile)
 
         print(f"Écoute sur {args.interface} — Ctrl-C pour arrêter.\n")
         try:
             for frame in bench.stream(duration=args.duration):
+                tracker.note(frame)
+                if frame.is_error_frame:
+                    if not args.quiet:
+                        print(f"** erreur du bus : {_error_text(frame)}")
+                    continue
                 frames.append(frame)
                 counts[frame.can_id] = counts.get(frame.can_id, 0) + 1
                 arbitration._note_heartbeat(frame, base, heartbeats)
@@ -164,7 +171,48 @@ def cmd_monitor(args: argparse.Namespace) -> int:
 
         for line in bench.non_conformity.report():
             print(line)
+        for line in _quality_report(tracker.summary(), bench.adapter_quality()):
+            print(line)
         return 0
+
+
+def _error_text(frame) -> str:
+    """Libellé d'une trame d'erreur ; l'adaptateur ZLG y met le code d'événement."""
+    try:
+        from .zlg_usbcan.driver import STATUS_EVENTS
+    except ImportError:  # pyusb absent : pas d'adaptateur ZLG possible
+        STATUS_EVENTS = {}  # noqa: N806
+
+    name = STATUS_EVENTS.get(frame.can_id)
+    return (
+        f"{name} ({frame.data.hex(' ')})" if name else f"0x{frame.can_id:X} {frame.data.hex(' ')}"
+    )
+
+
+def _quality_report(timing: dict, adapter: dict | None) -> list[str]:
+    lines = ["", "Qualité de la réception :"]
+    for row in timing["ids"]:
+        if row["period_ms"] is None:
+            continue
+        expected = f"{row['expected_ms']:g}" if row["expected_ms"] else "—"
+        flag = "  ÉCART" if row["alert"] else ""
+        lines.append(
+            f"  {row['id']}  {row['name']:<18} période {row['period_ms']:8.2f} ms "
+            f"(attendue {expected})  gigue {row['jitter_ms']:.2f} ms  "
+            f"max {row['max_ms']:.1f} ms  manquées {row['missed']}{flag}"
+        )
+    lines.append(f"  trames d'erreur : {timing['error_frames']}")
+    if adapter:
+        lines.append(
+            f"  {adapter['adapter']} : REC={adapter['rec']} TEC={adapter['tec']} "
+            f"({adapter['state']}), pics REC={adapter['peak_rec']} TEC={adapter['peak_tec']}"
+        )
+        lines.append(
+            f"  émission : {adapter['tx_ok']} acquittée(s), {adapter['tx_failed']} non acquittée(s)"
+        )
+        for name, count in sorted(adapter["events"].items()):
+            lines.append(f"  événement « {name} » : {count}")
+    return lines
 
 
 def cmd_arbitration(args: argparse.Namespace) -> int:
@@ -310,7 +358,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--interface",
         default="virtual",
-        choices=["virtual", "gs_usb", "slcan", "socketcan", "pcan", "kvaser"],
+        choices=["virtual", "zlg", "gs_usb", "slcan", "socketcan", "pcan", "kvaser"],
         help="interface python-can (défaut : virtual)",
     )
     parser.add_argument("--channel", default=None, help="canal de l'interface (ex. COM7)")

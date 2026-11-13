@@ -33,7 +33,7 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from .. import arbitration, decode, encoding, faults, icd_gen, physical, report
+from .. import arbitration, decode, encoding, faults, icd_gen, physical, quality, report
 from ..bus import Bench
 from ..simulator import NodeSimulator
 
@@ -97,6 +97,8 @@ class BenchService:
         self._senders = {can_id: meta["sender"] for can_id, meta in icd_gen.FRAMES.items()}
         #: Identifiants de faute (hors ICD) et nœud qui les émet, pour l'affichage.
         self._fault_ids: dict[int, str] = {}
+        #: Régularité des trames et erreurs du bus (panneau « Qualité »).
+        self.quality = quality.QualityTracker(profile)
 
         self._listener = threading.Thread(target=self._listen, name="gui-ecoute", daemon=True)
         self._listener.start()
@@ -115,9 +117,16 @@ class BenchService:
     # -- écoute -------------------------------------------------------------
 
     def _listen(self) -> None:
+        interrupted = False
         while not self._stop.is_set():
             if not self._bus_lock.acquire(timeout=0.1):
-                continue  # un test occupe le bus
+                interrupted = True  # un test occupe le bus et lit les trames
+                continue
+            if interrupted:
+                # Les trames lues par le test n'ont pas été vues ici : l'écart ne doit
+                # pas compter comme des trames manquées.
+                self.quality.restart()
+                interrupted = False
             try:
                 frame = self.bench.recv(timeout=0.05)
             finally:
@@ -127,6 +136,9 @@ class BenchService:
 
     def _note(self, frame) -> None:
         now = time.monotonic()
+        self.quality.note(frame)
+        if frame.is_error_frame:
+            return  # compté par le suivi qualité, ce n'est pas une trame de données
         decoded = decode.decode(frame, self.profile)
         sender = self._sender_of(frame.can_id)
         with self._state_lock:
@@ -242,9 +254,16 @@ class BenchService:
                 "frames": list(self._frames)[:30],
                 "counts": counts,
                 "non_conformity": self.bench.non_conformity.total,
+                "quality": {**self.quality.summary(), "adapter": self._adapter_quality()},
                 "busy": self.busy,
                 "has_result": self.last_result is not None,
             }
+
+    def _adapter_quality(self) -> dict | None:
+        try:
+            return self.bench.adapter_quality()
+        except Exception:  # noqa: BLE001 — l'adaptateur peut avoir été débranché
+            return None
 
     # -- tests ----------------------------------------------------------------
 
@@ -419,6 +438,11 @@ def _round(value):
 #: Interfaces proposées dans la fenêtre, avec le module python-can requis.
 INTERFACES = {
     "virtual": {"label": "Simulation (aucun matériel)", "module": None, "channel": False},
+    "zlg": {
+        "label": "ZLG USBCAN-UC12 (WinUSB, sans pilote ZLG)",
+        "module": "usb",
+        "channel": False,
+    },
     "gs_usb": {
         "label": "CANable 2.0 — firmware candleLight (gs_usb)",
         "module": "gs_usb",
@@ -463,9 +487,25 @@ def interface_status(name: str) -> tuple[bool, str]:
         __import__(module)
     except ImportError:
         return False, "pilote non inclus dans cette version"
-    if name == "gs_usb" and usb_backend() is None:
+    if name in ("gs_usb", "zlg") and usb_backend() is None:
         return False, "bibliothèque libusb absente de ce PC"
+    if name == "zlg" and not zlg_present():
+        return False, "adaptateur non détecté (branché ? WinUSB attaché ?)"
     return True, ""
+
+
+def zlg_present() -> bool:
+    """Vrai si un adaptateur ZLG USBCAN-UC12 est visible par libusb."""
+    try:
+        import usb.core
+
+        from ..zlg_usbcan.driver import PID, VID
+    except ImportError:
+        return False
+    try:
+        return usb.core.find(idVendor=VID, idProduct=PID, backend=usb_backend()) is not None
+    except Exception:  # noqa: BLE001 — libusb indisponible ou en erreur
+        return False
 
 
 def interface_available(name: str) -> bool:

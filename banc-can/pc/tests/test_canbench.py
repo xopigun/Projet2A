@@ -17,6 +17,7 @@ import itertools
 import sys
 import threading
 import time
+import uuid
 from pathlib import Path
 
 import pytest
@@ -493,3 +494,27 @@ def test_cli_ecrit_un_rapport(channel: str, tmp_path: Path, capsys) -> None:
 def test_cli_refuse_simulate_hors_bus_virtuel() -> None:
     with pytest.raises(SystemExit, match="virtual"):
         cli_main(["--interface", "slcan", "--simulate", "busload"])
+
+
+def test_le_simulateur_tient_la_periode_de_l_icd() -> None:
+    """Régression : sous Windows, l'arrondi du minuteur (~15,6 ms) et des échéances
+    relatives faisaient partir les trames de 20 ms toutes les ~31 ms."""
+    from canbench.bus import Bench
+    from canbench.quality import QualityTracker
+    from canbench.simulator import NodeSimulator
+
+    channel = f"cadence-{uuid.uuid4().hex}"
+    tracker = QualityTracker()
+    with NodeSimulator(channel=channel), Bench(channel=channel) as bench:
+        for frame in bench.collect(1.5):
+            tracker.note(frame)
+    row = next(r for r in tracker.summary()["ids"] if r["id"] == "0x100")
+    assert row["period_ms"] == pytest.approx(20, rel=0.05)
+
+
+def test_echeance_suivante_sur_la_grille_sans_rafale() -> None:
+    from canbench.simulator import _next_deadline
+
+    assert _next_deadline(1.00, 0.02, now=1.005) == pytest.approx(1.02)
+    # bloqué 100 ms : on reprend sur la grille, sans rattraper les échéances perdues
+    assert _next_deadline(1.00, 0.02, now=1.105) == pytest.approx(1.12)

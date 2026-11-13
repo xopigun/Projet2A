@@ -31,6 +31,8 @@ dev = [
 # libusb-package fournit libusb-1.0.dll, absente de Windows.
 gs-usb = ["gs-usb>=0.3", "pyusb>=1.2", "libusb-package>=1.0"]
 slcan = ["pyserial>=3.5"]
+# Adaptateur ZLG USBCAN-UC12 via WinUSB (pilote libre, voir canbench/zlg_usbcan).
+zlg = ["pyusb>=1.2", "libusb-package>=1.0"]
 
 [project.scripts]
 canbench = "canbench.cli:main"
@@ -41,6 +43,7 @@ include = ["canbench*"]
 
 [tool.setuptools.package-data]
 "canbench.gui" = ["static/*.html"]
+"canbench.zlg_usbcan" = ["PROTOCOLE.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

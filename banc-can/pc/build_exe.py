@@ -6,7 +6,8 @@ Usage, depuis la racine du dépôt ou depuis ``pc/`` :
 
 Prérequis : ``python -m pip install pyinstaller``. Pour piloter un CANable réel,
 installer aussi son pilote python-can **avant** la construction, pour qu'il soit
-embarqué : ``python -m pip install -e "pc[slcan]"`` et/ou ``"pc[gs-usb]"``.
+embarqué : ``python -m pip install -e "pc[slcan]"``, ``"pc[gs-usb]"`` et/ou
+``"pc[zlg]"`` (adaptateur ZLG USBCAN-UC12 via WinUSB, sans pilote ZLG).
 
 L'exécutable est un fichier unique, sans console. Il n'est pas versionné : il se
 reconstruit en une minute depuis le dépôt, qui fait seul foi.
@@ -138,6 +139,11 @@ def main(argv: list[str] | None = None) -> int:
         # c'est une donnée du paquet, que l'analyse des imports ne voit pas.
         "--collect-all",
         "libusb_package",
+        # Pilote libre du ZLG : importé à la demande (interface « zlg »).
+        "--collect-submodules",
+        "canbench.zlg_usbcan",
+        "--hidden-import",
+        "canbench.zlg_bus",
         "--distpath",
         str(dist),
         "--workpath",
