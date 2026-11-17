@@ -102,6 +102,7 @@ class NodeSimulator:
         self.ids = self.bench.ids
 
         self.nodes: dict[int, SimulatedNode] = {}
+        self._report_counters: dict[int, int] = {}
         for entry in icd_gen.NODES:
             node_id = entry["node_id"]
             self.nodes[node_id] = SimulatedNode(
@@ -317,6 +318,32 @@ class NodeSimulator:
                     ext_id_rx=node.ext_id_rx,
                 )
                 self.bench.send(base + node.node_id, heartbeat.pack())
+                self.bench.send(base + 8 + node.node_id, self._quality_report(node).pack())
+
+    def _quality_report(self, node: SimulatedNode) -> icd_gen.Quality:
+        """Rapport QUALITY d'un nœud simulé : bus parfait, chaque trame reçue notée 100.
+
+        Un nœud ne note pas sa propre trame applicative (255) ; un nœud au débit
+        erroné ou en bus-off ne reçoit plus rien. Le simulateur ne dégrade pas les
+        notes : seul le banc réel les fait varier."""
+        counter = self._report_counters.get(node.node_id, 0)
+        self._report_counters[node.node_id] = (counter + 1) & 0xFF
+        own = {1: "energy_command", 2: "imu_speed", 3: "temp_battery"}.get(node.node_id)
+        deaf = node.mode in (2, 5)
+
+        def score(name: str) -> int:
+            return 255 if (deaf or name == own) else 100
+
+        return icd_gen.Quality(
+            score_energy_command=score("energy_command"),
+            score_imu_speed=score("imu_speed"),
+            score_temp_battery=score("temp_battery"),
+            score_heartbeat=255 if deaf else 100,
+            frames_lost=0,
+            frames_bad=0,
+            frames_late=0,
+            report_counter=counter,
+        )
 
     # -- introspection ------------------------------------------------------
 

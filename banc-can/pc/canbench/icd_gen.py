@@ -47,13 +47,17 @@ PROFILES = {
             'HEARTBEAT_N2': 0x782,
             'HEARTBEAT_N3': 0x783,
             'HEARTBEAT_N4': 0x784,
+            'QUALITY_N1': 0x789,
+            'QUALITY_N2': 0x78A,
+            'QUALITY_N3': 0x78B,
+            'QUALITY_N4': 0x78C,
             'ENERGY_COMMAND': 0x100,
             'IMU_SPEED': 0x200,
             'TEMP_BATTERY': 0x300,
         },
         'reserved_ranges': [
             (0x010, 0x01F, 'services du banc'),
-            (0x780, 0x78F, 'heartbeat des nœuds'),
+            (0x780, 0x78F, 'heartbeat et qualité des nœuds'),
         ],
     },
     'alt_high': {
@@ -68,13 +72,17 @@ PROFILES = {
             'HEARTBEAT_N2': 0x792,
             'HEARTBEAT_N3': 0x793,
             'HEARTBEAT_N4': 0x794,
+            'QUALITY_N1': 0x799,
+            'QUALITY_N2': 0x79A,
+            'QUALITY_N3': 0x79B,
+            'QUALITY_N4': 0x79C,
             'ENERGY_COMMAND': 0x100,
             'IMU_SPEED': 0x200,
             'TEMP_BATTERY': 0x300,
         },
         'reserved_ranges': [
             (0x020, 0x02F, 'services du banc'),
-            (0x790, 0x79F, 'heartbeat des nœuds'),
+            (0x790, 0x79F, 'heartbeat et qualité des nœuds'),
         ],
     },
 }
@@ -248,6 +256,82 @@ FRAMES = {
         {'name': 'ring_overflow', 'start_byte': 5, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
         {'name': 'non_classic_rx', 'start_byte': 6, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
         {'name': 'ext_id_rx', 'start_byte': 7, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        ],
+    },
+    0x789: {
+        'name': 'QUALITY_N1',
+        'layout': 'QUALITY',
+        'dlc': 8,
+        'kind': 'service',
+        'sender': 'self',
+        'period_ms': 500,
+        'contender': False,
+        'signals': [
+        {'name': 'score_energy_command', 'start_byte': 0, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 255.0},
+        {'name': 'score_imu_speed', 'start_byte': 1, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 255.0},
+        {'name': 'score_temp_battery', 'start_byte': 2, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 255.0},
+        {'name': 'score_heartbeat', 'start_byte': 3, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 255.0},
+        {'name': 'frames_lost', 'start_byte': 4, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'frames_bad', 'start_byte': 5, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'frames_late', 'start_byte': 6, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'report_counter', 'start_byte': 7, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        ],
+    },
+    0x78A: {
+        'name': 'QUALITY_N2',
+        'layout': 'QUALITY',
+        'dlc': 8,
+        'kind': 'service',
+        'sender': 'self',
+        'period_ms': 500,
+        'contender': False,
+        'signals': [
+        {'name': 'score_energy_command', 'start_byte': 0, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 255.0},
+        {'name': 'score_imu_speed', 'start_byte': 1, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 255.0},
+        {'name': 'score_temp_battery', 'start_byte': 2, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 255.0},
+        {'name': 'score_heartbeat', 'start_byte': 3, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 255.0},
+        {'name': 'frames_lost', 'start_byte': 4, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'frames_bad', 'start_byte': 5, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'frames_late', 'start_byte': 6, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'report_counter', 'start_byte': 7, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        ],
+    },
+    0x78B: {
+        'name': 'QUALITY_N3',
+        'layout': 'QUALITY',
+        'dlc': 8,
+        'kind': 'service',
+        'sender': 'self',
+        'period_ms': 500,
+        'contender': False,
+        'signals': [
+        {'name': 'score_energy_command', 'start_byte': 0, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 255.0},
+        {'name': 'score_imu_speed', 'start_byte': 1, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 255.0},
+        {'name': 'score_temp_battery', 'start_byte': 2, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 255.0},
+        {'name': 'score_heartbeat', 'start_byte': 3, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 255.0},
+        {'name': 'frames_lost', 'start_byte': 4, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'frames_bad', 'start_byte': 5, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'frames_late', 'start_byte': 6, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'report_counter', 'start_byte': 7, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        ],
+    },
+    0x78C: {
+        'name': 'QUALITY_N4',
+        'layout': 'QUALITY',
+        'dlc': 8,
+        'kind': 'service',
+        'sender': 'self',
+        'period_ms': 500,
+        'contender': False,
+        'signals': [
+        {'name': 'score_energy_command', 'start_byte': 0, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 255.0},
+        {'name': 'score_imu_speed', 'start_byte': 1, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 255.0},
+        {'name': 'score_temp_battery', 'start_byte': 2, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 255.0},
+        {'name': 'score_heartbeat', 'start_byte': 3, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 255.0},
+        {'name': 'frames_lost', 'start_byte': 4, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'frames_bad', 'start_byte': 5, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'frames_late', 'start_byte': 6, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
+        {'name': 'report_counter', 'start_byte': 7, 'start_bit': 0, 'length': 8, 'byte_order': 'little_endian', 'signed': False, 'factor': 1.0, 'offset': 0.0, 'unit': '', 'min': 0.0, 'max': 255.0, 'default': 0.0},
         ],
     },
     0x100: {
@@ -497,6 +581,58 @@ class Heartbeat:
         )
 
 @dataclass
+class Quality:
+    """Note de qualité que le nœud donne aux trames qu'il reçoit, sur une fenêtre de 500 ms. Chaque trame reçue est notée de 0 à 100 : DLC conforme à l'ICD, somme de contrôle (ENERGY_COMMAND), continuité du compteur de trame, contenu conforme à la séquence déterministe, ponctualité par rapport à la période de l'ICD. Une note vaut la moyenne des trames de la fenêtre ; 255 signifie qu'aucune trame de ce type n'a été reçue (propre trame du nœud, émetteur absent). Suspendue pendant un test d'arbitrage, comme le heartbeat."""
+
+    DLC = 8
+
+    score_energy_command: int = 255.0
+    score_imu_speed: int = 255.0
+    score_temp_battery: int = 255.0
+    score_heartbeat: int = 255.0
+    frames_lost: int = 0.0
+    frames_bad: int = 0.0
+    frames_late: int = 0.0
+    report_counter: int = 0.0
+
+    def pack(self) -> bytes:
+        frame_le = 0
+        raw = _clamp(int(self.score_energy_command), 0, 255)
+        frame_le |= (raw & 0xFF) << 0
+        raw = _clamp(int(self.score_imu_speed), 0, 255)
+        frame_le |= (raw & 0xFF) << 8
+        raw = _clamp(int(self.score_temp_battery), 0, 255)
+        frame_le |= (raw & 0xFF) << 16
+        raw = _clamp(int(self.score_heartbeat), 0, 255)
+        frame_le |= (raw & 0xFF) << 24
+        raw = _clamp(int(self.frames_lost), 0, 255)
+        frame_le |= (raw & 0xFF) << 32
+        raw = _clamp(int(self.frames_bad), 0, 255)
+        frame_le |= (raw & 0xFF) << 40
+        raw = _clamp(int(self.frames_late), 0, 255)
+        frame_le |= (raw & 0xFF) << 48
+        raw = _clamp(int(self.report_counter), 0, 255)
+        frame_le |= (raw & 0xFF) << 56
+        data = bytearray(frame_le.to_bytes(8, 'little'))
+        return bytes(data)
+
+    @classmethod
+    def unpack(cls, data: bytes):
+        if len(data) != 8:
+            raise ValueError(f'QUALITY_N1 : {len(data)} octets reçus, 8 attendus')
+        frame_le = int.from_bytes(data, 'little')
+        return cls(
+            score_energy_command=(frame_le >> 0) & 0xFF,
+            score_imu_speed=(frame_le >> 8) & 0xFF,
+            score_temp_battery=(frame_le >> 16) & 0xFF,
+            score_heartbeat=(frame_le >> 24) & 0xFF,
+            frames_lost=(frame_le >> 32) & 0xFF,
+            frames_bad=(frame_le >> 40) & 0xFF,
+            frames_late=(frame_le >> 48) & 0xFF,
+            report_counter=(frame_le >> 56) & 0xFF,
+        )
+
+@dataclass
 class EnergyCommand:
     """Commande énergie émise périodiquement par N1 ; contendant de rang 1 attendu."""
 
@@ -640,5 +776,6 @@ LAYOUTS = {
     'ENERGY_COMMAND': EnergyCommand,
     'HEARTBEAT': Heartbeat,
     'IMU_SPEED': ImuSpeed,
+    'QUALITY': Quality,
     'TEMP_BATTERY': TempBattery,
 }

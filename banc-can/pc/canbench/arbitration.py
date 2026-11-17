@@ -210,7 +210,8 @@ def _validate(cycle: Cycle, expected_ids: list[int]) -> None:
 
 def _note_heartbeat(frame: Frame, base: int, store: dict[int, dict]) -> None:
     node_id = frame.can_id - base
-    if not 1 <= node_id <= 15 or len(frame.data) != 8:
+    # base + 1 à base + 7 : heartbeat ; base + 8 + n : trame QUALITY du nœud n.
+    if not 1 <= node_id <= 7 or len(frame.data) != 8:
         return
     beat = icd_gen.Heartbeat.unpack(frame.data)
     store[node_id] = {

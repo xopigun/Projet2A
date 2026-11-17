@@ -91,6 +91,46 @@ BO_ 1924 HEARTBEAT_N4: 8 Vector__XXX
  SG_ non_classic_rx : 48|8@1+ (1,0) [0|255] "" PC
  SG_ ext_id_rx : 56|8@1+ (1,0) [0|255] "" PC
 
+BO_ 1929 QUALITY_N1: 8 Vector__XXX
+ SG_ score_energy_command : 0|8@1+ (1,0) [0|255] "" PC
+ SG_ score_imu_speed : 8|8@1+ (1,0) [0|255] "" PC
+ SG_ score_temp_battery : 16|8@1+ (1,0) [0|255] "" PC
+ SG_ score_heartbeat : 24|8@1+ (1,0) [0|255] "" PC
+ SG_ frames_lost : 32|8@1+ (1,0) [0|255] "" PC
+ SG_ frames_bad : 40|8@1+ (1,0) [0|255] "" PC
+ SG_ frames_late : 48|8@1+ (1,0) [0|255] "" PC
+ SG_ report_counter : 56|8@1+ (1,0) [0|255] "" PC
+
+BO_ 1930 QUALITY_N2: 8 Vector__XXX
+ SG_ score_energy_command : 0|8@1+ (1,0) [0|255] "" PC
+ SG_ score_imu_speed : 8|8@1+ (1,0) [0|255] "" PC
+ SG_ score_temp_battery : 16|8@1+ (1,0) [0|255] "" PC
+ SG_ score_heartbeat : 24|8@1+ (1,0) [0|255] "" PC
+ SG_ frames_lost : 32|8@1+ (1,0) [0|255] "" PC
+ SG_ frames_bad : 40|8@1+ (1,0) [0|255] "" PC
+ SG_ frames_late : 48|8@1+ (1,0) [0|255] "" PC
+ SG_ report_counter : 56|8@1+ (1,0) [0|255] "" PC
+
+BO_ 1931 QUALITY_N3: 8 Vector__XXX
+ SG_ score_energy_command : 0|8@1+ (1,0) [0|255] "" PC
+ SG_ score_imu_speed : 8|8@1+ (1,0) [0|255] "" PC
+ SG_ score_temp_battery : 16|8@1+ (1,0) [0|255] "" PC
+ SG_ score_heartbeat : 24|8@1+ (1,0) [0|255] "" PC
+ SG_ frames_lost : 32|8@1+ (1,0) [0|255] "" PC
+ SG_ frames_bad : 40|8@1+ (1,0) [0|255] "" PC
+ SG_ frames_late : 48|8@1+ (1,0) [0|255] "" PC
+ SG_ report_counter : 56|8@1+ (1,0) [0|255] "" PC
+
+BO_ 1932 QUALITY_N4: 8 Vector__XXX
+ SG_ score_energy_command : 0|8@1+ (1,0) [0|255] "" PC
+ SG_ score_imu_speed : 8|8@1+ (1,0) [0|255] "" PC
+ SG_ score_temp_battery : 16|8@1+ (1,0) [0|255] "" PC
+ SG_ score_heartbeat : 24|8@1+ (1,0) [0|255] "" PC
+ SG_ frames_lost : 32|8@1+ (1,0) [0|255] "" PC
+ SG_ frames_bad : 40|8@1+ (1,0) [0|255] "" PC
+ SG_ frames_late : 48|8@1+ (1,0) [0|255] "" PC
+ SG_ report_counter : 56|8@1+ (1,0) [0|255] "" PC
+
 BO_ 256 ENERGY_COMMAND: 8 N1
  SG_ torque_setpoint : 0|16@1- (0.1,0) [-3276.8|3276.7] "N.m" PC,N2,N3,N4
  SG_ speed_setpoint : 16|16@1- (0.5,0) [-16384|16383.5] "rpm" PC,N2,N3,N4
@@ -174,6 +214,42 @@ CM_ SG_ 1924 rx_fifo_lost "Pertes FIFO matérielles (FDCAN RF0L), saturant";
 CM_ SG_ 1924 ring_overflow "Débordements du tampon circulaire logiciel, saturant";
 CM_ SG_ 1924 non_classic_rx "Trames CAN FD signalées par le contrôleur, saturant. Le bus est en CAN 2.0A classic : toute valeur non nulle est une anomalie.";
 CM_ SG_ 1924 ext_id_rx "Trames à identifiant 29 bits reçues, saturant. L'ICD n'utilise que des identifiants 11 bits.";
+CM_ BO_ 1929 "Note de qualité que le nœud donne aux trames qu'il reçoit, sur une fenêtre de 500 ms. Chaque trame reçue est notée de 0 à 100 : DLC conforme à l'ICD, somme de contrôle (ENERGY_COMMAND), continuité du compteur de trame, contenu conforme à la séquence déterministe, ponctualité par rapport à la période de l'ICD. Une note vaut la moyenne des trames de la fenêtre ; 255 signifie qu'aucune trame de ce type n'a été reçue (propre trame du nœud, émetteur absent). Suspendue pendant un test d'arbitrage, comme le heartbeat.";
+CM_ SG_ 1929 score_energy_command "Note moyenne des ENERGY_COMMAND reçues (0 à 100) ; 255 = aucune.";
+CM_ SG_ 1929 score_imu_speed "Note moyenne des IMU_SPEED reçues (0 à 100) ; 255 = aucune.";
+CM_ SG_ 1929 score_temp_battery "Note moyenne des TEMP_BATTERY reçues (0 à 100) ; 255 = aucune.";
+CM_ SG_ 1929 score_heartbeat "Note moyenne des heartbeats des autres nœuds (0 à 100) ; 255 = aucun.";
+CM_ SG_ 1929 frames_lost "Trames manquées sur la fenêtre (saut de compteur), saturant.";
+CM_ SG_ 1929 frames_bad "Trames abîmées sur la fenêtre (DLC, somme de contrôle, contenu), saturant.";
+CM_ SG_ 1929 frames_late "Trames hors tolérance de période sur la fenêtre, saturant.";
+CM_ SG_ 1929 report_counter "Incrémenté à chaque rapport ; un saut signale un rapport perdu.";
+CM_ BO_ 1930 "Note de qualité que le nœud donne aux trames qu'il reçoit, sur une fenêtre de 500 ms. Chaque trame reçue est notée de 0 à 100 : DLC conforme à l'ICD, somme de contrôle (ENERGY_COMMAND), continuité du compteur de trame, contenu conforme à la séquence déterministe, ponctualité par rapport à la période de l'ICD. Une note vaut la moyenne des trames de la fenêtre ; 255 signifie qu'aucune trame de ce type n'a été reçue (propre trame du nœud, émetteur absent). Suspendue pendant un test d'arbitrage, comme le heartbeat.";
+CM_ SG_ 1930 score_energy_command "Note moyenne des ENERGY_COMMAND reçues (0 à 100) ; 255 = aucune.";
+CM_ SG_ 1930 score_imu_speed "Note moyenne des IMU_SPEED reçues (0 à 100) ; 255 = aucune.";
+CM_ SG_ 1930 score_temp_battery "Note moyenne des TEMP_BATTERY reçues (0 à 100) ; 255 = aucune.";
+CM_ SG_ 1930 score_heartbeat "Note moyenne des heartbeats des autres nœuds (0 à 100) ; 255 = aucun.";
+CM_ SG_ 1930 frames_lost "Trames manquées sur la fenêtre (saut de compteur), saturant.";
+CM_ SG_ 1930 frames_bad "Trames abîmées sur la fenêtre (DLC, somme de contrôle, contenu), saturant.";
+CM_ SG_ 1930 frames_late "Trames hors tolérance de période sur la fenêtre, saturant.";
+CM_ SG_ 1930 report_counter "Incrémenté à chaque rapport ; un saut signale un rapport perdu.";
+CM_ BO_ 1931 "Note de qualité que le nœud donne aux trames qu'il reçoit, sur une fenêtre de 500 ms. Chaque trame reçue est notée de 0 à 100 : DLC conforme à l'ICD, somme de contrôle (ENERGY_COMMAND), continuité du compteur de trame, contenu conforme à la séquence déterministe, ponctualité par rapport à la période de l'ICD. Une note vaut la moyenne des trames de la fenêtre ; 255 signifie qu'aucune trame de ce type n'a été reçue (propre trame du nœud, émetteur absent). Suspendue pendant un test d'arbitrage, comme le heartbeat.";
+CM_ SG_ 1931 score_energy_command "Note moyenne des ENERGY_COMMAND reçues (0 à 100) ; 255 = aucune.";
+CM_ SG_ 1931 score_imu_speed "Note moyenne des IMU_SPEED reçues (0 à 100) ; 255 = aucune.";
+CM_ SG_ 1931 score_temp_battery "Note moyenne des TEMP_BATTERY reçues (0 à 100) ; 255 = aucune.";
+CM_ SG_ 1931 score_heartbeat "Note moyenne des heartbeats des autres nœuds (0 à 100) ; 255 = aucun.";
+CM_ SG_ 1931 frames_lost "Trames manquées sur la fenêtre (saut de compteur), saturant.";
+CM_ SG_ 1931 frames_bad "Trames abîmées sur la fenêtre (DLC, somme de contrôle, contenu), saturant.";
+CM_ SG_ 1931 frames_late "Trames hors tolérance de période sur la fenêtre, saturant.";
+CM_ SG_ 1931 report_counter "Incrémenté à chaque rapport ; un saut signale un rapport perdu.";
+CM_ BO_ 1932 "Note de qualité que le nœud donne aux trames qu'il reçoit, sur une fenêtre de 500 ms. Chaque trame reçue est notée de 0 à 100 : DLC conforme à l'ICD, somme de contrôle (ENERGY_COMMAND), continuité du compteur de trame, contenu conforme à la séquence déterministe, ponctualité par rapport à la période de l'ICD. Une note vaut la moyenne des trames de la fenêtre ; 255 signifie qu'aucune trame de ce type n'a été reçue (propre trame du nœud, émetteur absent). Suspendue pendant un test d'arbitrage, comme le heartbeat.";
+CM_ SG_ 1932 score_energy_command "Note moyenne des ENERGY_COMMAND reçues (0 à 100) ; 255 = aucune.";
+CM_ SG_ 1932 score_imu_speed "Note moyenne des IMU_SPEED reçues (0 à 100) ; 255 = aucune.";
+CM_ SG_ 1932 score_temp_battery "Note moyenne des TEMP_BATTERY reçues (0 à 100) ; 255 = aucune.";
+CM_ SG_ 1932 score_heartbeat "Note moyenne des heartbeats des autres nœuds (0 à 100) ; 255 = aucun.";
+CM_ SG_ 1932 frames_lost "Trames manquées sur la fenêtre (saut de compteur), saturant.";
+CM_ SG_ 1932 frames_bad "Trames abîmées sur la fenêtre (DLC, somme de contrôle, contenu), saturant.";
+CM_ SG_ 1932 frames_late "Trames hors tolérance de période sur la fenêtre, saturant.";
+CM_ SG_ 1932 report_counter "Incrémenté à chaque rapport ; un saut signale un rapport perdu.";
 CM_ BO_ 256 "Commande énergie émise périodiquement par N1 ; contendant de rang 1 attendu.";
 CM_ SG_ 256 command_counter "Incrémenté à chaque émission ; sert à détecter une trame manquante.";
 CM_ SG_ 256 checksum "Somme XOR des octets 0 à 6.";
@@ -185,6 +261,10 @@ CM_ SG_ 768 temperature "Résolution native du DS18B20 (1/16 °C).";
 
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
 BA_DEF_DEF_  "GenMsgCycleTime" 0;
+BA_ "GenMsgCycleTime" BO_ 1929 500;
+BA_ "GenMsgCycleTime" BO_ 1930 500;
+BA_ "GenMsgCycleTime" BO_ 1931 500;
+BA_ "GenMsgCycleTime" BO_ 1932 500;
 BA_ "GenMsgCycleTime" BO_ 256 20;
 BA_ "GenMsgCycleTime" BO_ 512 20;
 BA_ "GenMsgCycleTime" BO_ 768 20;

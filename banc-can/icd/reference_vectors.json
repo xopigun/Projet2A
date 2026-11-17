@@ -3562,6 +3562,1176 @@
       ]
     },
     {
+      "name": "QUALITY",
+      "can_id": 1929,
+      "dlc": 8,
+      "cases": [
+        {
+          "label": "valeurs par défaut",
+          "values": {},
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_energy_command = 0",
+          "values": {
+            "score_energy_command": 0.0
+          },
+          "data": [
+            0,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 0,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_energy_command = 1",
+          "values": {
+            "score_energy_command": 1.0
+          },
+          "data": [
+            1,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 1,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_energy_command = 254",
+          "values": {
+            "score_energy_command": 254.0
+          },
+          "data": [
+            254,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 254,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_energy_command = 255",
+          "values": {
+            "score_energy_command": 255.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_energy_command = 255",
+          "values": {
+            "score_energy_command": 255.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_imu_speed = 0",
+          "values": {
+            "score_imu_speed": 0.0
+          },
+          "data": [
+            255,
+            0,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 0,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_imu_speed = 1",
+          "values": {
+            "score_imu_speed": 1.0
+          },
+          "data": [
+            255,
+            1,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 1,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_imu_speed = 254",
+          "values": {
+            "score_imu_speed": 254.0
+          },
+          "data": [
+            255,
+            254,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 254,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_imu_speed = 255",
+          "values": {
+            "score_imu_speed": 255.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_imu_speed = 255",
+          "values": {
+            "score_imu_speed": 255.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_temp_battery = 0",
+          "values": {
+            "score_temp_battery": 0.0
+          },
+          "data": [
+            255,
+            255,
+            0,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 0,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_temp_battery = 1",
+          "values": {
+            "score_temp_battery": 1.0
+          },
+          "data": [
+            255,
+            255,
+            1,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 1,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_temp_battery = 254",
+          "values": {
+            "score_temp_battery": 254.0
+          },
+          "data": [
+            255,
+            255,
+            254,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 254,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_temp_battery = 255",
+          "values": {
+            "score_temp_battery": 255.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_temp_battery = 255",
+          "values": {
+            "score_temp_battery": 255.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_heartbeat = 0",
+          "values": {
+            "score_heartbeat": 0.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 0,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_heartbeat = 1",
+          "values": {
+            "score_heartbeat": 1.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 1,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_heartbeat = 254",
+          "values": {
+            "score_heartbeat": 254.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            254,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 254,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_heartbeat = 255",
+          "values": {
+            "score_heartbeat": 255.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "score_heartbeat = 255",
+          "values": {
+            "score_heartbeat": 255.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "frames_lost = 0",
+          "values": {
+            "frames_lost": 0.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "frames_lost = 1",
+          "values": {
+            "frames_lost": 1.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            1,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 1,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "frames_lost = 254",
+          "values": {
+            "frames_lost": 254.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            254,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 254,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "frames_lost = 255",
+          "values": {
+            "frames_lost": 255.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 255,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "frames_lost = 0",
+          "values": {
+            "frames_lost": 0.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "frames_bad = 0",
+          "values": {
+            "frames_bad": 0.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "frames_bad = 1",
+          "values": {
+            "frames_bad": 1.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            1,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 1,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "frames_bad = 254",
+          "values": {
+            "frames_bad": 254.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            254,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 254,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "frames_bad = 255",
+          "values": {
+            "frames_bad": 255.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            255,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 255,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "frames_bad = 0",
+          "values": {
+            "frames_bad": 0.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "frames_late = 0",
+          "values": {
+            "frames_late": 0.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "frames_late = 1",
+          "values": {
+            "frames_late": 1.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            1,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 1,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "frames_late = 254",
+          "values": {
+            "frames_late": 254.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            254,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 254,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "frames_late = 255",
+          "values": {
+            "frames_late": 255.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            255,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 255,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "frames_late = 0",
+          "values": {
+            "frames_late": 0.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "report_counter = 0",
+          "values": {
+            "report_counter": 0.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "report_counter = 1",
+          "values": {
+            "report_counter": 1.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            1
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 1
+          }
+        },
+        {
+          "label": "report_counter = 254",
+          "values": {
+            "report_counter": 254.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            254
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 254
+          }
+        },
+        {
+          "label": "report_counter = 255",
+          "values": {
+            "report_counter": 255.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            255
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 255
+          }
+        },
+        {
+          "label": "report_counter = 0",
+          "values": {
+            "report_counter": 0.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "tous les signaux au maximum",
+          "values": {
+            "score_energy_command": 255.0,
+            "score_imu_speed": 255.0,
+            "score_temp_battery": 255.0,
+            "score_heartbeat": 255.0,
+            "frames_lost": 255.0,
+            "frames_bad": 255.0,
+            "frames_late": 255.0,
+            "report_counter": 255.0
+          },
+          "data": [
+            255,
+            255,
+            255,
+            255,
+            255,
+            255,
+            255,
+            255
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 255,
+            "score_temp_battery": 255,
+            "score_heartbeat": 255,
+            "frames_lost": 255,
+            "frames_bad": 255,
+            "frames_late": 255,
+            "report_counter": 255
+          }
+        },
+        {
+          "label": "tous les signaux au minimum",
+          "values": {
+            "score_energy_command": 0.0,
+            "score_imu_speed": 0.0,
+            "score_temp_battery": 0.0,
+            "score_heartbeat": 0.0,
+            "frames_lost": 0.0,
+            "frames_bad": 0.0,
+            "frames_late": 0.0,
+            "report_counter": 0.0
+          },
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 0,
+            "score_imu_speed": 0,
+            "score_temp_battery": 0,
+            "score_heartbeat": 0,
+            "frames_lost": 0,
+            "frames_bad": 0,
+            "frames_late": 0,
+            "report_counter": 0
+          }
+        },
+        {
+          "label": "motif alterné min/max",
+          "values": {
+            "score_energy_command": 255.0,
+            "score_imu_speed": 0.0,
+            "score_temp_battery": 255.0,
+            "score_heartbeat": 0.0,
+            "frames_lost": 255.0,
+            "frames_bad": 0.0,
+            "frames_late": 255.0,
+            "report_counter": 0.0
+          },
+          "data": [
+            255,
+            0,
+            255,
+            0,
+            255,
+            0,
+            255,
+            0
+          ],
+          "raw": {
+            "score_energy_command": 255,
+            "score_imu_speed": 0,
+            "score_temp_battery": 255,
+            "score_heartbeat": 0,
+            "frames_lost": 255,
+            "frames_bad": 0,
+            "frames_late": 255,
+            "report_counter": 0
+          }
+        }
+      ]
+    },
+    {
       "name": "ENERGY_COMMAND",
       "can_id": 256,
       "dlc": 8,
@@ -6546,5 +7716,5 @@
       ]
     }
   ],
-  "case_count": 248
+  "case_count": 292
 }

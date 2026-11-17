@@ -164,7 +164,8 @@ class BenchService:
                 }
             )
             node_id = frame.can_id - self._heartbeat_base
-            if 1 <= node_id <= 15 and len(frame.data) == 8:
+            # base + 1 à base + 7 : heartbeat ; base + 8 + n : trame QUALITY du nœud n.
+            if 1 <= node_id <= 7 and len(frame.data) == 8:
                 beat = icd_gen.Heartbeat.unpack(frame.data)
                 self._heartbeats[node_id] = {
                     "state": beat.ctrl_state,
@@ -187,7 +188,11 @@ class BenchService:
         if sender is not None:
             return sender
         node_id = can_id - self._heartbeat_base
-        return f"N{node_id}" if 1 <= node_id <= 15 else None
+        if 1 <= node_id <= 7:
+            return f"N{node_id}"
+        if 9 <= node_id <= 15:  # trame QUALITY : base + 8 + n
+            return f"N{node_id - 8}"
+        return None
 
     def _sample(self) -> None:
         """Relève la charge toutes les 250 ms, pour la courbe de la page."""

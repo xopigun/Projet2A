@@ -16,7 +16,7 @@ set(BENCH_MCU_DEVICE STM32G431xx)
 set(BENCH_CPU_FLAGS -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard)
 set(BENCH_STARTUP ${VENDOR}/cmsis_device_g4/Source/Templates/gcc/startup_stm32g431xx.s)
 set(BENCH_LINKER_SCRIPT ${BENCH_PORT_DIR}/STM32G431KBTx_FLASH.ld)
-set(BENCH_VECTORS SysTick_Handler FDCAN1_IT0_IRQHandler)
+set(BENCH_VECTORS SysTick_Handler FDCAN1_IT0_IRQHandler I2C1_EV_IRQHandler I2C1_ER_IRQHandler)
 
 set(BENCH_ELF n${BENCH_NODE_ID})
 
@@ -80,6 +80,10 @@ add_library(bench_app STATIC
     ${COMMON}/app/node.c
     ${COMMON}/app/faults.c
     ${COMMON}/app/slcan.c
+    ${COMMON}/app/traffic.c
+    ${COMMON}/app/rx_quality.c
+    ${COMMON}/app/screen.c
+    ${COMMON}/util/font5x7.c
 )
 target_include_directories(bench_app PUBLIC ${COMMON} ${COMMON}/icd_gen ${BENCH_BOARD_DIR})
 
@@ -136,10 +140,12 @@ add_executable(${BENCH_ELF}
     ${BENCH_PORT_DIR}/serial.c
     ${BENCH_PORT_DIR}/clock.c
     ${BENCH_PORT_DIR}/can_port.c
+    ${BENCH_PORT_DIR}/oled.c
     ${BENCH_STARTUP}
 )
 target_include_directories(${BENCH_ELF} PRIVATE ${BENCH_PORT_DIR})
-target_link_libraries(${BENCH_ELF} PRIVATE bench_app)
+# libm : les fonctions pack() générées arrondissent avec llround().
+target_link_libraries(${BENCH_ELF} PRIVATE bench_app m)
 
 target_compile_definitions(${BENCH_ELF} PRIVATE BENCH_NODE_ID=${BENCH_NODE_ID})
 target_compile_options(${BENCH_ELF} PRIVATE ${BENCH_CPU_FLAGS})

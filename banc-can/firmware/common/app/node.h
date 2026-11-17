@@ -16,6 +16,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "app/rx_quality.h"
 #include "can_if.h"
 #include "protocol/arbitration.h"
 #include "protocol/heartbeat.h"
@@ -51,6 +52,16 @@ typedef struct {
     uint32_t frames_sent;
     uint32_t frames_received;
     uint32_t arb_started_ms;  /**< réception du dernier ARM */
+
+    /* Émission périodique de la trame applicative (N1 à N3), toutes les 20 ms. */
+    int8_t   app_kind;        /**< indice bench_traffic, -1 si le nœud n'émet pas */
+    uint32_t app_next_ms;     /**< échéance de la prochaine émission */
+    uint8_t  app_step;        /**< pas courant de la séquence déterministe */
+    uint8_t  app_counter;     /**< compteur de trame */
+
+    /* Note de qualité des trames reçues, envoyée toutes les 500 ms. */
+    bench_rxq_t rxq;
+    uint32_t    report_next_ms;
 } bench_node_t;
 
 /**
@@ -80,6 +91,29 @@ void bench_node_apply_cfg(bench_node_t *node, const uint8_t *data, uint32_t now_
  */
 bool bench_node_tick(bench_node_t *node, uint32_t now_ms, const bench_can_status_t *status,
                      uint8_t *data);
+
+/**
+ * @brief Échéance de la trame applicative périodique.
+ *
+ * Renvoie true si elle doit partir maintenant ; @p data reçoit alors sa charge
+ * utile (pas suivant de la séquence, compteur incrémenté). Suspendue pendant un
+ * cycle d'arbitrage et dans les modes de faute qui coupent l'émission.
+ */
+bool bench_node_app_due(bench_node_t *node, uint32_t now_ms, uint8_t *data);
+
+/** @brief Charge utile suivante de la trame applicative, pour la trame contendante. */
+void bench_node_next_payload(bench_node_t *node, uint8_t *data);
+
+/**
+ * @brief Échéance du rapport de qualité (trame QUALITY du nœud).
+ *
+ * Renvoie true si le rapport doit partir ; @p data reçoit sa charge utile et la
+ * fenêtre de notes est remise à zéro. Suspendu pendant un cycle d'arbitrage.
+ */
+bool bench_node_report_due(bench_node_t *node, uint32_t now_ms, uint8_t *data);
+
+/** @brief Identifiant de la trame de qualité d'un nœud (base heartbeat + 8 + n). */
+uint16_t bench_node_quality_id(uint8_t node_id);
 
 /** @brief Identifiant de la trame contendante associée à un rôle. */
 uint16_t bench_node_tx_id(uint8_t node_id);

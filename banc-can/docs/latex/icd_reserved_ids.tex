@@ -18,10 +18,14 @@
 \texttt{0x782} & \texttt{HEARTBEAT\_N2} & self $\rightarrow$ PC & État périodique d'un nœud (période par défaut 500 ms, configurable), suspendu pendant un test d'arbitrage. ... \\
 \texttt{0x783} & \texttt{HEARTBEAT\_N3} & self $\rightarrow$ PC & État périodique d'un nœud (période par défaut 500 ms, configurable), suspendu pendant un test d'arbitrage. ... \\
 \texttt{0x784} & \texttt{HEARTBEAT\_N4} & self $\rightarrow$ PC & État périodique d'un nœud (période par défaut 500 ms, configurable), suspendu pendant un test d'arbitrage. ... \\
+\texttt{0x789} & \texttt{QUALITY\_N1} & self $\rightarrow$ PC & Note de qualité que le nœud donne aux trames qu'il reçoit, sur une fenêtre de 500 ms. Chaque trame reçue es... \\
+\texttt{0x78A} & \texttt{QUALITY\_N2} & self $\rightarrow$ PC & Note de qualité que le nœud donne aux trames qu'il reçoit, sur une fenêtre de 500 ms. Chaque trame reçue es... \\
+\texttt{0x78B} & \texttt{QUALITY\_N3} & self $\rightarrow$ PC & Note de qualité que le nœud donne aux trames qu'il reçoit, sur une fenêtre de 500 ms. Chaque trame reçue es... \\
+\texttt{0x78C} & \texttt{QUALITY\_N4} & self $\rightarrow$ PC & Note de qualité que le nœud donne aux trames qu'il reçoit, sur une fenêtre de 500 ms. Chaque trame reçue es... \\
 \midrule
 \multicolumn{4}{l}{\textbf{Plages réservées au banc}} \\
 \multicolumn{2}{l}{\texttt{0x010--0x01F}} & \multicolumn{2}{l}{services du banc} \\
-\multicolumn{2}{l}{\texttt{0x780--0x78F}} & \multicolumn{2}{l}{heartbeat des nœuds} \\
+\multicolumn{2}{l}{\texttt{0x780--0x78F}} & \multicolumn{2}{l}{heartbeat et qualité des nœuds} \\
 \bottomrule
 \end{tabular}
 \caption{Identifiants réservés au banc (profil « bench »). Ces identifiants sont à déclarer « réservés banc, reconfigurables » dans les ICD partenaires : ils ne leur sont pas imposés, un profil réseau distinct pouvant les déplacer.}

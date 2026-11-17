@@ -39,6 +39,10 @@ extern "C" {
 #define BENCH_BENCH_ID_HEARTBEAT_N2 0x782u
 #define BENCH_BENCH_ID_HEARTBEAT_N3 0x783u
 #define BENCH_BENCH_ID_HEARTBEAT_N4 0x784u
+#define BENCH_BENCH_ID_QUALITY_N1 0x789u
+#define BENCH_BENCH_ID_QUALITY_N2 0x78Au
+#define BENCH_BENCH_ID_QUALITY_N3 0x78Bu
+#define BENCH_BENCH_ID_QUALITY_N4 0x78Cu
 #define BENCH_BENCH_ID_ENERGY_COMMAND 0x100u
 #define BENCH_BENCH_ID_IMU_SPEED 0x200u
 #define BENCH_BENCH_ID_TEMP_BATTERY 0x300u
@@ -53,6 +57,10 @@ extern "C" {
 #define BENCH_ALT_HIGH_ID_HEARTBEAT_N2 0x792u
 #define BENCH_ALT_HIGH_ID_HEARTBEAT_N3 0x793u
 #define BENCH_ALT_HIGH_ID_HEARTBEAT_N4 0x794u
+#define BENCH_ALT_HIGH_ID_QUALITY_N1 0x799u
+#define BENCH_ALT_HIGH_ID_QUALITY_N2 0x79Au
+#define BENCH_ALT_HIGH_ID_QUALITY_N3 0x79Bu
+#define BENCH_ALT_HIGH_ID_QUALITY_N4 0x79Cu
 #define BENCH_ALT_HIGH_ID_ENERGY_COMMAND 0x100u
 #define BENCH_ALT_HIGH_ID_IMU_SPEED 0x200u
 #define BENCH_ALT_HIGH_ID_TEMP_BATTERY 0x300u
@@ -69,6 +77,10 @@ extern "C" {
 #define BENCH_ID_HEARTBEAT_N2 BENCH_BENCH_ID_HEARTBEAT_N2
 #define BENCH_ID_HEARTBEAT_N3 BENCH_BENCH_ID_HEARTBEAT_N3
 #define BENCH_ID_HEARTBEAT_N4 BENCH_BENCH_ID_HEARTBEAT_N4
+#define BENCH_ID_QUALITY_N1 BENCH_BENCH_ID_QUALITY_N1
+#define BENCH_ID_QUALITY_N2 BENCH_BENCH_ID_QUALITY_N2
+#define BENCH_ID_QUALITY_N3 BENCH_BENCH_ID_QUALITY_N3
+#define BENCH_ID_QUALITY_N4 BENCH_BENCH_ID_QUALITY_N4
 #define BENCH_ID_ENERGY_COMMAND BENCH_BENCH_ID_ENERGY_COMMAND
 #define BENCH_ID_IMU_SPEED BENCH_BENCH_ID_IMU_SPEED
 #define BENCH_ID_TEMP_BATTERY BENCH_BENCH_ID_TEMP_BATTERY
@@ -91,12 +103,12 @@ typedef struct {
 } bench_frame_info_t;
 
 #define BENCH_BENCH_RESERVED_COUNT 2u
-#define BENCH_BENCH_FRAME_COUNT 11u
+#define BENCH_BENCH_FRAME_COUNT 15u
 extern const bench_reserved_range_t bench_bench_reserved_ranges[BENCH_BENCH_RESERVED_COUNT];
 extern const bench_frame_info_t bench_bench_frames[BENCH_BENCH_FRAME_COUNT];
 
 #define BENCH_ALT_HIGH_RESERVED_COUNT 2u
-#define BENCH_ALT_HIGH_FRAME_COUNT 11u
+#define BENCH_ALT_HIGH_FRAME_COUNT 15u
 extern const bench_reserved_range_t bench_alt_high_reserved_ranges[BENCH_ALT_HIGH_RESERVED_COUNT];
 extern const bench_frame_info_t bench_alt_high_frames[BENCH_ALT_HIGH_FRAME_COUNT];
 
@@ -229,6 +241,38 @@ void bench_heartbeat_pack(uint8_t *data, const bench_heartbeat_t *src);
 /** @brief Décode HEARTBEAT depuis @p data (8 octets). */
 void bench_heartbeat_unpack(bench_heartbeat_t *dst, const uint8_t *data);
 
+/* --- QUALITY (DLC 8) ------------------------------ */
+
+/**
+ * Note de qualité que le nœud donne aux trames qu'il reçoit, sur une fenêtre de 500 ms. Chaque trame reçue est notée de 0 à 100 : DLC conforme à l'ICD, somme de contrôle (ENERGY_COMMAND), continuité du compteur de trame, contenu conforme à la séquence déterministe, ponctualité par rapport à la période de l'ICD. Une note vaut la moyenne des trames de la fenêtre ; 255 signifie qu'aucune trame de ce type n'a été reçue (propre trame du nœud, émetteur absent). Suspendue pendant un test d'arbitrage, comme le heartbeat.
+ */
+typedef struct {
+    uint8_t score_energy_command;
+    /**< octet 0, bit 0, 8 bit(s), Intel, non signé. Note moyenne des ENERGY_COMMAND reçues (0 à 100) ; 255 = aucune. */
+    uint8_t score_imu_speed;
+    /**< octet 1, bit 0, 8 bit(s), Intel, non signé. Note moyenne des IMU_SPEED reçues (0 à 100) ; 255 = aucune. */
+    uint8_t score_temp_battery;
+    /**< octet 2, bit 0, 8 bit(s), Intel, non signé. Note moyenne des TEMP_BATTERY reçues (0 à 100) ; 255 = aucune. */
+    uint8_t score_heartbeat;
+    /**< octet 3, bit 0, 8 bit(s), Intel, non signé. Note moyenne des heartbeats des autres nœuds (0 à 100) ; 255 = aucun. */
+    uint8_t frames_lost;
+    /**< octet 4, bit 0, 8 bit(s), Intel, non signé. Trames manquées sur la fenêtre (saut de compteur), saturant. */
+    uint8_t frames_bad;
+    /**< octet 5, bit 0, 8 bit(s), Intel, non signé. Trames abîmées sur la fenêtre (DLC, somme de contrôle, contenu), saturant. */
+    uint8_t frames_late;
+    /**< octet 6, bit 0, 8 bit(s), Intel, non signé. Trames hors tolérance de période sur la fenêtre, saturant. */
+    uint8_t report_counter;
+    /**< octet 7, bit 0, 8 bit(s), Intel, non signé. Incrémenté à chaque rapport ; un saut signale un rapport perdu. */
+} bench_quality_t;
+
+#define BENCH_QUALITY_DLC 8u
+
+/** @brief Encode QUALITY dans @p data (8 octets). */
+void bench_quality_pack(uint8_t *data, const bench_quality_t *src);
+
+/** @brief Décode QUALITY depuis @p data (8 octets). */
+void bench_quality_unpack(bench_quality_t *dst, const uint8_t *data);
+
 /* --- ENERGY_COMMAND (DLC 8) ------------------------------ */
 
 /**
@@ -316,6 +360,26 @@ void bench_temp_battery_pack(uint8_t *data, const bench_temp_battery_t *src);
 void bench_temp_battery_unpack(bench_temp_battery_t *dst, const uint8_t *data);
 
 /* ---------------------------------------------------------------------
+ *  Séquences déterministes des simulateurs de capteurs
+ *
+ *  Un nœud dont le capteur réel ne répond pas émet ces pas, en boucle. Les
+ *  champs absents d'un pas (compteurs, somme de contrôle) valent 0 et sont
+ *  remplis à l'émission.
+ * ------------------------------------------------------------------- */
+
+#define BENCH_SIM_IMU_SPEED_STEPS 6u
+#define BENCH_SIM_IMU_SPEED_PERIOD_MS 20u
+extern const bench_imu_speed_t bench_sim_imu_speed[BENCH_SIM_IMU_SPEED_STEPS];
+
+#define BENCH_SIM_TEMP_BATTERY_STEPS 5u
+#define BENCH_SIM_TEMP_BATTERY_PERIOD_MS 20u
+extern const bench_temp_battery_t bench_sim_temp_battery[BENCH_SIM_TEMP_BATTERY_STEPS];
+
+#define BENCH_SIM_ENERGY_COMMAND_STEPS 5u
+#define BENCH_SIM_ENERGY_COMMAND_PERIOD_MS 20u
+extern const bench_energy_command_t bench_sim_energy_command[BENCH_SIM_ENERGY_COMMAND_STEPS];
+
+/* ---------------------------------------------------------------------
  *  Verrouillage CAN 2.0A classic
  *
  *  Le peripherique du G431 s'appelle FDCAN, mais le protocole utilise par
@@ -343,6 +407,11 @@ _Static_assert(BENCH_HEARTBEAT_DLC <= BENCH_CLASSIC_MAX_DLC, "HEARTBEAT : DLC su
 _Static_assert(BENCH_ID_HEARTBEAT_N2 <= BENCH_CLASSIC_MAX_ID, "HEARTBEAT_N2 : identifiant hors des 11 bits du CAN 2.0A");
 _Static_assert(BENCH_ID_HEARTBEAT_N3 <= BENCH_CLASSIC_MAX_ID, "HEARTBEAT_N3 : identifiant hors des 11 bits du CAN 2.0A");
 _Static_assert(BENCH_ID_HEARTBEAT_N4 <= BENCH_CLASSIC_MAX_ID, "HEARTBEAT_N4 : identifiant hors des 11 bits du CAN 2.0A");
+_Static_assert(BENCH_ID_QUALITY_N1 <= BENCH_CLASSIC_MAX_ID, "QUALITY_N1 : identifiant hors des 11 bits du CAN 2.0A");
+_Static_assert(BENCH_QUALITY_DLC <= BENCH_CLASSIC_MAX_DLC, "QUALITY : DLC superieur a 8, impossible en CAN 2.0 classic");
+_Static_assert(BENCH_ID_QUALITY_N2 <= BENCH_CLASSIC_MAX_ID, "QUALITY_N2 : identifiant hors des 11 bits du CAN 2.0A");
+_Static_assert(BENCH_ID_QUALITY_N3 <= BENCH_CLASSIC_MAX_ID, "QUALITY_N3 : identifiant hors des 11 bits du CAN 2.0A");
+_Static_assert(BENCH_ID_QUALITY_N4 <= BENCH_CLASSIC_MAX_ID, "QUALITY_N4 : identifiant hors des 11 bits du CAN 2.0A");
 _Static_assert(BENCH_ID_ENERGY_COMMAND <= BENCH_CLASSIC_MAX_ID, "ENERGY_COMMAND : identifiant hors des 11 bits du CAN 2.0A");
 _Static_assert(BENCH_ENERGY_COMMAND_DLC <= BENCH_CLASSIC_MAX_DLC, "ENERGY_COMMAND : DLC superieur a 8, impossible en CAN 2.0 classic");
 _Static_assert(BENCH_ID_IMU_SPEED <= BENCH_CLASSIC_MAX_ID, "IMU_SPEED : identifiant hors des 11 bits du CAN 2.0A");

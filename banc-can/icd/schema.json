@@ -133,7 +133,13 @@
         },
         "per_node": {
           "type": "boolean",
-          "description": "Génère une instance par nœud, à heartbeat_base + node_id."
+          "description": "Génère une instance par nœud, à heartbeat_base + id_offset + node_id."
+        },
+        "id_offset": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 15,
+          "description": "Décalage ajouté à heartbeat_base pour une trame per_node (0 pour le heartbeat, 8 pour QUALITY)."
         },
         "dlc": { "type": "integer", "minimum": 0, "maximum": 8 },
         "sender": { "type": "string" },

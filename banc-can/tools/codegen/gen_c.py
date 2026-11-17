@@ -153,6 +153,7 @@ def generate_header(icd: Icd) -> str:
     for message in _unique_layouts(default):
         out += _struct_for(message)
 
+    out += _simulation_decls(icd)
     out += _classic_assertions(icd)
     out += [
         "#ifdef __cplusplus",
@@ -363,7 +364,51 @@ def generate_source(icd: Icd) -> str:
             out += _pack_for(message)
             out += _unpack_for(message)
 
+    out += _simulation_tables(icd)
     return "\n".join(out)
+
+
+def _simulation_decls(icd: Icd) -> list[str]:
+    """Séquences déterministes des simulateurs : une table de structures par trame."""
+    if not icd.simulations:
+        return []
+    out = [
+        "/* ---------------------------------------------------------------------",
+        " *  Séquences déterministes des simulateurs de capteurs",
+        " *",
+        " *  Un nœud dont le capteur réel ne répond pas émet ces pas, en boucle. Les",
+        " *  champs absents d'un pas (compteurs, somme de contrôle) valent 0 et sont",
+        " *  remplis à l'émission.",
+        " * ------------------------------------------------------------------- */",
+        "",
+    ]
+    for name, simulation in icd.simulations.items():
+        lower, upper = name.lower(), name.upper()
+        steps = simulation.get("steps") or []
+        out.append(f"#define BENCH_SIM_{upper}_STEPS {len(steps)}u")
+        out.append(f"#define BENCH_SIM_{upper}_PERIOD_MS {simulation.get('period_ms')}u")
+        out.append(
+            f"extern const bench_{lower}_t bench_sim_{lower}[BENCH_SIM_{upper}_STEPS];"
+        )
+        out.append("")
+    return out
+
+
+def _simulation_tables(icd: Icd) -> list[str]:
+    out: list[str] = []
+    for name, simulation in icd.simulations.items():
+        lower, upper = name.lower(), name.upper()
+        message = next(m for m in icd.default.messages if m.name == name)
+        floats = {s.name for s in message.signals if s.is_float}
+        out.append(f"const bench_{lower}_t bench_sim_{lower}[BENCH_SIM_{upper}_STEPS] = {{")
+        for step in simulation.get("steps") or []:
+            fields = ", ".join(
+                f".{k} = {float(v)!r}f" if k in floats else f".{k} = {int(v)}"
+                for k, v in step.items()
+            )
+            out.append(f"    {{ {fields} }},")
+        out += ["};", ""]
+    return out
 
 
 def _helpers(needs: dict[str, bool]) -> list[str]:

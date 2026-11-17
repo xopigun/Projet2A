@@ -291,11 +291,13 @@ def _build_messages(
         }
 
         if raw.get("per_node"):
+            # Une instance par nœud : identifiant = base du heartbeat + décalage + node_id.
+            id_offset = int(raw.get("id_offset", 0))
             for node in nodes:
                 messages.append(
                     Message(
                         name=f"{name}_{node.name}",
-                        can_id=heartbeat_base + node.node_id,
+                        can_id=heartbeat_base + id_offset + node.node_id,
                         node_id=node.node_id,
                         **common,
                     )

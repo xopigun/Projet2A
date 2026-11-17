@@ -319,8 +319,10 @@ def test_une_faute_expire_toute_seule(channel: str) -> None:
 
 def test_charge_theorique() -> None:
     theory = decode.theoretical_load()
-    # Trois trames de 8 octets toutes les 20 ms.
-    assert len(theory["frames"]) == 3
+    # Trois trames de 8 octets toutes les 20 ms, et les quatre rapports QUALITY
+    # toutes les 500 ms (moins de 0,2 % du bus à eux quatre).
+    assert len(theory["frames"]) == 7
+    assert sum(f["name"].startswith("QUALITY_") for f in theory["frames"]) == 4
     assert 0.03 < theory["load"] < 0.06
     # Le pire cas avec bit stuffing doit majorer le cas sans stuffing.
     assert theory["load"] > decode.theoretical_load(worst_case=False)["load"]
@@ -518,3 +520,38 @@ def test_echeance_suivante_sur_la_grille_sans_rafale() -> None:
     assert _next_deadline(1.00, 0.02, now=1.005) == pytest.approx(1.02)
     # bloqué 100 ms : on reprend sur la grille, sans rattraper les échéances perdues
     assert _next_deadline(1.00, 0.02, now=1.105) == pytest.approx(1.12)
+
+
+# ---------------------------------------------------------------------------
+#  Notes des récepteurs (trames QUALITY_Nn)
+# ---------------------------------------------------------------------------
+
+
+def test_rapports_quality_des_noeuds() -> None:
+    from canbench import quality
+
+    tracker = quality.QualityTracker()
+    base = icd_gen.PROFILES[icd_gen.DEFAULT_PROFILE]["heartbeat_base"]
+    for counter in (0, 1, 3):  # le rapport 2 se perd
+        report = icd_gen.Quality(
+            score_energy_command=255,  # N1 ne note pas sa propre trame
+            score_imu_speed=98,
+            score_temp_battery=100,
+            score_heartbeat=100,
+            frames_lost=1,
+            frames_bad=0,
+            frames_late=2,
+            report_counter=counter,
+        )
+        tracker.note(Frame(timestamp=counter * 0.5, can_id=base + 8 + 1, data=report.pack()))
+
+    rows = tracker.summary()["nodes"]
+    assert len(rows) == 1
+    n1 = rows[0]
+    assert n1["node"] == "N1" and n1["own"] == "energy_command"
+    assert n1["scores"] == {"energy_command": None, "imu_speed": 98, "temp_battery": 100,
+                            "heartbeat": 100}
+    assert n1["reports"] == 3 and n1["reports_missed"] == 1
+    assert n1["lost_total"] == 3 and n1["late_total"] == 6
+    # La trame QUALITY n'est pas prise pour le heartbeat d'un nœud N9.
+    assert tracker.expected_period(base + 9) == 0.5

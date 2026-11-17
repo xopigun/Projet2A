@@ -41,10 +41,10 @@ profiles:
       GO:           0x011
       BENCH_CFG:    0x012
       BENCH_RESULT: 0x013
-    heartbeat_base: 0x780    # identifiant = base + node_id, soit 0x781 à 0x784
+    heartbeat_base: 0x780    # heartbeat = base + node_id (0x781 à 0x784) ; qualité = base + 8 + node_id
     reserved_ranges:
       - { first: 0x010, last: 0x01F, purpose: "services du banc" }
-      - { first: 0x780, last: 0x78F, purpose: "heartbeat des nœuds" }
+      - { first: 0x780, last: 0x78F, purpose: "heartbeat et qualité des nœuds" }
 
   # Profil de repli si un partenaire utilise déjà 0x010-0x01F ou 0x780-0x78F.
   # Sert aussi de vecteur de test : le générateur doit traiter plusieurs profils.
@@ -58,7 +58,7 @@ profiles:
     heartbeat_base: 0x790
     reserved_ranges:
       - { first: 0x020, last: 0x02F, purpose: "services du banc" }
-      - { first: 0x790, last: 0x79F, purpose: "heartbeat des nœuds" }
+      - { first: 0x790, last: 0x79F, purpose: "heartbeat et qualité des nœuds" }
 
 default_profile: bench
 
@@ -263,6 +263,33 @@ messages:
       - { name: ring_overflow, start_byte: 5, start_bit: 0, length: 8, byte_order: little_endian, signed: false, unit: "", min: 0, max: 255, default: 0, comment: "Débordements du tampon circulaire logiciel, saturant" }
       - { name: non_classic_rx, start_byte: 6, start_bit: 0, length: 8, byte_order: little_endian, signed: false, unit: "", min: 0, max: 255, default: 0, comment: "Trames CAN FD signalées par le contrôleur, saturant. Le bus est en CAN 2.0A classic : toute valeur non nulle est une anomalie." }
       - { name: ext_id_rx,      start_byte: 7, start_bit: 0, length: 8, byte_order: little_endian, signed: false, unit: "", min: 0, max: 255, default: 0, comment: "Trames à identifiant 29 bits reçues, saturant. L'ICD n'utilise que des identifiants 11 bits." }
+
+  - name: QUALITY
+    id_ref: heartbeat
+    per_node: true            # une instance par nœud : identifiant = base + 8 + node_id
+    id_offset: 8              # profil bench : 0x789 à 0x78C ; alt_high : 0x799 à 0x79C
+    dlc: 8
+    sender: self
+    receivers: [PC]
+    period_ms: 500
+    kind: service
+    comment: >-
+      Note de qualité que le nœud donne aux trames qu'il reçoit, sur une fenêtre de
+      500 ms. Chaque trame reçue est notée de 0 à 100 : DLC conforme à l'ICD, somme de
+      contrôle (ENERGY_COMMAND), continuité du compteur de trame, contenu conforme à la
+      séquence déterministe, ponctualité par rapport à la période de l'ICD. Une note
+      vaut la moyenne des trames de la fenêtre ; 255 signifie qu'aucune trame de ce
+      type n'a été reçue (propre trame du nœud, émetteur absent). Suspendue pendant un
+      test d'arbitrage, comme le heartbeat.
+    signals:
+      - { name: score_energy_command, start_byte: 0, start_bit: 0, length: 8, byte_order: little_endian, signed: false, unit: "", min: 0, max: 255, default: 255, comment: "Note moyenne des ENERGY_COMMAND reçues (0 à 100) ; 255 = aucune." }
+      - { name: score_imu_speed,      start_byte: 1, start_bit: 0, length: 8, byte_order: little_endian, signed: false, unit: "", min: 0, max: 255, default: 255, comment: "Note moyenne des IMU_SPEED reçues (0 à 100) ; 255 = aucune." }
+      - { name: score_temp_battery,   start_byte: 2, start_bit: 0, length: 8, byte_order: little_endian, signed: false, unit: "", min: 0, max: 255, default: 255, comment: "Note moyenne des TEMP_BATTERY reçues (0 à 100) ; 255 = aucune." }
+      - { name: score_heartbeat,      start_byte: 3, start_bit: 0, length: 8, byte_order: little_endian, signed: false, unit: "", min: 0, max: 255, default: 255, comment: "Note moyenne des heartbeats des autres nœuds (0 à 100) ; 255 = aucun." }
+      - { name: frames_lost,          start_byte: 4, start_bit: 0, length: 8, byte_order: little_endian, signed: false, unit: "", min: 0, max: 255, default: 0,   comment: "Trames manquées sur la fenêtre (saut de compteur), saturant." }
+      - { name: frames_bad,           start_byte: 5, start_bit: 0, length: 8, byte_order: little_endian, signed: false, unit: "", min: 0, max: 255, default: 0,   comment: "Trames abîmées sur la fenêtre (DLC, somme de contrôle, contenu), saturant." }
+      - { name: frames_late,          start_byte: 6, start_bit: 0, length: 8, byte_order: little_endian, signed: false, unit: "", min: 0, max: 255, default: 0,   comment: "Trames hors tolérance de période sur la fenêtre, saturant." }
+      - { name: report_counter,       start_byte: 7, start_bit: 0, length: 8, byte_order: little_endian, signed: false, unit: "", min: 0, max: 255, default: 0,   comment: "Incrémenté à chaque rapport ; un saut signale un rapport perdu." }
 
   # ----------------------------------------------- trames applicatives d'exemple
   #

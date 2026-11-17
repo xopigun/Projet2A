@@ -7,6 +7,7 @@
 
 #include <string.h>
 
+#include "app/traffic.h"
 #include "icd_gen.h"
 
 uint16_t bench_node_tx_id(uint8_t node_id) {
@@ -40,6 +41,77 @@ void bench_node_init(bench_node_t *node, uint8_t node_id, bench_can_t *can,
 
     bench_arb_init(&node->arb, BENCH_ID_ARM, BENCH_ID_GO, node->tx_id, node->is_contender);
     bench_heartbeat_init(&node->heartbeat, 500u);
+
+    node->app_kind = (int8_t)bench_traffic_kind_of_node(node_id);
+    node->app_next_ms = 0u;
+    bench_rxq_init(&node->rxq, node_id);
+    node->report_next_ms = BENCH_RXQ_WINDOW_MS;
+}
+
+uint16_t bench_node_quality_id(uint8_t node_id) {
+    return (uint16_t)(BENCH_HEARTBEAT_BASE + 8u + node_id);
+}
+
+/**
+ * Vrai pendant un cycle d'arbitrage et jusqu'à BENCH_ARB_TIMEOUT_MS après ARM.
+ * Le délai compte : N1, qui gagne, finit son cycle avant N2 et N3 ; s'il
+ * reprenait aussitôt son émission périodique, sa trame 0x100 passerait devant
+ * leurs contendantes encore en attente et serait comptée dans leur rang.
+ */
+static bool emission_held(const bench_node_t *node, uint32_t now_ms) {
+    if (node->arb.phase == BENCH_ARB_ARMED || node->arb.phase == BENCH_ARB_COUNTING) {
+        return true;
+    }
+    return node->arb.phase != BENCH_ARB_IDLE &&
+           (now_ms - node->arb_started_ms) < BENCH_ARB_TIMEOUT_MS;
+}
+
+void bench_node_next_payload(bench_node_t *node, uint8_t *data) {
+    if (node->app_kind < 0) {
+        for (uint8_t i = 0u; i < 8u; i++) {
+            data[i] = 0u;
+        }
+        return;
+    }
+    bench_traffic_build((uint8_t)node->app_kind, node->app_step, node->app_counter, data);
+    const bench_traffic_desc_t *d = bench_traffic_desc((uint8_t)node->app_kind);
+    node->app_step = (uint8_t)((node->app_step + 1u) % d->steps);
+    node->app_counter++;
+}
+
+bool bench_node_app_due(bench_node_t *node, uint32_t now_ms, uint8_t *data) {
+    if (node->app_kind < 0 || emission_held(node, now_ms)) {
+        return false;
+    }
+    /* Débit erroné, silencieux, bus-off maintenu : l'émission est coupée par la
+     * faute elle-même ; on ne remplit pas la file pendant ce temps. */
+    if (node->mode == BENCH_MODE_WRONG_BITRATE || node->mode == BENCH_MODE_SILENT ||
+        node->mode == BENCH_MODE_HOLD_BUSOFF) {
+        return false;
+    }
+    if ((int32_t)(now_ms - node->app_next_ms) < 0) {
+        return false;
+    }
+    const uint32_t period = bench_traffic_desc((uint8_t)node->app_kind)->period_ms;
+    /* Échéances cumulées : pas de dérive. Après un long arrêt, on repart de maintenant. */
+    node->app_next_ms += period;
+    if ((int32_t)(now_ms - node->app_next_ms) >= 0) {
+        node->app_next_ms = now_ms + period;
+    }
+    bench_node_next_payload(node, data);
+    return true;
+}
+
+bool bench_node_report_due(bench_node_t *node, uint32_t now_ms, uint8_t *data) {
+    if (emission_held(node, now_ms) || (int32_t)(now_ms - node->report_next_ms) < 0) {
+        return false;
+    }
+    node->report_next_ms += BENCH_RXQ_WINDOW_MS;
+    if ((int32_t)(now_ms - node->report_next_ms) >= 0) {
+        node->report_next_ms = now_ms + BENCH_RXQ_WINDOW_MS;
+    }
+    bench_rxq_report(&node->rxq, data);
+    return true;
 }
 
 void bench_node_apply_cfg(bench_node_t *node, const uint8_t *data, uint32_t now_ms) {
@@ -83,9 +155,11 @@ bool bench_node_on_frame(bench_node_t *node, const bench_can_frame_t *frame, uin
     }
 
     node->frames_received++;
+    (void)bench_rxq_on_frame(&node->rxq, frame);
 
     if (frame->id == BENCH_ID_BENCH_CFG) {
         bench_node_apply_cfg(node, frame->data, now_ms);
+        bench_rxq_on_cfg(&node->rxq, frame->data);
         return false;
     }
 
@@ -95,13 +169,15 @@ bool bench_node_on_frame(bench_node_t *node, const bench_can_frame_t *frame, uin
     /* Le heartbeat est suspendu dès qu'un cycle d'arbitrage commence : une
      * trame de heartbeat glissée entre GO et les contendants fausserait le rang.
      *
-     * La même règle vaudra pour l'émission périodique des trames applicatives
-     * quand le lot 6 l'ajoutera : entre ARM et la fin de sa propre émission, un
-     * nœud ne doit rien émettre d'autre que sa trame contendante. Une trame
-     * périodique arrivant juste après GO serait comptée comme contendante. */
+     * La même règle vaut pour l'émission périodique des trames applicatives et
+     * pour le rapport de qualité (bench_node_app_due, bench_node_report_due) :
+     * entre ARM et la fin de sa propre émission, un nœud n'émet rien d'autre que
+     * sa trame contendante. Une trame périodique arrivant juste après GO serait
+     * comptée comme contendante. */
     if (frame->id == BENCH_ID_ARM) {
         bench_heartbeat_suspend(&node->heartbeat, true);
         node->arb_started_ms = now_ms;
+        bench_rxq_on_arm(&node->rxq);
     }
 
     return bench_arb_on_frame(&node->arb, frame, is_contender_frame);

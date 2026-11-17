@@ -65,7 +65,8 @@ def _load(spec: dict, tmp_path: Path) -> model.Icd:
 def test_icd_charge_sans_erreur(icd: model.Icd) -> None:
     assert icd.default.name == "bench"
     assert len(icd.nodes) == 4
-    assert len(icd.default.messages) == 11
+    # 4 services, 4 heartbeats, 4 rapports QUALITY, 3 trames applicatives.
+    assert len(icd.default.messages) == 15
 
 
 def test_contrainte_ordre_arm_go(icd: model.Icd) -> None:

@@ -238,6 +238,16 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding-botto
         </table>
       </div>
       <div class="note" id="q-note"></div>
+      <h2 style="margin:14px 0 4px">Notes des récepteurs <span class="help-dot" title="Chaque nœud note de 0 à 100 les trames qu'il reçoit : DLC, somme de contrôle, compteur de trame (pertes), contenu conforme à la séquence de l'ICD, ponctualité. Moyenne sur 500 ms, publiée dans sa trame QUALITY_Nn.">?</span></h2>
+      <div class="q-table">
+        <table>
+          <thead><tr><th>Nœud</th><th class="num">ENERGY (N1)</th><th class="num">IMU (N2)</th>
+            <th class="num">TEMP (N3)</th><th class="num">Heartbeats</th><th class="num">Perdues</th>
+            <th class="num">Abîmées</th><th class="num">En retard</th><th class="num">Rapports</th></tr></thead>
+          <tbody id="q-nodes"></tbody>
+        </table>
+      </div>
+      <div class="note">Notes sur la dernière fenêtre de 500 ms ; compteurs cumulés depuis le début de l'écoute. « émet » : trame du nœud lui-même ; « — » : aucune trame de ce type reçue.</div>
     </div>
   </section>
 
@@ -580,6 +590,20 @@ function renderQuality(q, s) {
     <td class="num mono">${fmtMs(r.jitter_ms)}</td><td class="num mono">${fmtMs(r.min_ms)}</td>
     <td class="num mono">${fmtMs(r.max_ms)}</td><td class="num ${r.missed ? "ko" : ""}">${r.missed}</td></tr>`).join("")
     || `<tr><td colspan="9" class="note">Aucune trame reçue.</td></tr>`;
+  const cell = (v, own) => own ? `<td class="num note">émet</td>`
+    : v === null || v === undefined ? `<td class="num">—</td>`
+    : `<td class="num mono ${v >= 95 ? "ok" : v >= 70 ? "" : "ko"}">${v}</td>`;
+  $("q-nodes").innerHTML = (q.nodes || []).map((n) => `<tr>
+    <td><b>${esc(n.node)}</b></td>
+    ${cell(n.scores.energy_command, n.own === "energy_command")}
+    ${cell(n.scores.imu_speed, n.own === "imu_speed")}
+    ${cell(n.scores.temp_battery, n.own === "temp_battery")}
+    ${cell(n.scores.heartbeat, false)}
+    <td class="num ${n.lost_total ? "ko" : ""}">${n.lost_total}</td>
+    <td class="num ${n.bad_total ? "ko" : ""}">${n.bad_total}</td>
+    <td class="num ${n.late_total ? "ko" : ""}">${n.late_total}</td>
+    <td class="num">${n.reports}${n.reports_missed ? ` <small class="ko">(${n.reports_missed} perdus)</small>` : ""}</td></tr>`).join("")
+    || `<tr><td colspan="9" class="note">Aucun rapport QUALITY reçu : nœuds avec l'ancien firmware, ou bus non relié.</td></tr>`;
   $("q-note").textContent = (q.alerts ? `${q.alerts} identifiant(s) hors tolérance (±10 % ou trame manquée), surlignés. ` : "")
     + "Durées en ms. " + (q.adapter ? "Horodatage matériel de l'adaptateur (0,1 ms) : la gigue est celle du bus."
                                     : "Horodatage par le PC : la gigue inclut la latence USB et système.");

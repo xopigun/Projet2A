@@ -50,6 +50,21 @@ Les écrans **OLED SSD1306** 0,96" (adresse 0x3C) et le **MPU-6050** (adresse 0x
 partagent I2C1 sur PA15/PB7, alimentés en 3,3 V. Les afficheurs LCD 16x2 des débuts ont été
 abandonnés au profit des OLED : leur pilote et leurs broches ont été retirés.
 
+**Brancher un écran OLED sur une Nucleo-G431KB** (4 fils Dupont femelle-femelle) :
+
+| Broche de l'OLED | Broche de la Nucleo | Repère sérigraphié | Signal |
+|---|---|---|---|
+| GND | CN4-4 (ou CN3-2) | GND | masse |
+| VCC | CN3-14 | 3V3 | 3,3 V : les tirages I2C du module restent à 3,3 V |
+| SCL | CN4-8 | D5 | PA15, I2C1_SCL |
+| SDA | CN4-7 | D4 | PB7, I2C1_SDA |
+
+A5 (CN3-7) et A4 (CN3-8) portent les mêmes signaux par SB3 et SB2 : l'un ou l'autre convient,
+jamais les deux pour des modules différents. L'écran est détecté **au démarrage** : brancher,
+puis appuyer sur le bouton RESET de la Nucleo. Il affiche alors le numéro du nœud et la note
+de qualité de chaque trame reçue (voir `firmware/common/app/screen.h`). Sans écran, le nœud
+fonctionne à l'identique.
+
 ### Écarts par rapport au dossier v0.1
 
 | Le dossier place… | …or | Retenu |

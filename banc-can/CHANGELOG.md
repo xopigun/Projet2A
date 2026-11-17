@@ -8,6 +8,22 @@ du dépôt correspond au dossier `v0.1`.
 
 ### Ajouté
 
+- **Note de qualité par trame, donnée par le récepteur** (17/11/2026). Chaque nœud note de
+  0 à 100 chaque trame applicative et chaque heartbeat qu'il reçoit (DLC, somme de contrôle,
+  compteur de trame, contenu conforme à la séquence de l'ICD, ponctualité), publie la
+  moyenne toutes les 500 ms dans une nouvelle trame `QUALITY_Nn` (0x789 à 0x78C) et l'affiche
+  sur son écran OLED. BancCAN montre les notes de chaque nœud dans le panneau Qualité
+  (`firmware/common/app/rx_quality.c`, `pc/canbench/quality.py`).
+- **Émission périodique des trames applicatives** : N1, N2 et N3 émettent ENERGY_COMMAND,
+  IMU_SPEED et TEMP_BATTERY toutes les 20 ms, avec la séquence déterministe de l'ICD,
+  un compteur de trame et la somme de contrôle (`firmware/common/app/traffic.c`). Émission
+  suspendue pendant un cycle d'arbitrage et 100 ms après ARM.
+- **Pilote de l'écran OLED SSD1306** sur I2C1, envoi de l'image page par page sur
+  interruption (`firmware/ports/g431_fdcan/oled.c`), écran de notes rendu dans le code
+  commun (`firmware/common/app/screen.c`), testé nativement.
+- Générateur de l'ICD : décalage `id_offset` pour les trames `per_node`, séquences
+  déterministes générées aussi en C (`bench_sim_*`).
+
 - Plan de travail de phase 0 (`docs/PLAN.md`) : lecture des références, vérification des
   sept points relevés dans le dossier v0.1, calcul des bit timings, découpage en lots.
 - Socle du dépôt : configuration git, style de code, licence MIT, index des références.

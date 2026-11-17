@@ -3,7 +3,10 @@
  * @brief Point d'entrée du firmware d'un nœud, commun à toutes les cartes.
  *
  * Boucle principale coopérative : l'ISR ne fait que remplir le tampon
- * circulaire, tout le traitement se passe ici. Le rôle du nœud vient de
+ * circulaire, tout le traitement se passe ici. À chaque tour : vidange du tampon
+ * (protocole ARM/GO, note de qualité de chaque trame reçue), fautes commandées,
+ * trame applicative toutes les 20 ms (N1 à N3), rapport QUALITY toutes les
+ * 500 ms, heartbeat, LED et écran OLED s'il est branché. Le rôle du nœud vient de
  * `BENCH_NODE_ID`, fixé par le preset CMake ; la carte et le contrôleur en
  * découlent (N1 à N4 sur Nucleo-G431KB).
  *
@@ -16,10 +19,12 @@
 
 #include "app/faults.h"
 #include "app/node.h"
+#include "app/screen.h"
 #include "board.h"
 #include "can_port.h"
 #include "clock.h"
 #include "icd_gen.h"
+#include "oled.h"
 #include "util/ring_buffer.h"
 
 #ifndef BENCH_NODE_ID
@@ -31,6 +36,21 @@ static bench_port_can_t s_port;
 static bench_can_t      s_can;
 static bench_node_t     s_node;
 static bench_faults_t   s_faults;
+static uint8_t          s_screen[BENCH_SCREEN_BYTES];
+
+/** Période de rafraîchissement de l'écran de notes. */
+#define SCREEN_PERIOD_MS 250u
+
+/** Envoie une trame de 8 octets ; renvoie true si elle a été acceptée. */
+static bool send8(uint16_t id, const uint8_t *data) {
+    bench_can_frame_t f = {0};
+    f.id = id;
+    f.dlc = 8u;
+    for (uint8_t i = 0u; i < 8u; i++) {
+        f.data[i] = data[i];
+    }
+    return s_can.ops->send(s_can.ctx, &f);
+}
 
 /** LED d'erreur allumée en error-passive, LED bus-off en bus-off. */
 static void update_leds(const bench_can_status_t *status, uint32_t now_ms,
@@ -90,8 +110,10 @@ int main(void) {
 
     bench_node_init(&s_node, BENCH_NODE_ID, &s_can, &s_rx_ring, bench_clock_is_qualified());
     bench_faults_init(&s_faults, &s_can, &config);
+    (void)bench_oled_init();  /* sans écran, les appels suivants sont sans effet */
 
     uint32_t last_tx_ms = 0u;
+    uint32_t screen_ms = 0u;
 
     for (;;) {
         const uint32_t now_ms = HAL_GetTick();
@@ -108,6 +130,9 @@ int main(void) {
                 bench_can_frame_t tx = {0};
                 tx.id = s_node.tx_id;
                 tx.dlc = 8u;
+                /* La contendante porte la charge utile suivante de la séquence :
+                 * les récepteurs la notent comme une trame périodique. */
+                bench_node_next_payload(&s_node, tx.data);
                 /* Le rang n'est pas figé ici mais à la confirmation d'émission,
                  * qui revient par le tampon (BENCH_FRAME_OWN_TX), dans l'ordre
                  * du bus : à l'armement, GO n'est pas encore passé. */
@@ -127,6 +152,16 @@ int main(void) {
             last_tx_ms = now_ms;
         }
 
+        uint8_t payload[8];
+        if (bench_node_app_due(&s_node, now_ms, payload) && send8(s_node.tx_id, payload)) {
+            s_node.frames_sent++;
+            last_tx_ms = now_ms;
+        }
+        if (bench_node_report_due(&s_node, now_ms, payload) &&
+            send8(bench_node_quality_id(s_node.node_id), payload)) {
+            last_tx_ms = now_ms;
+        }
+
         uint8_t heartbeat[8];
         if (bench_node_tick(&s_node, now_ms, &status, heartbeat)) {
             bench_can_frame_t hb = {0};
@@ -141,6 +176,15 @@ int main(void) {
         }
 
         update_leds(&status, now_ms, last_tx_ms);
+
+        if (bench_oled_present()) {
+            if (bench_oled_idle() && (now_ms - screen_ms) >= SCREEN_PERIOD_MS) {
+                screen_ms = now_ms;
+                bench_screen_quality(s_screen, &s_node, &status);
+                bench_oled_show(s_screen);
+            }
+            bench_oled_poll();
+        }
     }
 }
 

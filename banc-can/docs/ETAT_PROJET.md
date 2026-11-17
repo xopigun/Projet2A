@@ -28,7 +28,7 @@ chaque changement de cap ; le détail technique reste dans les documents cités.
 
 | Domaine | Ce qui existe | Vérifié |
 |---|---|---|
-| Firmware des nœuds | N1 à N4 sur Nucleo-G431KB : port FDCAN, horloge HSE (repli HSI signalé), heartbeat, protocole ARM/GO, modes de faute commandés par `BENCH_CFG`, autotest de mise en route | compilation de n1 à n4 ; N1 à N3 éprouvés sur carte |
+| Firmware des nœuds | N1 à N4 sur Nucleo-G431KB : port FDCAN, horloge HSE (repli HSI signalé), heartbeat, protocole ARM/GO, modes de faute commandés par `BENCH_CFG`, autotest de mise en route ; trames applicatives toutes les 20 ms, note de qualité de chaque trame reçue (trame QUALITY, écran OLED) | compilation de n1 à n4, tests natifs ; flashé sur les 4 Nucleo le 17/11/2026, pas encore observé sur le bus |
 | Firmwares de démonstration | `scope` (trames fixes pour l'oscilloscope) et `dialogue` (échange de texte entre nœuds) | sur carte (démo du 03/11) |
 | Protocole slcan | module `common/app/slcan.c`, prêt pour le firmware de l'adaptateur USB-CAN | test natif |
 | Modifications des Nucleo | cavalier HW1 retiré, ponts SB9/SB10 soudés | sur N1, N2, N3 (quartz et PLL à 160 MHz vérifiés) |
@@ -98,8 +98,8 @@ schéma fonctionnel `schema/` reste celui de la phase 0. Le câblage réel fait 
 
 ### Logiciel
 
-7. **Écrans OLED SSD1306** sur les nœuds (lot 6) : I2C1 sur PA15/PB7 déjà réservé dans
-   `board.h`, rafraîchissement par DMA et par pages modifiées (`docs/PLAN.md` §2.3).
+7. **Écrans OLED SSD1306** : pilote et écran de notes **faits** (17/11/2026), à valider sur
+   le banc avec l'écran reçu. Branchement : `docs/pinout.md` §2.
 8. **MPU-6050 sur N2** : lecture en I2C (adresse 0x68, même bus que l'OLED) et envoi dans
    la trame `IMU_SPEED`.
 9. **Firmware de l'adaptateur USB-CAN** : slcan sur l'USART relié au CH340C, en reprenant

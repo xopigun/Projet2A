@@ -15,6 +15,11 @@ Pour chaque identifiant :
   médian) compte 2 trames perdues ;
 - écart signalé si la période moyenne s'éloigne de plus de :data:`TOLERANCE` de
   l'attendue, ou si une trame a manqué.
+
+S'y ajoutent les **notes des récepteurs** : chaque nœud note de 0 à 100 les trames
+qu'il reçoit (DLC, somme de contrôle, compteur, contenu, ponctualité) et publie la
+moyenne de chaque type de trame toutes les 500 ms dans sa trame QUALITY_Nn. Le
+tracker garde le dernier rapport de chaque nœud (:meth:`QualityTracker.node_reports`).
 """
 
 from __future__ import annotations
@@ -40,6 +45,19 @@ MIN_INTERVALS = 5
 
 #: Identifiant de BENCH_CFG, qui peut changer la période de heartbeat d'un nœud.
 BENCH_CFG_ID = next(i for i, m in icd_gen.FRAMES.items() if m["name"] == "BENCH_CFG")
+
+#: Trames QUALITY_Nn : identifiant -> numéro du nœud qui note.
+QUALITY_IDS = {
+    i: int(m["name"].rsplit("_N", 1)[1])
+    for i, m in icd_gen.FRAMES.items()
+    if m["name"].startswith("QUALITY_N")
+}
+
+#: Note signifiant « aucune trame de ce type reçue sur la fenêtre ».
+SCORE_NONE = 255
+
+#: Trame applicative émise par chaque contendant : il ne la note pas lui-même.
+OWN_FRAME = {1: "energy_command", 2: "imu_speed", 3: "temp_battery"}
 
 
 @dataclass
@@ -110,6 +128,7 @@ class QualityTracker:
         self._lock = threading.Lock()
         self._ids: dict[int, IdTiming] = {}
         self._heartbeat_period: dict[int, float] = {}
+        self._reports: dict[int, dict] = {}
         self.error_frames = 0
 
     def expected_period(self, can_id: int) -> float | None:
@@ -117,7 +136,7 @@ class QualityTracker:
         period = (icd_gen.FRAMES.get(can_id) or {}).get("period_ms")
         if period:
             return period / 1000
-        if 1 <= can_id - self._heartbeat_base <= 15:
+        if 1 <= can_id - self._heartbeat_base <= 7:
             return self._heartbeat_period.get(can_id, _default_heartbeat_ms()) / 1000
         return None
 
@@ -132,10 +151,54 @@ class QualityTracker:
                 if cfg.heartbeat_period_ms and 1 <= cfg.target_node <= 15:
                     beat_id = self._heartbeat_base + int(cfg.target_node)
                     self._heartbeat_period[beat_id] = float(cfg.heartbeat_period_ms)
+            if frame.can_id in QUALITY_IDS and len(frame.data) == 8:
+                self._note_report(QUALITY_IDS[frame.can_id], frame)
             timing = self._ids.get(frame.can_id)
             if timing is None:
                 timing = self._ids[frame.can_id] = IdTiming(frame.can_id)
             timing.add(frame.timestamp, self.expected_period(frame.can_id))
+
+    def _note_report(self, node: int, frame) -> None:
+        q = icd_gen.Quality.unpack(bytes(frame.data))
+        previous = self._reports.get(node)
+        missed = previous["reports_missed"] if previous else 0
+        if previous is not None:
+            gap = (int(q.report_counter) - previous["report_counter"]) & 0xFF
+            missed += max(0, gap - 1)
+
+        def score(name: str) -> int | None:
+            value = int(getattr(q, f"score_{name}"))
+            return None if value == SCORE_NONE else value
+
+        self._reports[node] = {
+            "node": f"N{node}",
+            "own": OWN_FRAME.get(node),
+            "scores": {
+                name: score(name)
+                for name in ("energy_command", "imu_speed", "temp_battery", "heartbeat")
+            },
+            "lost": int(q.frames_lost),
+            "bad": int(q.frames_bad),
+            "late": int(q.frames_late),
+            "report_counter": int(q.report_counter),
+            "reports": (previous["reports"] + 1) if previous else 1,
+            "reports_missed": missed,
+            "lost_total": (previous["lost_total"] if previous else 0) + int(q.frames_lost),
+            "bad_total": (previous["bad_total"] if previous else 0) + int(q.frames_bad),
+            "late_total": (previous["late_total"] if previous else 0) + int(q.frames_late),
+            "stamp": frame.timestamp,
+        }
+
+    def node_reports(self) -> list[dict]:
+        """Dernier rapport QUALITY de chaque nœud, avec l'âge en secondes."""
+        with self._lock:
+            latest = max((r["stamp"] for r in self._reports.values()), default=None)
+            rows = []
+            for node in sorted(self._reports):
+                row = dict(self._reports[node])
+                row["age_s"] = round(latest - row.pop("stamp"), 2) if latest is not None else None
+                rows.append(row)
+            return rows
 
     def restart(self) -> None:
         """Oublie le dernier instant de chaque identifiant, après une interruption
@@ -150,12 +213,13 @@ class QualityTracker:
                 timing.summary(self.expected_period(can_id))
                 for can_id, timing in sorted(self._ids.items())
             ]
-            return {
-                "ids": rows,
-                "error_frames": self.error_frames,
-                "missed": sum(row["missed"] for row in rows),
-                "alerts": sum(row["alert"] for row in rows),
-            }
+        return {
+            "ids": rows,
+            "error_frames": self.error_frames,
+            "missed": sum(row["missed"] for row in rows),
+            "alerts": sum(row["alert"] for row in rows),
+            "nodes": self.node_reports(),
+        }
 
 
 def _default_heartbeat_ms() -> float:
@@ -166,4 +230,4 @@ def _ms(seconds: float | None) -> float | None:
     return None if seconds is None else round(seconds * 1000, 3)
 
 
-__all__ = ["IdTiming", "QualityTracker"]
+__all__ = ["IdTiming", "QualityTracker", "QUALITY_IDS", "SCORE_NONE"]

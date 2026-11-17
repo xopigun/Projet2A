@@ -16,6 +16,10 @@ add_library(bench_common STATIC
     ${BENCH_COMMON_DIR}/app/node.c
     ${BENCH_COMMON_DIR}/app/faults.c
     ${BENCH_COMMON_DIR}/app/slcan.c
+    ${BENCH_COMMON_DIR}/app/traffic.c
+    ${BENCH_COMMON_DIR}/app/rx_quality.c
+    ${BENCH_COMMON_DIR}/app/screen.c
+    ${BENCH_COMMON_DIR}/util/font5x7.c
 )
 target_include_directories(bench_common PUBLIC
     ${BENCH_COMMON_DIR}
@@ -52,6 +56,9 @@ bench_add_test(test_classic_can)
 bench_add_test(test_faults)
 bench_add_test(test_node)
 bench_add_test(test_slcan)
+bench_add_test(test_traffic)
+bench_add_test(test_rx_quality)
+bench_add_test(test_screen)
 
 # --- garde-fou : aucun en-tête HAL dans firmware/common ---------------------
 #
