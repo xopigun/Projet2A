@@ -38,7 +38,7 @@ DESIGNATION = {
     "100nF": ("Condensateur céramique X7R 50 V", "découplage VCC et VIO du transceiver"),
     "120R": ("Résistance 1 %, 1/8 W", "terminaison CAN, active avec un cavalier sur TERM"),
     "1k": ("Résistance 1 %, 1/8 W", "LED"),
-    "0R": ("Résistance 0 ohm (ou strap)", "R7 : broche S à la masse ; R9, R10 : ordre GND/VCC de l'OLED (à vérifier)"),
+    "0R": ("Résistance 0 ohm (ou strap)", "R7 : broche S à la masse ; R9, R10 : alimentation de l'OLED (GND, VCC)"),
     "ERR rouge": ("LED rouge", "error-passive"),
     "BUS-OFF jaune": ("LED jaune", "bus-off"),
     "Nucleo CN3": ("Barrette femelle 1 x 15, pas 2,54 mm", "reçoit la Nucleo-G431KB"),

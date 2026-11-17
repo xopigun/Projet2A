@@ -26,7 +26,6 @@ MOD = {
     "Fils bornier entrée": (85.0, 98.9, 101.5, 114.6, 1.6, 8.0),
     "Fils bornier sortie": (139.6, 155.0, 101.5, 114.6, 1.6, 8.0),
     "Cavalier TERM": (130.2, 132.8, 117.7, 122.8, 1.6, 10.5),
-    "Câble capteurs (Dupont)": (130.2, 132.8, 124.2, 134.4, 1.6, 20.0),
     "Tête de vis H1": (116.3, 121.8, 103.55, 109.05, 1.6, 4.6),
     "Tête de vis H2": (116.3, 121.8, 134.75, 140.25, 1.6, 4.6),
 }
@@ -40,7 +39,7 @@ for na, a in MOD.items():
     for nc, c in boxes.items():
         # les barrettes de la Nucléo et les borniers sous leurs fils sont des contacts voulus
         if (nc in ("J3", "J4") and na.startswith("Nucleo")) or (nc == "J7" and na == "Cavalier TERM") \
-           or (nc == "J8" and na.startswith("Câble capteurs")) or (nc == "J5" and na.startswith("Ecran")) \
+           or (nc == "J5" and na.startswith("Ecran")) \
            or (nc == "J6" and na.startswith("MPU")) or (nc == "J1" and "entrée" in na) or (nc == "J2" and "sortie" in na):
             continue
         if inter(a, c):

@@ -268,11 +268,11 @@ text(20.32, 40.64, "1 - NUCLEO-G431KB (UM2397 Table 11, broche 1 cote USB)", 1.5
 # CN3 : VIN, GND, NRST, +5V, A7..A0, AREF, +3V3, D13. Seules les broches utilisées sont
 # reliées ; A4/A5 (CN3-7/8) doublent PA15/PB7 par SB2/SB3 sur la Nucleo : laissées libres.
 part("Connector_Generic:Conn_01x15", "J3", "Nucleo CN3", 63.5, 76.2,
-     {"1": None, "2": "GND", "3": None, "4": "+5V", "5": None, "6": "ONEWIRE", "7": None,
-      "8": None, "9": "HALL", "10": None, "11": "LED_BOFF", "12": "LED_ERR", "13": None,
+     {"1": None, "2": "GND", "3": None, "4": "+5V", "5": None, "6": None, "7": None,
+      "8": None, "9": None, "10": None, "11": "LED_BOFF", "12": "LED_ERR", "13": None,
       "14": "+3V3", "15": None},
      FP_SOCK.format(15), text_side="right")
-text(30.48, 101.6, "CN3 : 2 GND, 4 +5V, 6 PA7 (1-Wire), 9 PA4 (Hall), 11 PA1, 12 PA0, 14 +3V3")
+text(30.48, 101.6, "CN3 : 2 GND, 4 +5V, 11 PA1, 12 PA0, 14 +3V3 ; PA7 et PA4 laisses libres (capteurs reportes)")
 # CN4 : D1, D0, NRST, GND, D2..D12.
 part("Connector_Generic:Conn_01x15", "J4", "Nucleo CN4", 63.5, 134.62,
      {"1": None, "2": None, "3": None, "4": "GND", "5": "CAN_TX", "6": "MPU_INT",
@@ -344,42 +344,33 @@ text(127.0, 139.7, "4 - ECRAN OLED SSD1306 ET MPU-6050 (I2C1 : PA15 SCL, PB7 SDA
 part("Connector_Generic:Conn_01x04", "J5", "OLED coudé", 160.02, 167.64,
      {"1": "OLED_1", "2": "OLED_2", "3": "I2C_SCL", "4": "I2C_SDA"}, FP_SOCK_H.format(4),
      text_side="right")
-# Ordre GND / VCC : celui de la plupart des modules 0,96". R9 et R10 le câblent ; si le
-# module reçu est en VCC / GND, monter R11 et R12 à la place (jamais les quatre).
+# Ordre GND / VCC : celui des modules 0,96" reçus. R9 et R10 le câblent (0 ohm, gardées
+# pour pouvoir inverser par fils volants si un module en VCC / GND arrivait).
 r("R9", "0R", 205.74, 152.4, top="GND", bottom="OLED_1")
 r("R10", "0R", 215.9, 152.4, top="+3V3", bottom="OLED_2")
-part("Device:R", "R11", "0R", 205.74, 175.26, {"1": "+3V3", "2": "OLED_1"}, FP_R,
-     text_side="right", dnp=True)
-part("Device:R", "R12", "0R", 215.9, 175.26, {"1": "GND", "2": "OLED_2"}, FP_R,
-     text_side="right", dnp=True)
 part("Connector_Generic:Conn_01x08", "J6", "MPU-6050 coudé", 160.02, 200.66,
      {"1": "+3V3", "2": "GND", "3": "I2C_SCL", "4": "I2C_SDA", "5": None, "6": None,
       "7": "GND", "8": "MPU_INT"}, FP_SOCK_H.format(8), text_side="right")
 text(127.0, 220.98, "J6 (GY-521) : VCC GND SCL SDA XDA XCL AD0 INT ; AD0 a la masse = adresse 0x68.")
-text(127.0, 224.79, "J5 : OLED 0x3C. Verifier l'ordre GND/VCC du module avant de monter R9-R12.")
+text(127.0, 224.79, "J5 : OLED 0x3C, broches dans l'ordre GND, VCC, SCL, SDA (modules recus).")
 # Tirages I2C : les modules OLED et GY-521 ont les leurs. R4 et R5 seulement si besoin.
 for ref, net, x in (("R4", "I2C_SCL", 228.6), ("R5", "I2C_SDA", 238.76)):
     part("Device:R", ref, "4.7k", x, 200.66, {"1": "+3V3", "2": net}, FP_R,
          text_side="right", dnp=True)
 
 # --- 5. LED d'état et capteurs reportés -----------------------------------------------
-text(20.32, 200.66, "5 - LED D'ETAT ET CAPTEURS (Hall et 1-Wire reportes : non montes)", 1.5)
+text(20.32, 200.66, "5 - LED D'ETAT", 1.5)
 for ref_r, ref_d, value, net, x in (("R2", "D1", "ERR rouge", "LED_ERR", 30.48),
                                     ("R3", "D2", "BUS-OFF jaune", "LED_BOFF", 55.88)):
     R = r(ref_r, "1k", x, 215.9, top=net)
     D = part("Device:LED", ref_d, value, x, 226.06, {"2": WIRED, "1": "GND"}, FP_LED, rot=90,
              text_side="right", gap=3.81)
     path(at(R, "2"), at(D, "2"))
-# Une seule barrette pour les deux capteurs reportés : 3V3, GND, PA4 (Hall), PA7 (1-Wire).
-part("Connector_Generic:Conn_01x04", "J8", "Capteurs", 91.44, 220.98,
-     {"1": "+3V3", "2": "GND", "3": "HALL", "4": "ONEWIRE"},
-     "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical", text_side="right", dnp=True)
 # Fixations M3 entre les barrettes de la Nucléo : la carte est vissée sur la plaque du banc,
 # puis la Nucléo enfichée par-dessus (trous de 3,2 mm, admis par la factory).
 for i, x in enumerate((30.48, 45.72)):
     place("Mechanical:MountingHole", f"H{i + 1}", "M3", x, 250.19,
           "MountingHole:MountingHole_3.2mm_M3", text_side="right")
-text(20.32, 260.35, "J8 : 3V3, GND, PA4 (DRV5013, drain ouvert, tirage interne), PA7 (DS18B20 : tirage 4,7 k sur le module).")
 
 lib = " ".join(kisym.dump(kisym.load(l)) for l in sorted(lib_ids))
 OUT.write_text(

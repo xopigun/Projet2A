@@ -11,5 +11,5 @@
 1;J7;Barrette mâle 1 x 2, pas 2,54 mm + cavalier;TERM;traversant;"terminaison 120 ohms ; sur N4, câblée vers SW1"
 1;R1;Résistance 1 %, 1/8 W;120R;0805;terminaison CAN, active avec un cavalier sur TERM
 2;R2, R3;Résistance 1 %, 1/8 W;1k;0805;LED
-3;R7, R9, R10;Résistance 0 ohm (ou strap);0R;0805;"R7 : broche S à la masse ; R9, R10 : ordre GND/VCC de l'OLED (à vérifier)"
+3;R7, R9, R10;Résistance 0 ohm (ou strap);0R;0805;"R7 : broche S à la masse ; R9, R10 : alimentation de l'OLED (GND, VCC)"
 1;U1;Transceiver CAN TJA1051T/3, SOIC-8;TJA1051T/3;SOIC-8;suffixe /3 : broche VIO (3,3 V)

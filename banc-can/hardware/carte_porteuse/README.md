@@ -15,23 +15,24 @@ Plus aucun fil Dupont. À fabriquer en 4 exemplaires.
 | Bande arrière | bornier d'entrée (fils à gauche), bornier de sortie (fils à droite), fixation M3 H1 |
 | Colonne centrale | barrettes de la Nucleo, posée dans la profondeur, **USB vers l'arrière** (câble vers le hub) ; sous elle, le TJA1051, ses 100 nF, les résistances et la fixation H2 ; barrette coudée de l'OLED au bord avant |
 | Gauche | barrette coudée du MPU-6050 : le module tient debout au-delà du bord |
-| Droite | cavalier TERM, barrette capteurs (non montée), LED **B** (bus-off, jaune) et **E** (erreur, rouge) |
+| Droite | cavalier TERM, LED **B** (bus-off, jaune) et **E** (erreur, rouge) |
 
 Contour en escalier : 2 050 mm² au lieu de 3 250 mm² pour la v0.1 rectangulaire (−37 %).
 
 ## Montage
 
 1. Souder les CMS (U1, C1, C2, R1, R2, R3, R7, R9, R10, D1, D2), puis les barrettes et les borniers.
-2. **Avant R9 et R10 : vérifier l'ordre des broches de l'OLED reçu.** GND puis VCC : R9 et R10.
-   VCC puis GND : R11 et R12 à la place. Jamais les quatre.
+2. R9 et R10 (0 Ω) alimentent l'OLED, dont les broches sont dans l'ordre GND, VCC, SCL, SDA
+   (modules reçus). Les variantes R11/R12 (OLED en VCC/GND) et la barrette capteurs J8 ont été
+   retirées le 17/11/2026.
 3. Visser la carte sur la plaque du banc (H1, H2, vis M3), **puis** enficher la Nucleo :
    broche 1 de CN3 et CN4 côté USB, flèche « ^ USB ».
 4. L'OLED s'enfiche à l'horizontale dans sa barrette coudée et tient debout, à l'envers :
    le firmware retourne l'affichage. Le MPU-6050 de même, sur N2.
 5. Cavalier TERM sur le nœud en bout de bus seulement (N4 : câble vers l'interrupteur SW1).
 
-Non montés : R8 (S sur PB6), R11/R12 (OLED en VCC/GND), R4/R5 (tirages I2C, les modules ont
-les leurs), J8 (capteurs Hall et 1-Wire, reportés ; tirage 1-Wire sur le module DS18B20).
+Non montés : R8 (S sur PB6), R4/R5 (tirages I2C, les modules ont les leurs). PA4 et PA7
+(capteurs Hall et 1-Wire, reportés) restent libres sur la Nucleo.
 
 ## Vérifications
 
@@ -41,7 +42,7 @@ volontairement le bord, repères qui se touchent).
 
 **Encombrements** (`verification/encombrement.py`, sur l'export 3D KiCad) : aucun conflit entre
 les modules enfichés (Nucleo et sa fiche USB, OLED debout, MPU-6050 debout, fils des borniers,
-cavalier, câble capteurs, têtes de vis M3) et les composants. Sous la Nucleo (fond à 10,5 mm),
+cavalier, têtes de vis M3) et les composants. Sous la Nucleo (fond à 10,5 mm),
 le plus haut est le corps de la barrette OLED (4,1 mm). Le MPU-6050 commence 2,7 mm sous les
 fils du bornier d'entrée. Vue : `openscad verification/assemblage.scad` après
 `kicad-cli pcb export stl --subst-models --user-origin 100x100mm -o verification/carte.stl carte_porteuse.kicad_pcb`.
@@ -59,10 +60,10 @@ plaque du banc devra soutenir les deux coins arrière, sous les borniers, où l'
 | Connecteurs au bord, câbles vers l'extérieur | borniers sur les bords gauche et droit, USB vers l'arrière, modules debout au-delà des bords |
 | Microcontrôleur au centre, composants près de leurs broches | Nucleo au centre ; LED près de PA0/PA1 (CN3), MPU près de l'I2C (CN4) |
 | Découplage au plus près | 100 nF à 2,5 mm de VCC et 2,9 mm de VIO |
-| Plan de masse | deux faces, masse aussi routée sous la Nucleo ; vias de masse superflus retirés (`../elaguer_vias.py`), puis vias de couture posés à la main : 34 vias au total. Relancer `route_freerouting.py` remettrait les vias automatiques |
+| Plan de masse | deux faces, masse aussi routée sous la Nucleo ; vias de masse superflus retirés (`../elaguer_vias.py`), puis vias de couture posés à la main : 21 vias au total. Relancer `route_freerouting.py` remettrait les vias automatiques |
 | Classes de nets, pistes larges pour l'alimentation | classe Puissance : +5V et +3V3 en 0,6 mm, signaux en 0,4 mm |
-| Teardrops | 99 |
-| Champ MPN dans les symboles | 26 composants renseignés |
+| Teardrops | 86 |
+| Champ MPN dans les symboles | 23 composants renseignés |
 | ERC et DRC propres | voir plus haut |
 | Règles factory | piste 0,4 mm, isolation 0,3 mm, vias 0,8/0,4 mm, 0,5 mm au contour, 0805 HandSolder |
 | Le plus petit possible, pas de gaspillage | contour découpé ; seules les barrettes de la Nucleo ont des broches inutilisées (elles la tiennent) |

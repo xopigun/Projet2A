@@ -31,7 +31,7 @@ FOOTPRINTS = KICAD / "share" / "kicad" / "footprints"
 # - colonne centrale : les deux barrettes de la Nucléo, posée dans la profondeur, USB vers
 #   l'arrière (câble vers le hub) ; barrette coudée de l'écran OLED au bord avant ;
 # - bande gauche : barrette coudée du MPU-6050, au plus près de l'I2C et de INT (CN4) ;
-# - bande droite : cavalier TERM, barrette des capteurs (PA4, PA7 sur CN3) et LED.
+# - bande droite : cavalier TERM et LED.
 # Deux angles rentrants seulement, loin des borniers : la carte ne doit pas avoir de point
 # faible là où l'on serre les vis des fils.
 CONTOUR = [(97.7, 100.0), (139.5, 100.0), (139.5, 145.0), (129.0, 145.0), (129.0, 157.6),
@@ -63,18 +63,15 @@ PLACEMENT = {
     "R10": (119.05, 130.7, 0),     # 3V3 -> OLED broche 2 (monté)
     "R4": (114.25, 125.5, 90),     # tirages I2C (non montés)
     "R5": (114.25, 129.5, 90),
-    "R11": (123.85, 125.5, 90),    # variante VCC/GND de l'OLED (non montée)
-    "R12": (123.85, 129.5, 90),
     "H2": (119.05, 137.5, 0),
     # Barrettes coudées : le corps est couché sous la Nucléo ou en bord de carte, les modules
     # tiennent debout au-delà du bord (OLED à l'avant, écran vers l'utilisateur ; MPU-6050
     # à gauche, sous les fils du bornier d'entrée).
     "J5": (115.24, 147.5, 90),
     "J6": (107.8, 119.0, 0),
-    # Bande droite, accessible Nucléo en place : terminaison, capteurs (non montés), LED.
+    # Bande droite, accessible Nucléo en place : terminaison et LED.
     "J7": (131.5, 119.0, 0),
     "R1": (135.2, 120.3, 90),     # terminaison 120 ohms
-    "J8": (131.5, 125.5, 0),
     "R3": (132.4, 137.0, 0),
     "D2": (132.4, 139.05, 180),    # BUS-OFF jaune
     "R2": (132.4, 141.1, 0),
@@ -168,7 +165,7 @@ def main():
                 pad.SetNet(nets[net])
                 # Masse des barrettes des modules : connexion pleine au plan (un frein
                 # thermique y garde trop peu de rayons entre les pistes voisines).
-                if net == "GND" and ref in ("J1", "J2", "J3", "J4", "J5", "J6", "J8"):
+                if net == "GND" and ref in ("J1", "J2", "J3", "J4", "J5", "J6"):
                     pad.SetLocalZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
 
     for a, b in zip(CONTOUR, CONTOUR[1:] + CONTOUR[:1]):
@@ -226,7 +223,6 @@ def main():
     silk(board, "^ USB", 112.7, 101.5, 0.9)
     silk(board, "N__", 125.5, 101.5, 1.1, 0.18)
     silk(board, "TERM", 134.9, 117.6, 0.8)
-    silk(board, "CAPT", 135.6, 133.8, 0.8)
     silk(board, "MPU", 101.0, 137.6, 0.8)
     silk(board, "E", 135.6, 143.15, 0.9)
     silk(board, "B", 135.6, 139.05, 0.9)

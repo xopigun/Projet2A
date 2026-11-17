@@ -70,7 +70,7 @@ def prerouter(_):
     print(f"{PCB.name} : bus pré-routé")
 
 
-NON_MONTES = {"R8", "R11", "R12", "R4", "R5", "J8"}
+NON_MONTES = {"R8", "R4", "R5"}
 
 
 def main(jar):
