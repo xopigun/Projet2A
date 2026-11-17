@@ -47,4 +47,26 @@ BENCH_TEST(ecran_de_notes_complet) {
     BENCH_ASSERT_EQ_UINT(0u, s_fb[5u * 128u + 126u]);
 }
 
-BENCH_TEST_MAIN(texte_dans_la_bonne_page, pixel_et_bornes, ecran_de_notes_complet)
+BENCH_TEST(compteurs_enormes_sans_debordement) {
+    /* Régression du 17/11/2026 : des compteurs à 5 chiffres et l'état BUS-OFF
+     * débordaient le tampon d'une ligne et écrasaient la pile du nœud. */
+    bench_node_t node;
+    bench_node_init(&node, 3u, NULL, NULL, true);
+    node.rxq.total_lost = 4000000000u;
+    node.rxq.total_bad = 123456u;
+    node.rxq.total_late = 99999u;
+    bench_can_status_t st = {0};
+    st.state = BENCH_CAN_BUS_OFF;
+    st.tec = 255u;
+    st.rec = 255u;
+    const bench_node_t before = node;
+    for (int i = 0; i < 100; i++) {
+        bench_screen_quality(s_fb, &node, &st);
+    }
+    BENCH_ASSERT_EQ_MEM(&before, &node, sizeof(node), "état du nœud intact");
+    /* « P:99k A:99k R:99k » : 18 caractères, la 19e cellule reste vide. */
+    BENCH_ASSERT_EQ_UINT(0u, s_fb[6u * 128u + 18u * 6u]);
+}
+
+BENCH_TEST_MAIN(texte_dans_la_bonne_page, pixel_et_bornes, ecran_de_notes_complet,
+                compteurs_enormes_sans_debordement)

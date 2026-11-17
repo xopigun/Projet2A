@@ -11,8 +11,8 @@
  *     IMU     N2   98 #####
  *     TEMP    N3   --
  *     HEARTB.     100 ######
- *     PERD 0 ABIM 0 RET 0
- *     ACTIF  TEC 0  REC 0
+ *     P:0 A:0 R:0          (perdues, abîmées, en retard)
+ *     ACTIF TEC0 REC0
  *
  * « EMET » remplace la note de la trame que le nœud émet lui-même ; « -- » signale
  * qu'aucune trame de ce type n'est arrivée pendant la dernière fenêtre.

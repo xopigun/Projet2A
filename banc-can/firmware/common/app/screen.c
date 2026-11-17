@@ -61,26 +61,48 @@ static void put_uint(char *out, uint32_t v, uint8_t width) {
     }
 }
 
-/** Longueur utile d'un nombre, pour les compteurs écrits sans alignement. */
-static uint8_t append_uint(char *out, uint32_t v) {
-    char tmp[5];
-    put_uint(tmp, v, 5u);
-    uint8_t n = 0u;
-    for (uint8_t i = 0u; i < 5u; i++) {
-        if (tmp[i] != ' ') {
-            out[n++] = tmp[i];
-        }
-    }
-    return n;
+/**
+ * Ligne de texte bornée à COLS caractères. Tout ajout au-delà est ignoré : une
+ * ligne trop longue est tronquée à l'écran, jamais écrite hors du tampon.
+ * (Les compteurs à 5 chiffres débordaient le tampon d'une ligne et écrasaient
+ * la pile : numéro de nœud et état corrompus, vus sur le banc le 17/11/2026.)
+ */
+typedef struct {
+    char    text[COLS + 1u];
+    uint8_t len;
+} line_t;
+
+static void line_init(line_t *l) {
+    l->len = 0u;
+    l->text[0] = '\0';
 }
 
-static uint8_t append_str(char *out, const char *s) {
-    uint8_t n = 0u;
-    while (s[n] != '\0') {
-        out[n] = s[n];
-        n++;
+static void line_char(line_t *l, char c) {
+    if (l->len < COLS) {
+        l->text[l->len++] = c;
+        l->text[l->len] = '\0';
     }
-    return n;
+}
+
+static void line_str(line_t *l, const char *s) {
+    for (; *s != '\0'; s++) {
+        line_char(l, *s);
+    }
+}
+
+/** Nombre en 4 caractères au plus : 0 à 9999, puis « 10k » à « 99k ». */
+static void line_count(line_t *l, uint32_t v) {
+    char tmp[5];
+    const int kilo = (v >= 10000u);
+    put_uint(tmp, kilo ? ((v > 99999u ? 99999u : v) / 1000u) : v, 4u);
+    for (uint8_t i = 0u; i < 4u; i++) {
+        if (tmp[i] != ' ') {
+            line_char(l, tmp[i]);
+        }
+    }
+    if (kilo) {
+        line_char(l, 'k');
+    }
 }
 
 static void score_line(uint8_t *fb, uint8_t row, const char *label, uint8_t score, int own) {
@@ -93,7 +115,10 @@ static void score_line(uint8_t *fb, uint8_t row, const char *label, uint8_t scor
         line[i] = label[i];
     }
     if (own) {
-        (void)append_str(&line[12], "EMET");
+        line[12] = 'E';
+        line[13] = 'M';
+        line[14] = 'E';
+        line[15] = 'T';
     } else if (score == BENCH_RXQ_NONE) {
         line[13] = '-';
         line[14] = '-';
@@ -116,16 +141,15 @@ static void score_line(uint8_t *fb, uint8_t row, const char *label, uint8_t scor
 void bench_screen_quality(uint8_t *fb, const bench_node_t *node, const bench_can_status_t *status) {
     static const char *const labels[BENCH_TRAFFIC_KINDS] = {
         "ENERGY  N1", "IMU     N2", "TEMP    N3"};
-    char line[COLS + 1u];
-    uint8_t n;
+    line_t line;
 
     bench_screen_clear(fb);
 
-    n = append_str(line, "N");
-    line[n++] = (char)('0' + node->node_id % 10u);
-    n = (uint8_t)(n + append_str(&line[n], "  NOTE DES TRAMES"));
-    line[n] = '\0';
-    bench_screen_text(fb, 0u, 0u, line);
+    line_init(&line);
+    line_char(&line, 'N');
+    line_char(&line, (char)('0' + node->node_id % 10u));
+    line_str(&line, "  NOTE DES TRAMES");
+    bench_screen_text(fb, 0u, 0u, line.text);
     for (uint8_t x = 0u; x < BENCH_SCREEN_W; x++) {
         bench_screen_pixel(fb, x, 11u, 1);
     }
@@ -136,21 +160,22 @@ void bench_screen_quality(uint8_t *fb, const bench_node_t *node, const bench_can
     }
     score_line(fb, 5u, "HEARTBEAT", w->score_heartbeat, 0);
 
-    n = append_str(line, "PERD ");
-    n = (uint8_t)(n + append_uint(&line[n], node->rxq.total_lost));
-    n = (uint8_t)(n + append_str(&line[n], " ABIM "));
-    n = (uint8_t)(n + append_uint(&line[n], node->rxq.total_bad));
-    n = (uint8_t)(n + append_str(&line[n], " RET "));
-    n = (uint8_t)(n + append_uint(&line[n], node->rxq.total_late));
-    line[(n < COLS) ? n : COLS] = '\0';
-    bench_screen_text(fb, 0u, 6u, line);
+    /* Perdues, abîmées, en retard depuis le démarrage : « P:12 A:3 R:0 ». */
+    line_init(&line);
+    line_str(&line, "P:");
+    line_count(&line, node->rxq.total_lost);
+    line_str(&line, " A:");
+    line_count(&line, node->rxq.total_bad);
+    line_str(&line, " R:");
+    line_count(&line, node->rxq.total_late);
+    bench_screen_text(fb, 0u, 6u, line.text);
 
     static const char *const states[4] = {"ACTIF", "ALERTE", "PASSIF", "BUS-OFF"};
-    n = append_str(line, states[(uint8_t)status->state & 3u]);
-    n = (uint8_t)(n + append_str(&line[n], " TEC "));
-    n = (uint8_t)(n + append_uint(&line[n], status->tec));
-    n = (uint8_t)(n + append_str(&line[n], " REC "));
-    n = (uint8_t)(n + append_uint(&line[n], status->rec));
-    line[(n < COLS) ? n : COLS] = '\0';
-    bench_screen_text(fb, 0u, 7u, line);
+    line_init(&line);
+    line_str(&line, states[(uint8_t)status->state & 3u]);
+    line_str(&line, " TEC");
+    line_count(&line, status->tec);
+    line_str(&line, " REC");
+    line_count(&line, status->rec);
+    bench_screen_text(fb, 0u, 7u, line.text);
 }
