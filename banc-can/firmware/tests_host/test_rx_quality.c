@@ -141,6 +141,21 @@ BENCH_TEST(heartbeats_pertes_deduites_de_l_intervalle) {
     BENCH_ASSERT_EQ_UINT(BENCH_RXQ_NONE, bench_rxq_on_frame(&q, &f));
 }
 
+BENCH_TEST(long_silence_compte_comme_une_reprise) {
+    /* Un nœud débranché une minute ne compte pas 120 heartbeats perdus. */
+    bench_rxq_t q;
+    bench_rxq_init(&q, 1u);
+    bench_can_frame_t f = heartbeat(4u, 0u);
+    (void)bench_rxq_on_frame(&q, &f);
+    f = heartbeat(4u, 500u * MS);
+    (void)bench_rxq_on_frame(&q, &f);
+    f = heartbeat(4u, 60500u * MS);
+    BENCH_ASSERT_EQ_UINT(100u, bench_rxq_on_frame(&q, &f));
+    BENCH_ASSERT_EQ_UINT(0u, q.total_lost);
+    f = heartbeat(4u, 61000u * MS);
+    BENCH_ASSERT_EQ_UINT(100u, bench_rxq_on_frame(&q, &f));
+}
+
 BENCH_TEST(periode_de_heartbeat_reconfiguree) {
     bench_rxq_t q;
     bench_rxq_init(&q, 1u);
@@ -178,5 +193,6 @@ BENCH_TEST(rapport_moyenne_et_remise_a_zero) {
 BENCH_TEST_MAIN(flux_parfait_note_100, trame_manquee_detectee_par_le_compteur, somme_fausse_note_0,
                 dlc_incoherent_note_0, contenu_hors_sequence_penalise,
                 retard_penalise_au_dela_de_la_tolerance, arbitrage_suspend_la_ponctualite,
-                heartbeats_pertes_deduites_de_l_intervalle, periode_de_heartbeat_reconfiguree,
+                heartbeats_pertes_deduites_de_l_intervalle, long_silence_compte_comme_une_reprise,
+                periode_de_heartbeat_reconfiguree,
                 rapport_moyenne_et_remise_a_zero)

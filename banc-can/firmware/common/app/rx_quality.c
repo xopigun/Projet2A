@@ -10,6 +10,9 @@
 /** Période de heartbeat par défaut, identique à celle de bench_node_init(). */
 #define RXQ_HEARTBEAT_DEFAULT_MS 500u
 
+/** Au-delà de ce nombre de périodes de silence, un heartbeat marque une reprise. */
+#define RXQ_RESUME_PERIODS 20u
+
 /** Tolérance de ponctualité : max(2 ms, 10 % de la période). */
 static uint32_t tolerance_us(uint32_t period_us) {
     const uint32_t ten_pct = period_us / 10u;
@@ -143,6 +146,11 @@ static uint8_t score_heartbeat(bench_rxq_t *q, uint8_t index, const bench_can_fr
         uint32_t periods = (dt + period_us / 2u) / period_us;
         if (periods == 0u) {
             periods = 1u;
+        }
+        if (periods > RXQ_RESUME_PERIODS) {
+            /* Silence trop long : nœud redémarré ou débranché. On reprend une
+             * référence sans compter des centaines de trames « perdues ». */
+            return finish(q, s, score, f->timestamp_us);
         }
         const uint32_t lost = periods - 1u;
         if (lost > 0u) {

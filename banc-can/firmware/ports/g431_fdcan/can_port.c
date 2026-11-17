@@ -56,12 +56,34 @@ static bench_port_can_t *s_port;
  * Il n'est jamais remis à zéro : open() est rappelée par les modes de faute, et
  * les horodatages ne doivent pas reculer en cours de test. Le temps écoulé
  * pendant un arrêt est perdu, ce qui est sans conséquence au démarrage.
+ *
+ * CYCCNT (32 bits à 160 MHz) revient à zéro toutes les 26,8 s : divisé tel quel,
+ * il donnait une horloge en µs qui retombait à 0 toutes les 26,8 s au lieu de
+ * boucler sur 32 bits, et l'écart entre deux trames enjambant ce retour valait
+ * alors près de 2^32 µs (relevé sur le banc le 17/11/2026 : 93 000 trames
+ * comptées perdues en quelques minutes). L'horloge cumule donc les écarts de
+ * CYCCNT, avec leur reste, et boucle proprement sur 2^32 µs (71 min). Elle
+ * doit être lue au moins toutes les 26,8 s : bench_port_can_poll() s'en charge.
  */
 static uint32_t now_us(void *ctx) {
+    static uint32_t s_last_cycles;
+    static uint32_t s_cycles_rest;
+    static uint32_t s_us;
+    const uint32_t cycles_per_us = BENCH_SYSCLK_HZ / 1000000u;
     (void)ctx;
+
+    const uint32_t primask = __get_PRIMASK();  /* appelée en interruption et hors */
+    __disable_irq();
     CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-    return DWT->CYCCNT / (BENCH_SYSCLK_HZ / 1000000u);
+    const uint32_t cycles = DWT->CYCCNT;
+    s_cycles_rest += cycles - s_last_cycles;  /* différence modulo 2^32 */
+    s_last_cycles = cycles;
+    s_us += s_cycles_rest / cycles_per_us;
+    s_cycles_rest %= cycles_per_us;
+    const uint32_t us = s_us;
+    __set_PRIMASK(primask);
+    return us;
 }
 
 /* ---------------------------------------------------------------- broches -- */
@@ -345,6 +367,7 @@ void bench_port_can_bind(bench_port_can_t *port, bench_ring_t *rx_ring, bench_ca
 }
 
 void bench_port_can_poll(bench_port_can_t *port) {
+    (void)now_us(NULL);  /* entretient l'horloge des trames même sans trafic */
     if (port->busoff_policy != BENCH_BUSOFF_AUTO) {
         return;
     }
