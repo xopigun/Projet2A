@@ -469,7 +469,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "adaptateur_usb_can.kicad_pro",
+    "filename": "carte_porteuse.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -620,7 +620,7 @@
       "include_excluded_from_bom": true,
       "name": "Default Editing",
       "sort_asc": true,
-      "sort_field": "R\u00e9f\u00e9rence"
+      "sort_field": "Référence"
     },
     "connection_grid_size": 50.0,
     "drawing": {
@@ -664,7 +664,7 @@
   },
   "sheets": [
     [
-      "6f1c2a3e-4b5d-4e6f-8a9b-0c1d2e3f4a5b",
+      "9c2e4f1a-7b3d-4e8a-b6c5-1d2f3a4b5c6e",
       "Root"
     ]
   ],
