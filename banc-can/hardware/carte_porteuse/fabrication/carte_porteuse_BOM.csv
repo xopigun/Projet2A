@@ -2,8 +2,7 @@
 2;C1, C2;Condensateur céramique X7R 50 V;100nF;0805;découplage VCC et VIO du transceiver
 1;D1;LED rouge;ERR rouge;0805;error-passive
 1;D2;LED jaune;BUS-OFF jaune;0805;bus-off
-1;J1;Bornier à vis 3 points, pas 5,08 mm (type Phoenix MKDS 1,5/3-5,08);Bus entrée;traversant;bus CAN : H, L, G
-1;J2;Bornier à vis 3 points, pas 5,08 mm (type Phoenix MKDS 1,5/3-5,08);Bus sortie;traversant;bus CAN : H, L, G
+1;J1;Bornier à vis 3 points, pas 5,08 mm (type Phoenix MKDS 1,5/3-5,08);Bus CAN;traversant;dérivation vers la paire torsadée du bus : H, L, G
 1;J3;Barrette femelle 1 x 15, pas 2,54 mm;Nucleo CN3;traversant;reçoit la Nucleo-G431KB
 1;J4;Barrette femelle 1 x 15, pas 2,54 mm;Nucleo CN4;traversant;reçoit la Nucleo-G431KB
 1;J5;Barrette femelle coudée 1 x 4, pas 2,54 mm;OLED coudé;traversant;"écran OLED SSD1306 0,96"" debout au bord avant"

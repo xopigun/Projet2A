@@ -44,8 +44,8 @@ ROUTER_MASSE = True
 ESSAIS = 6  # Freerouting donne des résultats différents d'un essai à l'autre
 
 
-# Pistes posées avant Freerouting, si besoin (aucune depuis la v0.2 : borniers sur deux bords
-# opposés, le bus traverse librement l'arrière de la carte, derrière les barrettes).
+# Pistes posées avant Freerouting, si besoin (aucune depuis la v0.2 : le bus rejoint le
+# bornier par l'arrière de la carte, derrière les barrettes).
 PREROUTAGE = []
 
 

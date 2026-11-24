@@ -72,6 +72,16 @@ simulation 2/2, compilation de tous les presets (`n1` à `n4`, autotests, `scope
   sont **reportés** : leurs broches restent réservées dans `board.h`.
 - **Pont slcan L476** et **LCD 16x2** : abandonnés (tableau ci-dessus).
 
+### Décision du 24/11/2026
+
+- **Carte porteuse v0.3 : un seul bornier par nœud.** Remarque de l'enseignant : avec un
+  bornier d'entrée et un de sortie sur chaque carte, la paire torsadée est coupée et
+  détorsadée à chaque nœud. Le bus devient une **pieuvre** : paire torsadée continue du ZLG
+  à N4, une dérivation courte par nœud, terminaisons aux deux extrémités (ZLG, cavalier TERM
+  de N4). Barrette de distribution et connecteurs Wago écartés ; un Wago 221 n'accepte
+  d'ailleurs pas de fil souple en dessous de 0,14 mm², plus gros qu'un fil Dupont. Détail :
+  [`hardware/carte_porteuse/README.md`](../hardware/carte_porteuse/README.md).
+
 La **simulation 3D** montre encore le banc du dossier v0.1 (LCD, DB9, LM2596, capteurs) ; le
 schéma fonctionnel `schema/` reste celui de la phase 0. Le câblage réel fait foi.
 
@@ -93,8 +103,9 @@ schéma fonctionnel `schema/` reste celui de la phase 0. Le câblage réel fait 
 4. **Câbler les interrupteurs de faute** SW1, SW2, SW3 et la terminaison commutée.
 5. **Écrans OLED pour N4** : 3 écrans ont été commandés pour 4 nœuds ; vérifier qu'ils sont
    tous arrivés et en commander un de plus. Les adaptateurs SOP8 suffisent : 10 reçus.
-6. **Rendre le banc propre** : plaque modulaire imprimée et carte porteuse par nœud, pour
-   supprimer les fils Dupont (en discussion).
+6. **Rendre le banc propre** : carte porteuse v0.3 conçue (un bornier par nœud, DRC 0
+   erreur), à faire fabriquer en 4 exemplaires ; pieuvre de câbles du bus à réaliser ;
+   plaque modulaire imprimée encore en discussion.
 
 ### Logiciel
 

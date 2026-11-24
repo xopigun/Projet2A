@@ -25,17 +25,18 @@ KICAD = Path(r"C:\Program Files\KiCad\9.0")
 FOOTPRINTS = KICAD / "share" / "kicad" / "footprints"
 
 # Contour (mm), en escalier : le cuivre ne couvre que ce qui porte des composants (environ
-# 2 050 mm² au lieu de 3 250 pour la v0.1 rectangulaire). Vue de dessus, arrière en haut :
-# - bande arrière : bornier d'entrée du bus à gauche, de sortie à droite (fils vers
-#   l'extérieur), fixation H1 au milieu ; le bus la traverse derrière les barrettes ;
+# 1 830 mm² au lieu de 3 250 pour la v0.1 rectangulaire). Vue de dessus, arrière en haut :
+# - bande arrière : bornier du bus à droite (fils vers l'extérieur), fixation H1 au milieu ;
+#   son bord gauche s'arrête à la piste +3V3 qui descend vers le MPU-6050 ;
 # - colonne centrale : les deux barrettes de la Nucléo, posée dans la profondeur, USB vers
 #   l'arrière (câble vers le hub) ; barrette coudée de l'écran OLED au bord avant ;
 # - bande gauche : barrette coudée du MPU-6050, au plus près de l'I2C et de INT (CN4) ;
-# - bande droite : cavalier TERM et LED.
-# Deux angles rentrants seulement, loin des borniers : la carte ne doit pas avoir de point
-# faible là où l'on serre les vis des fils.
-CONTOUR = [(97.7, 100.0), (139.5, 100.0), (139.5, 145.0), (129.0, 145.0), (129.0, 157.6),
-           (109.4, 157.6), (109.4, 138.8), (97.7, 138.8)]
+# - bande droite : cavalier TERM et LED, plus étroite que le bornier.
+# C'est le contour de la carte routée (v0.3) : le bornier d'entrée de la v0.2 et le coin
+# arrière gauche qu'il occupait ont été retirés sans reprendre le routage.
+CONTOUR = [(106.8, 100.0), (139.5, 100.0), (139.5, 116.7), (137.0, 116.7), (137.0, 145.0),
+           (129.0, 145.0), (129.0, 157.6), (109.4, 157.6), (109.4, 138.8), (97.7, 138.8),
+           (97.7, 116.7), (106.8, 116.7)]
 
 # Nucléo-G431KB vue de dessus, USB à l'arrière : CN4 à gauche, CN3 à droite, broche 1 côté
 # USB (UM2397 figure 12), rangées à 15,24 mm. Barrettes femelles sur la face avant.
@@ -45,8 +46,7 @@ CN_Y = 115.0          # broche 1 de CN3 et de CN4
 
 # Référence : (x, y, rotation en degrés). Tout est sur la face avant.
 PLACEMENT = {
-    "J1": (103.75, 103.0, 270),    # bus entrée : G, L, H de l'arrière vers l'avant, fils à gauche
-    "J2": (134.3, 113.16, 90),     # bus sortie : H, L, G de l'arrière vers l'avant, fils à droite
+    "J1": (134.3, 113.16, 90),     # bus : H, L, G de l'arrière vers l'avant, fils à droite
     "J4": (CN4_X, CN_Y, 0),        # Nucleo CN4 (D1 ... D12)
     "J3": (CN3_X, CN_Y, 0),        # Nucleo CN3 (VIN ... D13)
     # Fixation arrière sous le bout USB de la Nucléo (la tête de vis reste 6 mm sous elle).
@@ -66,7 +66,7 @@ PLACEMENT = {
     "H2": (119.05, 137.5, 0),
     # Barrettes coudées : le corps est couché sous la Nucléo ou en bord de carte, les modules
     # tiennent debout au-delà du bord (OLED à l'avant, écran vers l'utilisateur ; MPU-6050
-    # à gauche, sous les fils du bornier d'entrée).
+    # à gauche).
     "J5": (115.24, 147.5, 90),
     "J6": (107.8, 119.0, 0),
     # Bande droite, accessible Nucléo en place : terminaison et LED.
@@ -165,7 +165,7 @@ def main():
                 pad.SetNet(nets[net])
                 # Masse des barrettes des modules : connexion pleine au plan (un frein
                 # thermique y garde trop peu de rayons entre les pistes voisines).
-                if net == "GND" and ref in ("J1", "J2", "J3", "J4", "J5", "J6"):
+                if net == "GND" and ref in ("J1", "J3", "J4", "J5", "J6"):
                     pad.SetLocalZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
 
     for a, b in zip(CONTOUR, CONTOUR[1:] + CONTOUR[:1]):
@@ -218,15 +218,14 @@ def main():
 
     # Sérigraphie : sens de la Nucléo (une Nucléo à l'envers mettrait le 5 V sur une
     # broche d'E/S), repères du bus et des modules.
-    silk(board, "IN G-L-H", 114.0, 112.0, 0.8)
-    silk(board, "H-L-G OUT", 124.2, 112.0, 0.8)
+    silk(board, "BUS H-L-G", 124.2, 112.0, 0.8)
     silk(board, "^ USB", 112.7, 101.5, 0.9)
     silk(board, "N__", 125.5, 101.5, 1.1, 0.18)
     silk(board, "TERM", 134.9, 117.6, 0.8)
     silk(board, "MPU", 101.0, 137.6, 0.8)
     silk(board, "E", 135.6, 143.15, 0.9)
     silk(board, "B", 135.6, 139.05, 0.9)
-    silk(board, "G69 v0.2", 119.05, 102.0, 0.8)
+    silk(board, "G69 v0.3", 119.05, 102.0, 0.8)
 
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
     board.Save(str(PCB))

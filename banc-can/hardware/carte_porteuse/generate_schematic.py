@@ -1,8 +1,9 @@
 """Génère carte_porteuse.kicad_sch : carte porteuse d'un nœud du banc CAN G69.
 
 Une Nucleo-G431KB s'enfiche dessus. La carte porte le transceiver TJA1051T/3 (soudé, SO8)
-et ses découplages, deux borniers pour chaîner le bus d'un nœud au suivant, la terminaison
-de 120 ohms sur cavalier, les barrettes de l'écran OLED et du MPU-6050, et les LED d'état.
+et ses découplages, un seul bornier qui raccorde le nœud au bus par une dérivation courte
+(la paire torsadée ne traverse pas la carte), la terminaison de 120 ohms sur cavalier, les
+barrettes de l'écran OLED et du MPU-6050, et les LED d'état.
 Une seule carte, fabriquée en quatre exemplaires (N1 à N4) : plus aucun fil Dupont.
 
 Brochage de la Nucleo : docs/pinout.md et UM2397 Rev 2, Table 11. Broche 1 de CN3 et de CN4
@@ -46,8 +47,7 @@ PIECES = {
     "BUS-OFF jaune": ("Würth Elektronik", "150080YS75000", ""),
     "Nucleo CN3": ("au choix", "barrette femelle 1 x 15, pas 2,54 mm", ""),
     "Nucleo CN4": ("au choix", "barrette femelle 1 x 15, pas 2,54 mm", ""),
-    "Bus entrée": ("Phoenix Contact", "1729131 (MKDS 1,5/ 3-5,08)", ""),
-    "Bus sortie": ("Phoenix Contact", "1729131 (MKDS 1,5/ 3-5,08)", ""),
+    "Bus CAN": ("Phoenix Contact", "1729131 (MKDS 1,5/ 3-5,08)", ""),
     "OLED": ("au choix", "barrette femelle 1 x 4, pas 2,54 mm", ""),
     "MPU-6050": ("au choix", "barrette femelle 1 x 8, pas 2,54 mm", ""),
     "TERM": ("Würth Elektronik", "61300211121", ""),
@@ -258,7 +258,7 @@ def text(x, y, value, size=1.27):
 #  Contenu de la carte
 # =====================================================================================
 text(20.32, 20.32, "G69 - CARTE PORTEUSE D'UN NOEUD DU BANC CAN (N1 a N4)", 2.0)
-text(20.32, 25.4, "Nucleo-G431KB enfichee -> TJA1051T/3 -> bus chaine (bornier entree / sortie), "
+text(20.32, 25.4, "Nucleo-G431KB enfichee -> TJA1051T/3 -> bornier du bus (derivation), "
      "OLED et MPU-6050 en I2C, LED d'etat")
 text(20.32, 29.21, "Regles factory ENSEA : 2 couches, piste 0,4 mm, isolation 0,3 mm, vias 0,8/0,4 mm, "
      "cuivre nu. Composants marques DNP : prevus, non montes.")
@@ -315,17 +315,18 @@ name("CANL", 187.96, 99.06)
 text(127.0, 116.84, "R7 monte : S a la masse, mode normal. R8 (DNP) : S sur PB6 a la place.")
 text(127.0, 120.65, "C1, C2 : 100 nF au plus pres de VCC (5 V) et de VIO (3,3 V).")
 
-# --- 3. Bus chaîné et terminaison -----------------------------------------------------
-text(213.36, 40.64, "3 - BUS CHAINE ET TERMINAISON", 1.5)
-for ref, val, y in (("J1", "Bus entrée", 76.2), ("J2", "Bus sortie", 106.68)):
-    J = part("Connector:Screw_Terminal_01x03", ref, val, 266.7, y,
-             {"1": "GND", "2": WIRED, "3": WIRED}, FP_BORNIER, text_side="right", gap=8.89)
-    for net, num in (("CANL", "2"), ("CANH", "3")):
-        x, yy = at(J, num)
-        path((x - 15.24, yy), (x, yy))
-        name(net, x - 15.24, yy, angle=180)
-text(213.36, 124.46, "J1 et J2 en parallele : le bus traverse la carte (pas de derivation).")
-text(213.36, 128.27, "Bornier : 1 GND, 2 CAN_L, 3 CAN_H ; sur la carte, de haut en bas H, L, G.")
+# --- 3. Bornier du bus et terminaison -------------------------------------------------
+# Un seul bornier : le nœud est une dérivation de la ligne. La paire torsadée du bus reste
+# continue hors de la carte (pieuvre) au lieu d'être coupée par deux borniers à chaque nœud.
+text(213.36, 40.64, "3 - BORNIER DU BUS ET TERMINAISON", 1.5)
+J = part("Connector:Screw_Terminal_01x03", "J1", "Bus CAN", 266.7, 76.2,
+         {"1": "GND", "2": WIRED, "3": WIRED}, FP_BORNIER, text_side="right", gap=8.89)
+for net, num in (("CANL", "2"), ("CANH", "3")):
+    x, yy = at(J, num)
+    path((x - 15.24, yy), (x, yy))
+    name(net, x - 15.24, yy, angle=180)
+text(213.36, 124.46, "J1 : derivation courte vers la paire torsadee du bus, qui ne traverse pas la carte.")
+text(213.36, 128.27, "Bornier : 1 GND, 2 CAN_L, 3 CAN_H ; sur la carte, de l'arriere vers l'avant H, L, G.")
 # Terminaison : R1 entre CANH et J7 ; un cavalier sur J7 la relie à CANL. Sur N4, J7 est
 # câblé à l'interrupteur SW1 (terminaison commutée R_T2 du dossier).
 R1 = r("R1", "120R", 228.6, 147.32, top=WIRED, bottom="TERM_T")
@@ -376,7 +377,7 @@ lib = " ".join(kisym.dump(kisym.load(l)) for l in sorted(lib_ids))
 OUT.write_text(
     "(kicad_sch (version 20250114) (generator \"eeschema\") (generator_version \"9.0\") "
     f"(uuid {q(ROOT)}) (paper \"A3\") "
-    "(title_block (title \"Carte porteuse - banc CAN G69\") (rev \"0.1\") "
+    "(title_block (title \"Carte porteuse - banc CAN G69\") (rev \"0.3\") "
     "(company \"ENSEA - Projet 2A\") (comment 1 \"Genere par generate_schematic.py\")) "
     f"(lib_symbols {lib}) {' '.join(items)} "
     "(sheet_instances (path \"/\" (page \"1\"))) (embedded_fonts no))\n",
