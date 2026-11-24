@@ -7,13 +7,17 @@ laisse voir que les 4 écrans OLED en façade et les 3 leviers de faute SW1 à S
 Dimensions extérieures : **240,8 × 224,8 × 46,4 mm**. Elle tient sur le plateau de la
 Bambu Lab X1 Carbon du FabLab (256 × 256 mm).
 
-![Boîte fermée](vue_fermee.png)
-![Boîte ouverte, avec son contenu](vue_ouverte.png)
+![Boîte fermée](preview_fermee.png)
+![Boîte ouverte, avec son contenu](preview_ouverte.png)
+![Vue arrière : sortie du câble USB vers le PC](preview_arriere.png)
+![Couvercle transparent](preview_transparente.png)
 
 | Fichier | Contenu |
 |---|---|
 | `boitier_banc.scad` | modèle paramétrique OpenSCAD, toutes les cotes en tête de fichier |
 | `bac.stl`, `couvercle.stl` | pièces orientées pour l'impression, sans support |
+| `previsualisation.py` | rendus Blender `preview_*.png` avec les modèles réels (carte porteuse exportée du PCB, Nucleo, adaptateur) ; écrans, hub, Wago et interrupteurs en volumes simples |
+| `pieces_a_imprimer.png` | les deux pièces seules |
 
 ## Ce que contient la boîte
 
@@ -25,9 +29,12 @@ Bambu Lab X1 Carbon du FabLab (256 × 256 mm).
 - **Hub USB** à plat à l'arrière, tenu par deux butées aux bouts : ses grands côtés restent
   libres pour les ports latéraux. **L'adaptateur USB-CAN** s'enfiche directement dans un port
   du hub, côté arrière, comme le ZLG aujourd'hui.
+- **Jonction du bus** : cadre pour trois bornes Wago 221-420 debout, à droite derrière les cartes.
 - **SW1, SW2, SW3** sur le couvercle, à l'arrière droit, avec leur repère gravé.
-- **Sortie des câbles** : encoche de 16 × 12 mm dans la paroi arrière (USB vers le PC,
-  alimentation du hub).
+- **Sortie des câbles** : encoche de 16 × 12 mm dans la paroi arrière. Le seul câble USB qui
+  sort est celui du hub : il donne accès aux 4 ST-LINK (programmation, journaux) et à
+  l'adaptateur USB-CAN. L'alimentation du hub passe par la même encoche.
+- **Fermeture vissée** : 4 vis M3 dans les colonnes des coins, aucun clip.
 
 ## À vérifier avant d'imprimer
 

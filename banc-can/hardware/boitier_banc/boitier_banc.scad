@@ -64,6 +64,11 @@ jeu_berceau = 0.4;
 h_berceau = 6;
 ep_berceau = 1.6;
 
+// Jonction du bus : trois bornes Wago 221-420 debout côte à côte (15,8 x 18,3 x 29,8 mm, pas de
+// 17 mm), entrées vers l'avant. Cadre bas autour des trois.
+wago = [3 * 17, 18.3, 29.8];
+wago_pos = [160, 150];
+
 // ---- Hauteur ----
 h_int = 42;                    // OLED à 35 mm ; corps des interrupteurs : 14 mm sous le couvercle
 
@@ -122,6 +127,14 @@ module berceau(pos, dim) {
             }
 }
 
+// Cadre bas autour d'un bloc posé sur le plancher, ouvert à l'avant (entrées des fils).
+module cadre(pos, dim) {
+    j = jeu_berceau; e = ep_berceau;
+    translate([pos[0] - j - e, pos[1] - j, 0]) cube([e, dim[1] + 2 * j + e, h_berceau]);
+    translate([pos[0] + dim[0] + j, pos[1] - j, 0]) cube([e, dim[1] + 2 * j + e, h_berceau]);
+    translate([pos[0] - j - e, pos[1] + dim[1] + j, 0]) cube([dim[0] + 2 * (j + e), e, h_berceau]);
+}
+
 module fenetre(n) {
     x = nx(n, fen_x_kicad); z = h_entretoise + fen_z0;
     hull() {
@@ -156,6 +169,7 @@ module bac() {
             cube([appui_bornier[2], appui_bornier[3], h_entretoise]);
     }
     berceau(hub_pos, hub);
+    cadre(wago_pos, wago);
     colonnes(h_int, d_vis_couv);
 }
 
@@ -208,6 +222,7 @@ module contenu() {
         if (n == 1) color("royalblue") boite_k(n, 93.6, 95.2, 117.3, 138.5, 1.0, 17.6);   // MPU-6050 (N2)
     }
     color("silver") translate([hub_pos[0], hub_pos[1], 0]) cube(hub);
+    color("white", 0.7) for (i = [0 : 2]) translate([wago_pos[0] + i * 17 + 0.6, wago_pos[1], 0]) cube([15.8, 18.3, 29.8]);
     color("orange") translate([adapt_pos[0], adapt_pos[1], 0]) cube(adapt);
     color("silver") translate([adapt_pos[0] + adapt[0] / 2 - 6, adapt_pos[1] - 12.9, 3]) cube([12, 12.9, 4.5]);
     for (x = inter_x) {
@@ -217,6 +232,7 @@ module contenu() {
 }
 
 if (piece == "bac") bac();
+else if (piece == "couvercle_pose") couvercle();
 else if (piece == "couvercle") translate([0, 0, h_int + plafond]) rotate([180, 0, 0]) couvercle();
 else if (piece == "ouvert") { color("gainsboro") bac(); contenu(); }
 else if (piece == "eclate") { color("gainsboro") bac(); contenu(); color("lightsteelblue", 0.9) translate([0, 0, 45]) couvercle(); }
