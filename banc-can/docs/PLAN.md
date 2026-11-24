@@ -33,11 +33,11 @@ Révisions de ce plan :
 | Errata STM32F103 (ES096, référence à confirmer sur st.com) | non fourni | — | à consulter : `TODO(verif) V14` |
 
 Le fichier PDF du dossier a été recopié depuis `Downloads` vers `docs/references/` sous le
-nom `Dossier_Banc_Test_CAN_v0_1.pdf`. La source LaTeX se trouve hors dépôt, dans
-`Projet 2A/Banc de Test/` : c'est elle qui fait foi pour les tableaux.
+nom `Dossier_Banc_Test_CAN_v0_1.pdf`. La source LaTeX se trouve dans le dossier
+`Banc de Test/` à la racine du dépôt : c'est elle qui fait foi pour les tableaux.
 
-> Le PDF « BluePill STM32F103 » ne documente pas la carte (voir §2.5). Il est conservé
-> pour mémoire mais n'est pas une source.
+> Le PDF « BluePill STM32F103 » ne documente pas la carte (voir §2.5). Il a été retiré du
+> dépôt le 24/11/2026, avec RM0008, DS5319 et SN65HVD230 (voir `references/README.md`).
 
 ---
 
