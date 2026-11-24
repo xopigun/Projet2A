@@ -7,9 +7,9 @@ Plus aucun fil Dupont. À fabriquer en 4 exemplaires.
 
 **v0.3 (24/11/2026)** : un seul bornier au lieu de deux. Avec une entrée et une sortie sur
 chaque carte, la paire torsadée était coupée et détorsadée à chaque nœud, et le bus
-traversait les quatre cartes. Le nœud est maintenant une dérivation courte d'une paire
-torsadée continue (voir « Raccordement au bus »), comme le prévoient le dossier et
-[pinout.md](../../docs/pinout.md) §6. Le coin arrière gauche libéré a été retiré.
+traversait les quatre cartes. Le nœud est maintenant une branche courte, torsadée jusqu'au
+bornier, qui rejoint un point de jonction commun (voir « Raccordement au bus »). Le coin
+arrière gauche libéré a été retiré.
 
 ![Vue de dessus](vue_dessus.png)
 ![Modules enfichés : Nucleo (bleu clair), OLED (blanc), MPU-6050 (bleu), fils (orange), cavalier (rouge)](vue_modules.png)
@@ -27,17 +27,25 @@ Contour en escalier : 1 830 mm² au lieu de 3 250 mm² pour la v0.1 rectangulair
 
 ## Raccordement au bus
 
-Le bus est une « pieuvre » de câbles : une paire torsadée CAN_H / CAN_L continue, du ZLG
-USBCAN-UC12 jusqu'à N4, accompagnée du fil de masse, avec une dérivation courte soudée et
-gainée vers chaque nœud. La paire n'est ni coupée ni détorsadée entre deux nœuds.
+Le bus est une « pieuvre » : chaque nœud et le ZLG USBCAN-UC12 sont reliés par une branche
+courte à un point de jonction commun, fait de **trois bornes Wago 221-420** (10 entrées à
+leviers, toutes reliées entre elles) : une pour CAN_H, une pour CAN_L, une pour la masse.
+Cinq entrées sont prises par ligne (ZLG et N1 à N4), cinq restent libres pour un nœud
+partenaire ou une sonde.
 
-- Chaque dérivation arrive sur le bornier J1 : de l'arrière vers l'avant **H, L, G**
-  (sérigraphie « BUS H-L-G »). La garder torsadée et la plus courte possible (≤ 0,3 m).
-- Deux terminaisons seulement, aux extrémités de la paire : l'interrupteur 120 Ω du ZLG et
-  le cavalier TERM de N4, placé en bout de ligne. Pas de cavalier sur N1, N2 et N3.
+- Chaque branche arrive sur le bornier J1 : de l'arrière vers l'avant **H, L, G**
+  (sérigraphie « BUS H-L-G »).
+- Fil souple de câblage en trois couleurs, de 0,2 à 0,5 mm² : CAN_H et CAN_L torsadés
+  ensemble à la main (un tour tous les 1 à 2 cm) du Wago jusqu'au bornier, la masse à côté.
+  Le bornier MKDS 1,5 est donné pour 0,2 à 2,5 mm² et le Wago 221-420 pour 0,14 à 4 mm² en
+  fil souple ; un fil Dupont (0,08 à 0,13 mm²) est trop fin pour les deux.
+- C'est une étoile et non une ligne : garder les branches courtes (≤ 0,3 m) et de longueurs
+  proches.
+- Deux terminaisons de 120 Ω seulement : l'interrupteur du ZLG et le cavalier TERM de N4
+  (câblé vers SW1). Pas de cavalier sur N1, N2 et N3.
 - Contrôle hors tension : environ 60 Ω entre CAN_H et CAN_L ([pinout.md](../../docs/pinout.md) §6).
-- Fil : le bornier MKDS 1,5 est donné pour 0,2 à 2,5 mm². Un fil Dupont (0,08 à 0,13 mm²)
-  est trop fin pour être serré sans embout.
+
+À commander pour le banc : 3 Wago 221-420 et du fil souple en trois couleurs.
 
 ## Montage
 

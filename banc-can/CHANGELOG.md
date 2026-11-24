@@ -9,8 +9,9 @@ du dépôt correspond au dossier `v0.1`.
 ### Modifié
 
 - **Carte porteuse v0.3 : un seul bornier par nœud** (24/11/2026). Le bornier d'entrée est
-  retiré : le nœud se raccorde par une dérivation courte à une paire torsadée continue
-  (pieuvre), au lieu de couper et de détorsader la paire à chaque carte. Coin arrière gauche
+  retiré : le nœud se raccorde par une branche courte et torsadée à un point de jonction
+  commun (pieuvre sur trois Wago 221-420), au lieu de couper et de détorsader la paire à
+  chaque carte. Coin arrière gauche
   rogné (1 830 mm² au lieu de 1 950). Retouche faite sur la carte routée, sans rerouter :
   ERC 0, DRC 0 erreur, 0 liaison manquante, 0 écart avec le schéma ; fabrication, nomenclature
   et commande régénérées (`hardware/carte_porteuse/`).
