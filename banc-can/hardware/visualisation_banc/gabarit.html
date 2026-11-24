@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Banc CAN G69 en 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Plein écran : la scène occupe tout, un panneau d'atelier flotte en haut à gauche. */
+:root {
+  --bg: #e9ecea;          /* fond de scène : gris atelier légèrement vert */
+  --panel: rgba(250, 251, 250, 0.92);
+  --fg: #1d2421;
+  --muted: #5b6862;
+  --line: #c9d1cc;
+  --accent: #b5651d;      /* cuivre nu des cartes */
+  --chip: #eef1ef;
+  --sans: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #161b19; --panel: rgba(30, 36, 33, 0.92); --fg: #e5ebe7; --muted: #9aa8a1;
+  --line: #36413c; --accent: #e08a3c; --chip: #252c29; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #161b19; --panel: rgba(30, 36, 33, 0.92); --fg: #e5ebe7; --muted: #9aa8a1;
+  --line: #36413c; --accent: #e08a3c; --chip: #252c29; color-scheme: dark }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); overflow: hidden; }
+#vue { position: fixed; inset: 0; }
+#vue canvas { display: block; }
+.panneau {
+  position: fixed; z-index: 5;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  left: max(16px, env(safe-area-inset-left, 0px));
+  width: min(330px, calc(100vw - 32px));
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: 14px 16px; backdrop-filter: blur(6px);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.panneau h1 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: 0.01em; text-wrap: balance; }
+.panneau p { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+.vues, .bascules { display: flex; flex-wrap: wrap; gap: 6px; }
+button {
+  font: 500 12px var(--sans); color: var(--fg); background: var(--chip);
+  border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; cursor: pointer;
+}
+button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.legende { display: grid; grid-template-columns: auto 1fr; gap: 4px 8px; font-size: 12px; align-items: center; }
+.fil { width: 22px; height: 4px; border-radius: 2px; }
+.etat { font: 12px var(--mono); color: var(--muted); }
+details summary { cursor: pointer; font-size: 12px; color: var(--muted); }
+.etiquette {
+  font: 500 11px var(--sans); color: #1d2421; background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 4px; padding: 2px 6px; white-space: nowrap;
+  pointer-events: none;
+}
+.etiquette b { color: #8a4a12; font-weight: 600; }
+@media (max-width: 520px) { .panneau { padding: 10px 12px; } .legende, details { display: none; } }
+</style>
+</head>
+<body>
+
+<div id="vue" aria-label="Vue 3D du banc de test CAN"></div>
+<section class="panneau">
+  <h1>Banc CAN G69</h1>
+  <p>4 nœuds Nucleo-G431KB sur leurs cartes porteuses v0.3. Chaque nœud rejoint par une branche torsadée la jonction du bus : trois bornes Wago 221-420, une par signal. Faites tourner avec la souris, molette pour zoomer.</p>
+  <div class="vues" role="group" aria-label="Points de vue">
+    <button id="v-ensemble" aria-pressed="true">Vue d'ensemble</button>
+    <button id="v-jonction">Jonction du bus</button>
+    <button id="v-adaptateur">Adaptateur</button>
+    <button id="v-noeud">Nœud N2 de près</button>
+    <button id="v-dessus">Dessus</button>
+    <button id="v-arriere">Arrière</button>
+  </div>
+  <div class="bascules" role="group" aria-label="Affichage">
+    <button id="b-etiquettes" aria-pressed="true">Étiquettes</button>
+    <button id="b-nucleo" aria-pressed="true">Nucleo</button>
+    <button id="b-tourne" aria-pressed="false">Rotation lente</button>
+  </div>
+  <div class="legende">
+    <span class="fil" style="background:#e3c21c"></span><span>CAN_H</span>
+    <span class="fil" style="background:#2f8f46"></span><span>CAN_L</span>
+    <span class="fil" style="background:#222"></span><span>GND du bus, câbles USB</span>
+  </div>
+  <details>
+    <summary>Ce qui est représenté</summary>
+    <p>Cartes porteuses, Nucleo et adaptateur USB-CAN : modèles exportés de KiCad (cuivre nu de la factory). Écrans, MPU-6050, bornes Wago 221-420 (29,8 × 15,8 × 18,3 mm), hub, rallonge USB, boîtier de fautes, câbles et plaque : modélisés à leurs dimensions. Terminaisons de 120 Ω : sur l'adaptateur et sur N4 (commutée par SW1).</p>
+  </details>
+  <div class="etat" id="etat">Chargement des modèles…</div>
+</section>
+
+<script type="application/octet-stream" id="modele-carte_porteuse">@@carte_porteuse@@</script>
+<script type="application/octet-stream" id="modele-nucleo_g431kb">@@nucleo_g431kb@@</script>
+<script type="application/octet-stream" id="modele-adaptateur_min">@@adaptateur_min@@</script>
+<script type="application/octet-stream" id="modele-boitier">@@boitier@@</script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { STLLoader } from "three/addons/loaders/STLLoader.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { CSS2DRenderer, CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
+
+// Unités : millimètres. x vers la droite, y vers le haut, z vers l'utilisateur.
+// Repère d'une carte porteuse : x = X_kicad - 100, z = Y_kicad - 100, y = 0 sous la carte.
+const etat = document.getElementById("etat");
+const vue = document.getElementById("vue");
+const reduit = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+vue.appendChild(renderer.domElement);
+const labels = new CSS2DRenderer();
+labels.setSize(innerWidth, innerHeight);
+Object.assign(labels.domElement.style, { position: "absolute", inset: "0", pointerEvents: "none" });
+vue.appendChild(labels.domElement);
+
+const scene = new THREE.Scene();
+const fond = () => getComputedStyle(document.documentElement).getPropertyValue("--bg").trim() || "#e9ecea";
+scene.background = new THREE.Color(fond());
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => scene.background.set(fond()));
+new MutationObserver(() => scene.background.set(fond())).observe(document.documentElement, { attributes: true });
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const camera = new THREE.PerspectiveCamera(32, innerWidth / innerHeight, 2, 6000);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.maxPolarAngle = Math.PI * 0.49;
+controls.minDistance = 60;
+controls.maxDistance = 1400;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8a9690, 0.55));
+const soleil = new THREE.DirectionalLight(0xffffff, 1.6);
+soleil.position.set(-180, 420, 260);
+soleil.castShadow = true;
+soleil.shadow.mapSize.set(2048, 2048);
+Object.assign(soleil.shadow.camera, { left: -320, right: 320, top: 220, bottom: -220, near: 50, far: 1200 });
+soleil.shadow.bias = -0.0004;
+scene.add(soleil);
+
+// ---------- matériaux et petites aides ----------
+const mat = (color, o = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.6, metalness: 0, ...o });
+const M = {
+  pla: mat(0xd9dcd6, { roughness: 0.85 }),
+  plaFonce: mat(0x3a3f3c, { roughness: 0.8 }),
+  plaOrange: mat(0xe0782a, { roughness: 0.8 }),
+  tapis: mat(0x4f6f80, { roughness: 0.95 }),
+  noir: mat(0x1c1c1c, { roughness: 0.5 }),
+  gaine: mat(0x202020, { roughness: 0.45 }),
+  canH: mat(0xe3c21c, { roughness: 0.45 }),
+  canL: mat(0x2f8f46, { roughness: 0.45 }),
+  gndBus: mat(0x262626, { roughness: 0.45 }),
+  metal: mat(0xc9ccd0, { metalness: 0.9, roughness: 0.3 }),
+  or: mat(0xd9a63a, { metalness: 0.9, roughness: 0.25 }),
+  pcbBleu: mat(0x1f4fa8, { roughness: 0.45 }),
+  alu: mat(0x2c3e66, { metalness: 0.6, roughness: 0.35 }),
+  vert: mat(0x2f9e4f, { roughness: 0.55 }),
+  rouge: mat(0xc0392b, { roughness: 0.5 }),
+};
+function boite(w, h, d, m, x = 0, y = 0, z = 0, parent = scene) {
+  const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
+  b.position.set(x, y, z);
+  b.castShadow = b.receiveShadow = true;
+  parent.add(b);
+  return b;
+}
+function texte(lignes, { w = 512, h = 128, fond = "#ffffff", couleur = "#222", taille = 54, police = "600 %px IBM Plex Sans, sans-serif" } = {}) {
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  const g = c.getContext("2d");
+  g.fillStyle = fond; g.fillRect(0, 0, w, h);
+  g.fillStyle = couleur; g.textBaseline = "middle";
+  g.font = police.replace("%", taille);
+  lignes.forEach((l, i) => g.fillText(l, 16, (i + 0.5) * h / lignes.length));
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
+}
+function etiquette(html, x, y, z) {
+  const d = document.createElement("div");
+  d.className = "etiquette";
+  d.innerHTML = html;
+  const o = new CSS2DObject(d);
+  o.position.set(x, y, z);
+  scene.add(o);
+  etiquettes.push(o);
+  return o;
+}
+const etiquettes = [];
+function cable(points, rayon, m, segments = 80) {
+  const courbe = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p)));
+  const t = new THREE.Mesh(new THREE.TubeGeometry(courbe, segments, rayon, 10, false), m);
+  t.castShadow = true;
+  scene.add(t);
+  return t;
+}
+// Paire torsadée entre deux points : CAN_H et CAN_L s'enroulent l'un autour de l'autre.
+function paire(a, b, hauteur = 10) {
+  const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b);
+  const mid = A.clone().lerp(B, 0.5); mid.y += hauteur;
+  const axe = new THREE.QuadraticBezierCurve3(A, mid, B);
+  const n = 160, tours = A.distanceTo(B) / 9, r = 0.9;
+  for (const [m, phase] of [[M.canH, 0], [M.canL, Math.PI]]) {
+    const pts = [];
+    for (let i = 0; i <= n; i++) {
+      const t = i / n, p = axe.getPoint(t), tan = axe.getTangent(t);
+      const u = new THREE.Vector3(0, 1, 0).cross(tan).normalize();
+      const v = tan.clone().cross(u).normalize();
+      const ang = t * tours * Math.PI * 2 + phase;
+      const k = Math.min(1, Math.min(t, 1 - t) * 12); // les deux fils se séparent aux borniers
+      pts.push(p.add(u.multiplyScalar(Math.cos(ang) * r * k)).add(v.multiplyScalar(Math.sin(ang) * r * k)));
+    }
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), n * 2, 0.75, 8, false), m);
+    tube.castShadow = true;
+    scene.add(tube);
+  }
+}
+
+// Paire torsadée le long d'un chemin (liste de points) : pour les branches qui contournent les cartes.
+function paireChemin(points) {
+  const axe = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p)), false, "catmullrom", 0.35);
+  const L = axe.getLength(), n = Math.max(80, Math.round(L * 1.6)), tours = L / 9, r = 0.9;
+  const haut = new THREE.Vector3(0, 1, 0);
+  for (const [m, phase] of [[M.canH, 0], [M.canL, Math.PI]]) {
+    const pts = [];
+    for (let i = 0; i <= n; i++) {
+      const t = i / n, p = axe.getPointAt(t), tan = axe.getTangentAt(t);
+      let u = haut.clone().cross(tan);
+      if (u.lengthSq() < 1e-6) u = new THREE.Vector3(1, 0, 0);
+      u.normalize();
+      const v = tan.clone().cross(u).normalize();
+      const ang = t * tours * Math.PI * 2 + phase;
+      const k = Math.min(1, Math.min(t, 1 - t) * L / 6);   // les deux fils se rejoignent aux extrémités
+      pts.push(p.add(u.multiplyScalar(Math.cos(ang) * r * k)).add(v.multiplyScalar(Math.sin(ang) * r * k)));
+    }
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), n * 2, 0.75, 8, false), m);
+    tube.castShadow = true;
+    scene.add(tube);
+  }
+}
+
+// ---------- plan de travail et plaque imprimée ----------
+const tapis = new THREE.Mesh(new THREE.PlaneGeometry(1600, 1000), M.tapis);
+tapis.rotation.x = -Math.PI / 2;
+tapis.position.y = -4.01;
+tapis.receiveShadow = true;
+scene.add(tapis);
+// Deux tuiles de 4 mm (chacune imprimable sur la X1 Carbon), jointure à queue d'aronde.
+const PLAQUE = { x0: -140, x1: 300, z0: -80, z1: 78, joint: 86 };
+for (const [x0, x1] of [[PLAQUE.x0, PLAQUE.joint], [PLAQUE.joint, PLAQUE.x1]]) {
+  const forme = new THREE.Shape();
+  const r = 6;
+  forme.moveTo(x0 + r, PLAQUE.z0); forme.lineTo(x1 - r, PLAQUE.z0); forme.quadraticCurveTo(x1, PLAQUE.z0, x1, PLAQUE.z0 + r);
+  forme.lineTo(x1, PLAQUE.z1 - r); forme.quadraticCurveTo(x1, PLAQUE.z1, x1 - r, PLAQUE.z1);
+  forme.lineTo(x0 + r, PLAQUE.z1); forme.quadraticCurveTo(x0, PLAQUE.z1, x0, PLAQUE.z1 - r);
+  forme.lineTo(x0, PLAQUE.z0 + r); forme.quadraticCurveTo(x0, PLAQUE.z0, x0 + r, PLAQUE.z0);
+  const g = new THREE.ExtrudeGeometry(forme, { depth: 4, bevelEnabled: true, bevelSize: 0.6, bevelThickness: 0.6, bevelSegments: 2 });
+  g.rotateX(Math.PI / 2);
+  const t = new THREE.Mesh(g, M.pla);
+  t.position.y = 0;
+  t.receiveShadow = t.castShadow = true;
+  scene.add(t);
+}
+boite(1.2, 0.4, PLAQUE.z1 - PLAQUE.z0 - 6, M.plaFonce, PLAQUE.joint, 0.21, (PLAQUE.z0 + PLAQUE.z1) / 2); // jointure
+
+// ---------- éléments modélisés ----------
+// Écran OLED SSD1306 0,96" debout dans sa barrette coudée, au bord avant de la carte.
+function ecranOled(parent, nom, lignes) {
+  const g = new THREE.Group();
+  boite(27.3, 27.8, 1.6, M.pcbBleu, 0, 1.6 + 13.9, 0, g);
+  boite(26.6, 19.4, 1.4, M.noir, 0, 1.6 + 16.0, 1.5, g);
+  const c = document.createElement("canvas");
+  c.width = 256; c.height = 128;
+  const x = c.getContext("2d");
+  x.fillStyle = "#000"; x.fillRect(0, 0, 256, 128);
+  x.fillStyle = "#e8f6ff"; x.font = "600 26px IBM Plex Mono, monospace"; x.textBaseline = "top";
+  x.fillText(nom, 8, 6);
+  x.fillStyle = "#8fd3ff"; x.font = "500 19px IBM Plex Mono, monospace";
+  lignes.forEach((l, i) => x.fillText(l, 8, 40 + i * 24));
+  x.fillStyle = "#8fd3ff"; x.fillRect(8, 116, 170, 6);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  const ecran = new THREE.Mesh(new THREE.PlaneGeometry(21.7, 10.9),
+    new THREE.MeshStandardMaterial({ map: t, emissive: 0xffffff, emissiveMap: t, emissiveIntensity: 0.9, roughness: 0.2 }));
+  ecran.position.set(0, 1.6 + 16.8, 2.25);
+  g.add(ecran);
+  boite(10.2, 2.5, 2.5, M.noir, 0, 2.9, -2.0, g); // barrette mâle du module
+  for (let i = 0; i < 4; i++) boite(0.64, 0.64, 6, M.or, -3.81 + i * 2.54, 2.9, -3.5, g);
+  parent.add(g);
+  return g;
+}
+// Module GY-521 (MPU-6050) debout dans sa barrette coudée, au bord gauche (N2).
+function mpu(parent) {
+  const g = new THREE.Group();
+  boite(1.6, 16.4, 21.2, M.pcbBleu, 0, 1.6 + 8.2, 0, g);
+  boite(1.0, 4, 4, M.noir, -1.3, 1.6 + 9.5, 0, g);
+  const lab = new THREE.Mesh(new THREE.PlaneGeometry(14, 3.2),
+    new THREE.MeshStandardMaterial({ map: texte(["GY-521 MPU-6050"], { w: 512, h: 96, fond: "#1f4fa8", couleur: "#f2f2f2", taille: 44 }) }));
+  lab.rotation.y = -Math.PI / 2; lab.position.set(-0.85, 1.6 + 14.5, 0);
+  g.add(lab);
+  boite(2.5, 2.5, 20.3, M.noir, 2.0, 2.9, 0, g);
+  for (let i = 0; i < 8; i++) boite(6, 0.64, 0.64, M.or, 3.5, 2.9, -8.89 + i * 2.54, g);
+  parent.add(g);
+  return g;
+}
+// Hub USB 7 ports alimenté, ports sur le dessus.
+function hub() {
+  const g = new THREE.Group();
+  boite(124, 24, 30, M.plaFonce, 0, 12, 0, g);
+  for (let i = 0; i < 7; i++) {
+    boite(12.4, 1.2, 5.2, M.metal, -51 + i * 17, 24.4, 3, g);
+    boite(10.4, 1.3, 1.8, M.noir, -51 + i * 17, 24.5, 3, g);
+    boite(2, 0.8, 2, i < 5 ? M.vert : M.noir, -51 + i * 17, 24.4, -8, g); // LED de port
+  }
+  const lab = new THREE.Mesh(new THREE.PlaneGeometry(40, 6),
+    new THREE.MeshStandardMaterial({ map: texte(["USB 2.0 HUB · 7"], { w: 512, h: 80, fond: "#3a3f3c", couleur: "#d8dcd9", taille: 40 }) }));
+  lab.position.set(30, 12, 15.05); g.add(lab);
+  return g;
+}
+// Boîtier de fautes imprimé : SW1 (terminaison de N4), SW2 (court-circuit H-L), SW3 (retrait de N4).
+function boitierFautes() {
+  const g = new THREE.Group();
+  boite(30, 22, 40, M.plaOrange, 0, 11, 0, g);
+  ["SW1", "SW2", "SW3"].forEach((n, i) => {
+    const z = -12 + i * 12;
+    const b = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 3, 20), M.metal); b.position.set(0, 23.5, z); g.add(b);
+    const lev = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 1.2, 11, 12), M.metal);
+    lev.position.set(0, 29, z); lev.rotation.z = i === 0 ? -0.35 : 0.35; g.add(lev);
+    const l = new THREE.Mesh(new THREE.PlaneGeometry(9, 4),
+      new THREE.MeshStandardMaterial({ map: texte([n], { w: 192, h: 80, fond: "#e0782a", couleur: "#1d1d1d", taille: 50 }) }));
+    l.rotation.x = -Math.PI / 2; l.position.set(-9.5, 22.06, z); g.add(l);
+  });
+  boite(8, 10, 15, M.vert, -17, 5.5, -10, g); boite(8, 10, 15, M.vert, 17, 5.5, -10, g); // borniers côté N4 / côté jonction
+  return g;
+}
+// Jonction du bus : trois bornes Wago 221-420 (10 entrées reliées entre elles), debout côte à
+// côte dans un berceau imprimé. Une borne par signal ; entrées vers l'avant, en 2 colonnes de 5.
+const WAGO = { l: 15.8, h: 29.8, p: 18.3, pas: 17, base: 2 };
+const JONC = { x: 117, z: -18 };                       // centre de la borne du milieu, face avant
+const SIGNAUX = [["CAN_H", "#e3c21c", -1], ["CAN_L", "#2f8f46", 0], ["GND", "#262626", 1]];
+const rangee = (i) => WAGO.base + 3.7 + i * 5.6;       // hauteur de l'entrée i (0 à 4)
+const entreeWago = (sig, col, i) => [JONC.x + sig * WAGO.pas + col * 3.9, rangee(i), JONC.z];
+function jonction() {
+  const g = new THREE.Group();
+  const corps = mat(0xe8eeea, { transparent: true, opacity: 0.62, roughness: 0.25 });
+  const levier = mat(0xf07a1a, { roughness: 0.45 });
+  boite(3 * WAGO.pas + 6, WAGO.base, WAGO.p + 6, M.pla, 0, WAGO.base / 2, -WAGO.p / 2, g);        // berceau
+  SIGNAUX.forEach(([nom, couleur, k]) => {
+    const x = k * WAGO.pas;
+    boite(WAGO.l, WAGO.h, WAGO.p, corps, x, WAGO.base + WAGO.h / 2, -WAGO.p / 2, g);
+    boite(1.2, WAGO.h - 2, WAGO.p - 6, M.metal, x, WAGO.base + WAGO.h / 2, -WAGO.p / 2 - 1.5, g);  // barre commune
+    for (let i = 0; i < 5; i++) for (const col of [-1, 1]) {
+      boite(1.4, 4.6, 9.5, levier, x + col * 7.3, rangee(i), -6.2, g);                            // leviers
+      boite(2.6, 2.6, 0.6, M.noir, x + col * 3.9, rangee(i), 0.1, g);                              // entrées
+    }
+    const lab = new THREE.Mesh(new THREE.PlaneGeometry(13.5, 4.2),
+      new THREE.MeshStandardMaterial({ map: texte([nom], { w: 256, h: 80, fond: couleur, couleur: k === 0 || k === 1 ? "#ffffff" : "#1d1d1d", taille: 46 }) }));
+    lab.rotation.x = -Math.PI / 2; lab.position.set(x, WAGO.base + WAGO.h + 0.06, -WAGO.p / 2); g.add(lab);
+  });
+  return g;
+}
+
+// ---------- disposition du banc ----------
+// Carte porteuse v0.3 : 41,8 x 57,6 mm hors tout, un seul bornier (bord droit) ; pas de 64 mm entre nœuds.
+const SUPPORT = 5;                     // entretoises imprimées sous la carte porteuse
+const NOEUDS = [
+  { nom: "N1", x: 0, role: "ENERGY_COMMAND", ecran: ["TX 0x100  12 845", "RX 38 512 act."] },
+  { nom: "N2", x: 64, role: "IMU_SPEED · MPU-6050", ecran: ["TX 0x200  12 845", "ax+0.02 g act."], mpu: true },
+  { nom: "N3", x: 128, role: "TEMP_BATTERY", ecran: ["TX 0x300  12 845", "RX 38 512 act."] },
+  { nom: "N4", x: 192, role: "nœud fautif · 120 Ω", ecran: ["fautes: aucune", "TEC 0 REC 0 act."], term: true },
+];
+const J1 = [[34.3, 13.16], [34.3, 8.08], [34.3, 3.0]];   // bornier du bus : G, L, H, fils vers la droite
+const ENTREE_Y = SUPPORT + 6.2;                            // hauteur des trous de fils des borniers
+const nucleos = [];
+
+// Entretoises sous chaque carte (vis M3 sous H1 et H2, appuis sous les borniers).
+function supports(x0) {
+  for (const [x, z] of [[19.05, 6.3], [19.05, 37.5]]) {
+    const c = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.8, SUPPORT, 24), M.pla);
+    c.position.set(x0 + x, SUPPORT / 2, z); c.castShadow = c.receiveShadow = true; scene.add(c);
+  }
+  boite(9, SUPPORT, 14, M.pla, x0 + 34.5, SUPPORT / 2, 8);
+}
+
+async function charger() {
+  // Modèles livrés en JSON (base64) : les fichiers .glb et .stl ne sont pas servis tels quels.
+  const octets = async (nom) => {
+    const el = document.getElementById("modele-" + nom);
+    if (!el) throw new Error(nom + " : modèle absent");
+    const bin = atob(el.textContent.trim()), u = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+    return u.buffer;
+  };
+  const gltf = new GLTFLoader();
+  const charge = async (nom) => { const buf = await octets(nom); return new Promise((ok, ko) => gltf.parse(buf, "", (g) => ok(g.scene), ko)); };
+  const [porteuse, nucleo, adaptateur, boitierBuf] = await Promise.all([
+    charge("carte_porteuse"), charge("nucleo_g431kb"), charge("adaptateur_min"), octets("boitier"),
+  ]);
+  const boitierGeo = new STLLoader().parse(boitierBuf);
+  for (const o of [porteuse, nucleo, adaptateur]) {
+    o.scale.setScalar(1000);
+    o.traverse((m) => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+  }
+
+  NOEUDS.forEach((n) => {
+    supports(n.x);
+    const c = porteuse.clone(true);
+    c.position.set(n.x, SUPPORT, 0);
+    scene.add(c);
+    // Nucleo : USB vers l'arrière, barrettes mâles dans CN3/CN4 (carte à 12,6 mm au-dessus).
+    const nu = nucleo.clone(true);
+    nu.rotation.y = -Math.PI / 2;
+    nu.position.set(n.x + 19.05, SUPPORT + 12.6, 32.78);
+    scene.add(nu); nucleos.push(nu);
+    const gEcran = new THREE.Group(); gEcran.position.set(n.x + 19.05, SUPPORT, 60.0); scene.add(gEcran);
+    ecranOled(gEcran, `${n.nom} ${n.role.split(" ")[0]}`, n.ecran);
+    if (n.mpu) { const gm = new THREE.Group(); gm.position.set(n.x - 4.7, SUPPORT, 27.9); scene.add(gm); mpu(gm); }
+    etiquette(`<b>${n.nom}</b> · ${n.role}`, n.x + 19, SUPPORT + 34, 30);
+    // Câble USB de la Nucleo vers le hub (derrière).
+    const port = [-51 + NOEUDS.indexOf(n) * 17 + HUB.x, HUB.y + 26, HUB.z + 3];
+    cable([[n.x + 19.05, SUPPORT + 14.2, 5.5], [n.x + 19.05, SUPPORT + 15, -6], [n.x + 19.05, SUPPORT + 30, -22],
+           [port[0], port[1] + 28, port[2] + 4], [port[0], port[1] + 9, port[2]], [port[0], port[1], port[2]]], 1.6, M.gaine);
+  });
+
+  // Bus en étoile : chaque appareil rejoint la jonction par une branche (paire torsadée H/L
+  // et fil de masse). N4 passe par le boîtier de fautes (SW3 le retire à chaud).
+  const sortie = (n) => J1.map(([x, z]) => [n.x + 40.5, ENTREE_Y, z]);   // [G, L, H]
+  const milieu = (A) => [(A[1][0] + A[2][0]) / 2, (A[1][1] + A[2][1]) / 2, (A[1][2] + A[2][2]) / 2];
+  // Branche : A = [G, L, H] au départ, chemin = points intermédiaires de la paire, i = rangée
+  // d'entrées des bornes, col = colonne (-1 gauche, +1 droite).
+  function branche(A, chemin, i, col) {
+    const y = rangee(i), S = [JONC.x - WAGO.pas / 2, y, JONC.z + 5];     // la paire se sépare ici, entre H et L
+    paireChemin([milieu(A), ...chemin, S]);
+    for (const [fil, sig] of [[M.canH, -1], [M.canL, 0]]) {
+      const e = entreeWago(sig, col, i);
+      cable([S, [e[0], y, JONC.z + 3], e, [e[0], y, JONC.z - 3]], 0.75, fil, 24);
+    }
+    const e = entreeWago(1, col, i);
+    cable([A[0], ...chemin.map(([x, yy, z]) => [x, Math.max(1.2, yy - 1.9), z + 1.6]),
+           [e[0] - 6 * Math.sign(JONC.x - A[0][0] || 1), y, JONC.z + 7], [e[0], y, JONC.z + 3.5], e, [e[0], y, JONC.z - 3]], 0.7, M.gndBus, 120);
+  }
+  const jc = jonction(); jc.position.set(JONC.x, 0, JONC.z); scene.add(jc);
+  etiquette("<b>Jonction du bus</b> · 3 Wago 221-420", JONC.x, 40, JONC.z - 9);
+
+  // Bornier de l'adaptateur (G, L, H d'avant en arrière), fils vers la droite.
+  const adSortie = [[AD.x + 31.5, AD.y + 5.6, AD.z + 5.08], [AD.x + 31.5, AD.y + 5.6, AD.z], [AD.x + 31.5, AD.y + 5.6, AD.z - 5.08]];
+  const [n1, n2, n3, n4] = NOEUDS;
+  branche(adSortie, [[-22, 10, 3], [-12, 5.5, -7], [-2, 4, -13], [60, 4, -13], [92, 4, -12.5], [102, rangee(0), -12.5]], 0, -1);
+  branche(sortie(n1), [[n1.x + 46, 10.5, 4], [n1.x + 49.5, 6, -3], [n1.x + 56, 4, -8.5], [86, 4, -8.5], [97, rangee(1) * 0.8, -9.5], [103, rangee(1), -12]], 1, -1);
+  branche(sortie(n2), [[n2.x + 45, 13, 4], [n2.x + 46.5, 20, -2], [n2.x + 45.5, rangee(4), -9]], 4, -1);
+  branche(sortie(n3), [[n3.x + 46, 10.5, 4], [n3.x + 48, 6, -3], [n3.x + 43, 4, -8.5], [150, 4, -8.5], [138, rangee(3) * 0.7, -9.5], [124, rangee(3), -12]], 3, 1);
+  // N4 : bornier -> boîtier de fautes (à sa droite) -> retour vers la jonction par l'arrière.
+  const fx = FAUTES.x;
+  const A4 = sortie(n4), B4 = [[fx - 21, SUPPORT + 6, -2], [fx - 21, SUPPORT + 6, -10], [fx - 21, SUPPORT + 6, -18]];
+  paire(A4[2], B4[2], 6);
+  cable([A4[0], [(A4[0][0] + B4[0][0]) / 2, ENTREE_Y + 5, 6], B4[0]], 0.7, M.gndBus);
+  branche([[fx + 21, SUPPORT + 6, -2], [fx + 21, SUPPORT + 6, -10], [fx + 21, SUPPORT + 6, -18]],
+          [[fx + 29, 9, -16], [fx + 27, 4.5, -25], [fx + 10, 4, -28], [fx - 20, 4, -25], [n4.x + 36, 4, -13], [150, 4, -13], [139, rangee(2) * 0.7, -13], [124, rangee(2), -13]], 2, 1);
+  // SW1 du boîtier vers le cavalier TERM de N4 (J7, en x 31,5, z 19-21,5).
+  cable([[fx - 4, SUPPORT + 26, 12], [fx - 16, SUPPORT + 31, 19], [n4.x + 31.5, SUPPORT + 22, 20.2], [n4.x + 31.5, SUPPORT + 10, 20.2]], 0.6, M.rouge);
+  cable([[fx - 2, SUPPORT + 26, 13], [fx - 14, SUPPORT + 32, 21], [n4.x + 31.5, SUPPORT + 23, 21.5], [n4.x + 31.5, SUPPORT + 10, 21.5]], 0.6, M.noir);
+
+  // Adaptateur USB-CAN G69 dans son boîtier : extrémité 1 du bus, à gauche de N1.
+  // Repère du boîtier : x = X - 130, z = Y - 115, y = 0 sous la carte ; fiche USB vers -x.
+  const ad = new THREE.Group();
+  const coque = new THREE.Mesh(boitierGeo, mat(0x2b2f2d, { roughness: 0.75 }));
+  coque.rotation.x = -Math.PI / 2; coque.castShadow = coque.receiveShadow = true;
+  ad.add(coque, adaptateur);
+  boite(2.6, 5.0, 5.2, M.rouge, 14, 8.0, -8.73, ad);   // cavalier TERM fermé : 120 ohms
+  ad.position.set(AD.x, AD.y, AD.z);
+  scene.add(ad);
+  boite(66, 3, 37, M.pla, AD.x + 0.2, 1.5, AD.z);      // berceau imprimé
+  // Rallonge USB : la fiche en clé entre dans la prise femelle, le câble part vers le hub.
+  boite(30, 11, 17, M.noir, AD.x - 47.2, AD.y + 2.6, AD.z);
+  const port = [HUB.x - 51 + 4 * 17, HUB.y + 26, HUB.z + 3];
+  cable([[AD.x - 62, AD.y + 2.6, AD.z], [AD.x - 80, AD.y + 4, AD.z - 12], [AD.x - 70, 18, HUB.z - 20],
+         [port[0] - 20, port[1] + 36, port[2] - 6], [port[0], port[1] + 10, port[2]], port], 1.8, M.gaine);
+  etiquette("<b>Adaptateur USB-CAN G69</b> · extrémité 1, 120 Ω", AD.x, 34, AD.z);
+  etiquette("Rallonge USB vers le hub", AD.x - 47, 22, AD.z + 14);
+
+  etat.textContent = "Modèles chargés : 4 cartes, 4 Nucleo, adaptateur.";
+}
+
+// Hub et boîtier de fautes : placés avant le chargement des modèles.
+const AD = { x: -63, y: 6.9, z: 8 };   // adaptateur posé sur son berceau (3 mm), fond du boîtier à -3,9 mm
+const HUB = { x: 92, y: 0, z: -60 };
+const h = hub(); h.position.set(HUB.x, HUB.y, HUB.z); scene.add(h);
+etiquette("<b>Hub USB</b> alimenté, vers le PC", HUB.x - 30, HUB.y + 32, HUB.z);
+cable([[HUB.x - 62, 6, HUB.z - 6], [HUB.x - 90, 3, HUB.z - 20], [HUB.x - 160, 1, HUB.z - 120]], 2, M.gaine); // vers le PC
+const FAUTES = { x: 262, z: 0 };
+const bf = boitierFautes(); bf.position.set(FAUTES.x, 0, FAUTES.z); scene.add(bf);
+etiquette("<b>Fautes</b> · SW1 SW2 SW3", FAUTES.x, 44, FAUTES.z);
+etiquette("Plaque imprimée · 2 tuiles PLA", 30, 2, 74);
+
+// ---------- points de vue ----------
+const VUES = {
+  ensemble: { pos: [80, 320, 500], cible: [80, 0, -5] },
+  jonction: { pos: [70, 120, 150], cible: [117, 14, -14] },
+  adaptateur: { pos: [-150, 95, 130], cible: [-45, 8, 8] },
+  noeud: { pos: [-20, 95, 150], cible: [80, 14, 30] },
+  dessus: { pos: [80, 800, 60], cible: [80, 0, 0] },
+  arriere: { pos: [250, 240, -380], cible: [80, 10, -15] },
+};
+let anim = null;
+function aller(nom, instant = false) {
+  const v = VUES[nom];
+  const de = { pos: camera.position.clone(), cible: controls.target.clone() };
+  const vers = { pos: new THREE.Vector3(...v.pos), cible: new THREE.Vector3(...v.cible) };
+  document.querySelectorAll(".vues button").forEach((b) => b.setAttribute("aria-pressed", String(b.id === "v-" + nom)));
+  if (instant || reduit) { camera.position.copy(vers.pos); controls.target.copy(vers.cible); return; }
+  anim = { de, vers, t: 0 };
+}
+for (const nom of Object.keys(VUES)) document.getElementById("v-" + nom).addEventListener("click", () => aller(nom));
+const bascule = (id, f) => document.getElementById(id).addEventListener("click", (e) => {
+  const on = e.currentTarget.getAttribute("aria-pressed") !== "true";
+  e.currentTarget.setAttribute("aria-pressed", String(on)); f(on);
+});
+bascule("b-etiquettes", (on) => etiquettes.forEach((o) => (o.visible = on)));
+bascule("b-nucleo", (on) => nucleos.forEach((o) => (o.visible = on)));
+bascule("b-tourne", (on) => (controls.autoRotate = on));
+controls.autoRotateSpeed = 0.6;
+aller("ensemble", true);
+
+// Sur grand écran, le centre de l'image est décalé à droite du panneau.
+function cadrer() {
+  const w = innerWidth, h = innerHeight, dx = w > 760 ? Math.min(175, w * 0.11) : 0;
+  camera.aspect = w / h;
+  if (dx) camera.setViewOffset(w, h, -dx, 0, w, h); else camera.clearViewOffset();
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h); labels.setSize(w, h);
+}
+addEventListener("resize", cadrer);
+cadrer();
+const horloge = new THREE.Clock();
+renderer.setAnimationLoop(() => {
+  const dt = horloge.getDelta();
+  if (anim) {
+    anim.t = Math.min(1, anim.t + dt / 1.1);
+    const k = anim.t < 0.5 ? 2 * anim.t * anim.t : 1 - Math.pow(-2 * anim.t + 2, 2) / 2;
+    camera.position.lerpVectors(anim.de.pos, anim.vers.pos, k);
+    controls.target.lerpVectors(anim.de.cible, anim.vers.cible, k);
+    if (anim.t >= 1) anim = null;
+  }
+  controls.update();
+  renderer.render(scene, camera);
+  labels.render(scene, camera);
+});
+charger().catch((e) => { etat.textContent = "Un modèle n'a pas pu être chargé : " + e.message; console.error(e); });
+</script>
+
+</body>
+</html>
