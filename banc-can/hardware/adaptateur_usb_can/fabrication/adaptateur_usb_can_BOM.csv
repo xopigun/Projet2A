@@ -9,12 +9,13 @@
 1;D1;LED verte;PWR vert;0805;
 1;D2;LED verte;RX vert;0805;
 1;D3;LED jaune;TX jaune;0805;
+1;D4;LED rouge;ERR rouge;0805;LED d'erreur, sur PA8
 1;F1;Fusible réarmable PTC, 500 mA maintenu, 6 V mini;500mA;1206;
 1;J1;Fiche USB type A mâle coudée, pour CI (CNCTech 1001-011-01101);USB_A;traversant;branchement direct sur le PC
 1;J2;Bornier à vis 3 points, pas 5,08 mm, pour CI (type Phoenix MKDS 1,5/3-5,08);Bornier CAN;traversant;bus CAN : H, L, G
 1;J3;Barrette mâle sécable 1 × 4, pas 2,54 mm;SWD;traversant;SWCLK, SWDIO, GND, 3V3
 1;JP1;Barrette mâle 1 × 2, pas 2,54 mm + cavalier;TERM;traversant;terminaison 120 Ω
-3;R1, R4, R5;Résistance 1 %, 1/8 W;1k;0805;
+4;R1, R4, R5, R8;Résistance 1 %, 1/8 W;1k;0805;
 1;R2;Résistance 0 Ω (ou strap);0R;0805;CH340C en mode 3,3 V
 2;R3, R6;Résistance 1 %, 1/8 W;10k;0805;
 1;R7;Résistance 1 %, 1/8 W;120R;0805;terminaison CAN

@@ -477,9 +477,9 @@
       {
         "bus_width": 12,
         "clearance": 0.3,
-        "diff_pair_gap": 0.25,
-        "diff_pair_via_gap": 0.25,
-        "diff_pair_width": 0.2,
+        "diff_pair_gap": 0.3,
+        "diff_pair_via_gap": 0.3,
+        "diff_pair_width": 0.4,
         "line_style": 0,
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
@@ -495,9 +495,27 @@
       {
         "bus_width": 12,
         "clearance": 0.3,
-        "diff_pair_gap": 0.25,
-        "diff_pair_via_gap": 0.25,
-        "diff_pair_width": 0.2,
+        "diff_pair_gap": 0.3,
+        "diff_pair_via_gap": 0.3,
+        "diff_pair_width": 0.4,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Paires",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 1,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.4,
+        "via_diameter": 0.8,
+        "via_drill": 0.4,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.3,
+        "diff_pair_gap": 0.3,
+        "diff_pair_via_gap": 0.3,
+        "diff_pair_width": 0.4,
         "line_style": 0,
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
@@ -532,6 +550,22 @@
       {
         "netclass": "Puissance",
         "pattern": "+3V3"
+      },
+      {
+        "netclass": "Paires",
+        "pattern": "/CANH"
+      },
+      {
+        "netclass": "Paires",
+        "pattern": "/CANL"
+      },
+      {
+        "netclass": "Paires",
+        "pattern": "USB_DP"
+      },
+      {
+        "netclass": "Paires",
+        "pattern": "USB_DM"
       }
     ]
   },
@@ -620,7 +654,7 @@
       "include_excluded_from_bom": true,
       "name": "Default Editing",
       "sort_asc": true,
-      "sort_field": "R\u00e9f\u00e9rence"
+      "sort_field": "Référence"
     },
     "connection_grid_size": 50.0,
     "drawing": {

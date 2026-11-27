@@ -2,12 +2,13 @@
 
     python generate_fabrication.py
 
-- gerber/ : cuivre avant et arrière, contour, sérigraphie, pâte à braser des deux faces
+- gerber/ : cuivre avant et arrière, contour, sérigraphie et pâte à braser des deux faces
   (F_Paste, B_Paste : pour découper les pochoirs du four) en Gerber X2, perçages Excellon
   en mm séparés métallisés / non métallisés, plans de perçage PDF ;
 - adaptateur_usb_can_gerber.zip : le contenu de gerber/, à joindre au ticket ;
 - BOM : nomenclature CSV (Excel) et PDF à imprimer pour le retrait au magasin ;
-- schema.pdf et implantation.pdf : aides au câblage et à la soudure ;
+- schema.pdf et implantation.pdf (une page par face, repères et valeurs) : aides au câblage
+  et à la soudure ;
 - pcb_echelle_1.pdf : PCB à l'échelle 1:1 sur A4, à imprimer en taille réelle.
 
 Le PDF de la nomenclature est imprimé par Microsoft Edge en mode headless.
@@ -45,6 +46,7 @@ DESIGNATION = {
     "PWR vert": ("LED verte", ""),
     "RX vert": ("LED verte", ""),
     "TX jaune": ("LED jaune", ""),
+    "ERR rouge": ("LED rouge", "LED d'erreur, sur PA8"),
     "500mA": ("Fusible réarmable PTC, 500 mA maintenu, 6 V mini", ""),
     "USB_A": ("Fiche USB type A mâle coudée, pour CI (CNCTech 1001-011-01101)", "branchement direct sur le PC"),
     "Bornier CAN": ("Bornier à vis 3 points, pas 5,08 mm, pour CI (type Phoenix MKDS 1,5/3-5,08)",
@@ -138,19 +140,32 @@ def print_pdf(page, pdf):
 
 
 def implantation():
-    """Plan d'implantation à l'échelle de la page : contours, repères et pastilles numérotées."""
-    svg = OUT / "implantation.svg"
-    cli("pcb", "export", "svg", "--mode-single", "--fit-page-to-board", "--exclude-drawing-sheet",
-        "--black-and-white", "--sketch-pads-on-fab-layers",
-        "--layers", "F.Fab,F.Silkscreen,Edge.Cuts", "-o", str(svg), str(PCB))
+    """Plan d'implantation, une page par face : contours, pastilles numérotées, repère et valeur.
+
+    La factory grave en cuivre nu : sans sérigraphie sur la carte, ce plan est la référence
+    pour souder. La face arrière est dessinée en miroir, comme on la voit carte retournée.
+    """
+    faces = (("avant", "F.Fab,Edge.Cuts", []),
+             ("arrière, carte retournée (vue de dessous)", "B.Fab,Edge.Cuts", ["--mirror"]))
+    pages = []
+    for i, (nom, couches, options) in enumerate(faces):
+        svg = OUT / f"implantation_{i}.svg"
+        cli("pcb", "export", "svg", "--mode-single", "--fit-page-to-board", "--exclude-drawing-sheet",
+            "--black-and-white", "--sketch-pads-on-fab-layers", *options,
+            "--layers", couches, "-o", str(svg), str(PCB))
+        pages.append(f"<section><h1>Implantation, face {nom} — adaptateur USB-CAN (G69)</h1>"
+                     "<p>Dans chaque composant : son repère et, dessous, sa valeur. Les numéros sont ceux des "
+                     "pastilles. Ordre de soudure : face arrière d'abord, traversants J2, J3, JP1 en dernier "
+                     f"(voir SOURCES_COMPOSANTS.md).</p><img src=\"{svg.name}\"></section>")
     page = f"""<!doctype html><html lang="fr"><meta charset="utf-8">
 <title>Implantation adaptateur USB-CAN</title>
 <style>@page {{ size: A4 landscape; margin: 10mm; }} body {{ font: 10pt Arial, sans-serif; margin: 0; }}
-h1 {{ font-size: 13pt; margin: 0 0 4mm; }} img {{ width: 100%; }}</style>
-<h1>Implantation, face avant — adaptateur USB-CAN (G69)</h1>
-<img src="{svg.name}"></html>"""
+h1 {{ font-size: 13pt; margin: 0 0 2mm; }} p {{ margin: 0 0 3mm; }} img {{ width: 100%; }}
+section {{ break-after: page; }} section:last-child {{ break-after: auto; }}</style>
+{"".join(pages)}</html>"""
     print_pdf(page, OUT / "implantation.pdf")
-    svg.unlink()
+    for i in range(len(faces)):
+        (OUT / f"implantation_{i}.svg").unlink()
 
 
 def echelle_1():
@@ -176,7 +191,7 @@ def echelle_1():
 def main():
     shutil.rmtree(OUT, ignore_errors=True)
     GERBER.mkdir(parents=True)
-    cli("pcb", "export", "gerbers", "--layers", "F.Cu,B.Cu,Edge.Cuts,F.Silkscreen,F.Paste,B.Paste",
+    cli("pcb", "export", "gerbers", "--layers", "F.Cu,B.Cu,Edge.Cuts,F.Silkscreen,B.Silkscreen,F.Paste,B.Paste",
         "--no-protel-ext", "-o", f"{GERBER}\\", str(PCB))
     cli("pcb", "export", "drill", "--format", "excellon", "--excellon-units", "mm",
         "--excellon-separate-th", "--generate-map", "--map-format", "pdf",
