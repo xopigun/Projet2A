@@ -1,4 +1,4 @@
-// Carte porteuse v0.3 et encombrement des modules enfichés (repère de l'export KiCad : x = X-100, y = 100-Y).
+// Carte porteuse v0.4 et encombrement des modules enfichés (repère de l'export KiCad : x = X-100, y = 100-Y).
 module boite(x0, x1, y0, y1, z0, z1) { translate([x0 - 100, 100 - y1, z0]) cube([x1 - x0, y1 - y0, z1 - z0]); }
 color("darkgreen") import("carte.stl");
 color("steelblue", 0.45) { boite(109.8, 128.3, 106.1, 156.4, 11.0, 12.6); boite(115.2, 122.9, 104.9, 110.5, 12.6, 15.6); }

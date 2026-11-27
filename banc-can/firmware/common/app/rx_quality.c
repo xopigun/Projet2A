@@ -10,7 +10,10 @@
 /** Période de heartbeat par défaut, identique à celle de bench_node_init(). */
 #define RXQ_HEARTBEAT_DEFAULT_MS 500u
 
-/** Au-delà de ce nombre de périodes de silence, un heartbeat marque une reprise. */
+/**
+ * Au-delà de ce nombre de périodes de silence, une trame marque une reprise :
+ * l'émetteur a redémarré ou a été débranché, la référence est reprise à neuf.
+ */
 #define RXQ_RESUME_PERIODS 20u
 
 /** Tolérance de ponctualité : max(2 ms, 10 % de la période). */
@@ -78,11 +81,19 @@ static uint8_t score_app(bench_rxq_t *q, uint8_t kind, const bench_can_frame_t *
         return finish(q, s, 0, f->timestamp_us);
     }
 
+    /* Silence trop long : l'émetteur a redémarré (compteur et séquence repartis
+     * de zéro) ou a été débranché. La trame est jugée comme une première trame,
+     * sans compter jusqu'à 254 trames « perdues » sur un simple saut de compteur
+     * (vu sur le banc le 24/11/2026 : P gonflé à chaque reset d'un voisin). */
+    const uint32_t period_us = (uint32_t)d->period_ms * 1000u;
+    const bool seen =
+        s->seen && (f->timestamp_us - s->last_us) <= RXQ_RESUME_PERIODS * period_us;
+
     const uint8_t mask = (uint8_t)((1u << d->counter_bits) - 1u);
     const uint8_t counter = (uint8_t)(bench_traffic_counter(kind, f->data) & mask);
     uint32_t lost = 0u;
     bool bad = false;
-    if (s->seen) {
+    if (seen) {
         const uint8_t diff = (uint8_t)((uint8_t)(counter - s->last_counter) & mask);
         if (diff == 0u) {
             score -= 50;
@@ -103,7 +114,7 @@ static uint8_t score_app(bench_rxq_t *q, uint8_t kind, const bench_can_frame_t *
             score -= 40;
             bad = true;
         } else {
-            if (s->seen && s->last_step >= 0) {
+            if (seen && s->last_step >= 0) {
                 const uint32_t expected = ((uint32_t)s->last_step + 1u + lost) % d->steps;
                 if ((uint32_t)step != expected) {
                     score -= 20;
@@ -119,9 +130,8 @@ static uint8_t score_app(bench_rxq_t *q, uint8_t kind, const bench_can_frame_t *
     }
 
     const bool timed = judge_timing(s);
-    if (timed && s->seen) {
-        score -= timing_penalty(q, f->timestamp_us - s->last_us, (uint32_t)d->period_ms * 1000u,
-                                lost + 1u);
+    if (timed && seen) {
+        score -= timing_penalty(q, f->timestamp_us - s->last_us, period_us, lost + 1u);
     }
     s->last_counter = counter;
     return finish(q, s, score, f->timestamp_us);

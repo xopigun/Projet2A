@@ -5,13 +5,13 @@
       "Application": "Pcbnew",
       "Version": "9.0.7"
     },
-    "CreationDate": "2026-11-13T23:23:55+01:00"
+    "CreationDate": "2026-11-25T23:04:53+01:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
       "Name": "adaptateur_usb_can",
       "GUID": "61646170-7461-4746-9575-725f7573625f",
-      "Revision": "rev?"
+      "Revision": "0.3"
     },
     "Size": {
       "X": 60.1,
@@ -28,8 +28,8 @@
       "PadToTrack": 0.3,
       "TrackToTrack": 0.3,
       "MinLineWidth": 0.4,
-      "TrackToRegion": 0.3,
-      "RegionToRegion": 0.3
+      "TrackToRegion": 0.5,
+      "RegionToRegion": 0.5
     }
   ],
   "FilesAttributes": [
@@ -56,6 +56,11 @@
     {
       "Path": "adaptateur_usb_can-F_Silkscreen.gbr",
       "FileFunction": "Legend,Top",
+      "FilePolarity": "Positive"
+    },
+    {
+      "Path": "adaptateur_usb_can-B_Silkscreen.gbr",
+      "FileFunction": "Legend,Bot",
       "FilePolarity": "Positive"
     },
     {

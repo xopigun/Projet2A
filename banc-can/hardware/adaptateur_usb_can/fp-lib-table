@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "adaptateur_usb_can")(type "KiCad")(uri "${KIPRJMOD}/adaptateur_usb_can.pretty")(options "")(descr "Empreintes KiCad retouchées pour la factory ENSEA (generate_pcb.py)"))
+)
