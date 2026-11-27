@@ -1,11 +1,13 @@
 """Prépare carte_porteuse.kicad_pcb : contour, empreintes placées, nets, plans de masse.
 
-Point de départ du routage (voir route_freerouting.py), pas un générateur à relancer : il
-repart du gabarit ENSEA et écrase la carte, routage compris. Python de KiCad 9 :
+Première étape de la chaîne : il repart du gabarit ENSEA et écrase la carte, routage compris.
+Enchaîner ensuite router_manuel.py (pistes), coudre_gnd.py (vias de masse) et
+verifier_criteres.py. Python de KiCad 9 :
 
     "C:\\Program Files\\KiCad\\9.0\\bin\\python.exe" generate_pcb.py
 """
 
+import math
 import os
 import subprocess
 import sys
@@ -15,8 +17,8 @@ from pathlib import Path
 import pcbnew
 
 HERE = Path(__file__).parent
-sys.path.insert(0, str(HERE.parent / "adaptateur_usb_can"))
-import kisym  # noqa: E402
+sys.path.insert(0, str(HERE))
+import kisym  # noqa: E402  (copie locale de ../adaptateur_usb_can/kisym.py)
 
 SCH = HERE / "carte_porteuse.kicad_sch"
 PCB = HERE / "carte_porteuse.kicad_pcb"
@@ -44,6 +46,30 @@ CN4_X = 111.43
 CN3_X = CN4_X + 15.24
 CN_Y = 115.0          # broche 1 de CN3 et de CN4
 
+# Composants prévus mais non montés : attribut « ne pas monter » et hors nomenclature.
+NON_MONTES = {"R8", "R4", "R5"}
+
+# Perçage du bornier J1 : 1,3 mm dans la bibliothèque KiCad, hors du pas de 0,2 mm de la
+# factory (0,4 à 2,0 mm), qui l'arrondirait à 1,4 mm. On le fixe donc à 1,4 mm ; la pastille
+# de 2,6 mm garde une couronne de 0,6 mm.
+PERCAGE_J1 = 1.4
+
+# Têtes des vis M3 (5,5 mm) sur cuivre nu : aucune piste ni via de la face avant à moins de
+# 3,5 mm de l'axe de H1 et H2 (0,75 mm de la tête au moins ; le plan de masse, lui, reste).
+GARDE_VIS = 3.5
+
+# Repères déplacés (x, y, angle) : à leur place par défaut ils tombent sur une pastille, sur
+# le contour d'un voisin ou hors de la carte.
+REPERES = {
+    "R1": (133.7, 118.5, 90),      # entre le cavalier et R1
+    "R2": (129.5, 141.1, 0),       # à gauche de R2 (au-dessus, il tombait sur D2)
+    "R5": (120.2, 143.3, 90),      # à gauche de R5
+    "R8": (126.0, 105.3, 0),       # au-dessus de R8
+    "R10": (123.8, 140.3, 0),      # au-dessus de R10
+    "C2": (123.2, 120.8, 0),       # sous C2
+}
+TAILLE_REPERE = 0.8
+
 # Référence : (x, y, rotation en degrés). Tout est sur la face avant.
 PLACEMENT = {
     "J1": (134.3, 113.16, 90),     # bus : H, L, G de l'arrière vers l'avant, fils à droite
@@ -51,18 +77,20 @@ PLACEMENT = {
     "J3": (CN3_X, CN_Y, 0),        # Nucleo CN3 (VIN ... D13)
     # Fixation arrière sous le bout USB de la Nucléo (la tête de vis reste 6 mm sous elle).
     "H1": (119.05, 106.3, 0),
-    # Entre les barrettes, sous la Nucléo (8 mm libres sous elle), sur 11,6 mm de large :
-    # le transceiver, ses découplages et les résistances de choix ou de tirage de part et
-    # d'autre, la seconde fixation devant.
-    "U1": (119.05, 121.0, 90),     # CANH/CANL et S vers l'arrière (bus), TXD/RXD/VCC devant
-    "R7": (114.25, 117.5, 90),     # S à la masse (monté)
-    "R8": (114.25, 121.5, 90),     # S vers PB6 (non monté)
-    "C2": (123.85, 118.0, 90),     # VIO 3,3 V
-    "C1": (119.05, 125.9, 0),      # VCC 5 V
-    "R9": (119.05, 128.4, 0),      # GND -> OLED broche 1 (monté)
-    "R10": (119.05, 130.7, 0),     # 3V3 -> OLED broche 2 (monté)
-    "R4": (114.25, 125.5, 90),     # tirages I2C (non montés)
-    "R5": (114.25, 129.5, 90),
+    # Entre les barrettes, sous la Nucléo (8 mm libres sous elle). Le transceiver est en
+    # haut de la colonne, broches CANH/CANL tournées vers le bornier : la paire fait 15 mm
+    # sur la face avant, sans via. Aucune piste sur la face arrière à l'est de x = 115,4,
+    # sauf le pont +5V de 3 mm sous C2.
+    "U1": (120.9, 113.3, 0),       # broches 5 à 8 à l'est (VIO, CANL, CANH, S), 1 à 4 à l'ouest
+    # C1 à 0,9 mm des pattes de U1 (0,6 mm ne laissait pas passer le fer entre les deux).
+    "C1": (115.8, 113.6, 90),      # VCC 5 V, à l'ouest de U1 (broches 3 et 2)
+    "C2": (123.2, 118.1, 270),     # VIO 3,3 V, sous la broche 5
+    "R7": (123.7, 107.9, 90),      # S à la masse (monté), au nord de la broche 8
+    "R8": (126.0, 107.9, 90),      # S vers PB6 (non monté)
+    "R4": (108.9, 112.1, 0),       # tirages I2C (non montés) : SCL, au coin nord-ouest
+    "R5": (121.7, 143.6, 270),     # SDA, à côté de R10
+    "R9": (114.4, 143.7, 270),     # GND -> OLED broche 1 (monté), au-dessus de J5.1
+    "R10": (123.8, 142.9, 270),    # 3V3 -> OLED broche 2 (monté), près de J3.14
     "H2": (119.05, 137.5, 0),
     # Barrettes coudées : le corps est couché sous la Nucléo ou en bord de carte, les modules
     # tiennent debout au-delà du bord (OLED à l'avant, écran vers l'utilisateur ; MPU-6050
@@ -70,8 +98,8 @@ PLACEMENT = {
     "J5": (115.24, 147.5, 90),
     "J6": (107.8, 119.0, 0),
     # Bande droite, accessible Nucléo en place : terminaison et LED.
-    "J7": (131.5, 119.0, 0),
-    "R1": (135.2, 120.3, 90),     # terminaison 120 ohms
+    "J7": (131.5, 121.54, 180),    # mêmes pastilles qu'en v0.3, CANL sur la broche du nord
+    "R1": (135.2, 118.5, 270),     # terminaison 120 ohms, CANH au nord
     "R3": (132.4, 137.0, 0),
     "D2": (132.4, 139.05, 180),    # BUS-OFF jaune
     "R2": (132.4, 141.1, 0),
@@ -157,9 +185,21 @@ def main():
         x, y, rot = PLACEMENT[ref]
         fp.SetPosition(point(x, y))
         fp.SetOrientationDegrees(rot)
+        if ref in NON_MONTES:
+            fp.SetDNP(True)
+            fp.SetExcludedFromBOM(True)
         if ref.startswith(("J", "H")) or ref in ("D1", "D2"):
             fp.Reference().SetVisible(False)  # repères remplacés par la sérigraphie ci-dessous
+        if ref in REPERES:
+            rx, ry, angle = REPERES[ref]
+            texte = fp.Reference()
+            texte.SetPosition(point(rx, ry))
+            texte.SetTextAngleDegrees(angle)
+            texte.SetTextSize(pcbnew.VECTOR2I(mm(TAILLE_REPERE), mm(TAILLE_REPERE)))
+            texte.SetTextThickness(mm(0.12))
         for pad in fp.Pads():
+            if ref == "J1":
+                pad.SetDrillSize(pcbnew.VECTOR2I(mm(PERCAGE_J1), mm(PERCAGE_J1)))
             net = pads.get((ref, pad.GetNumber()))
             if net:
                 pad.SetNet(nets[net])
@@ -216,16 +256,38 @@ def main():
             ko.Append(mm(cx), mm(cy))
         board.Add(keep)
 
+    # Têtes de vis : disque interdit aux pistes et aux vias sur la face avant.
+    for ref in ("H1", "H2"):
+        cx, cy, _ = PLACEMENT[ref]
+        keep = pcbnew.ZONE(board)
+        keep.SetIsRuleArea(True)
+        keep.SetLayer(pcbnew.F_Cu)
+        keep.SetZoneName(f"tete_vis_{ref}")
+        keep.SetDoNotAllowTracks(True)
+        keep.SetDoNotAllowVias(True)
+        keep.SetDoNotAllowPads(False)
+        keep.SetDoNotAllowFootprints(False)
+        keep.SetDoNotAllowCopperPour(False)
+        ko = keep.Outline()
+        ko.NewOutline()
+        for k in range(48):
+            a = 2 * math.pi * k / 48
+            ko.Append(mm(cx + GARDE_VIS * math.cos(a)), mm(cy + GARDE_VIS * math.sin(a)))
+        board.Add(keep)
+
     # Sérigraphie : sens de la Nucléo (une Nucléo à l'envers mettrait le 5 V sur une
     # broche d'E/S), repères du bus et des modules.
-    silk(board, "BUS H-L-G", 124.2, 112.0, 0.8)
+    # Une lettre en face de chaque borne de J1 (H, L, G de l'arrière vers l'avant), contre
+    # le dos du bornier : un seul texte « H-L-G » ne disait pas quelle borne est laquelle.
+    for lettre, y in (("H", 103.0), ("L", 108.08), ("G", 112.75)):
+        silk(board, lettre, 128.3, y, 0.8)
     silk(board, "^ USB", 112.7, 101.5, 0.9)
     silk(board, "N__", 125.5, 101.5, 1.1, 0.18)
-    silk(board, "TERM", 134.9, 117.6, 0.8)
+    silk(board, "TERM", 132.9, 124.6, 0.8)
     silk(board, "MPU", 101.0, 137.6, 0.8)
-    silk(board, "E", 135.6, 143.15, 0.9)
-    silk(board, "B", 135.6, 139.05, 0.9)
-    silk(board, "G69 v0.3", 119.05, 102.0, 0.8)
+    silk(board, "E", 136.05, 143.15, 0.9)
+    silk(board, "B", 136.05, 139.05, 0.9)
+    silk(board, "G69 v0.4", 119.05, 102.0, 0.8)
 
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
     board.Save(str(PCB))

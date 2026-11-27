@@ -377,7 +377,7 @@ lib = " ".join(kisym.dump(kisym.load(l)) for l in sorted(lib_ids))
 OUT.write_text(
     "(kicad_sch (version 20250114) (generator \"eeschema\") (generator_version \"9.0\") "
     f"(uuid {q(ROOT)}) (paper \"A3\") "
-    "(title_block (title \"Carte porteuse - banc CAN G69\") (rev \"0.3\") "
+    "(title_block (title \"Carte porteuse - banc CAN G69\") (rev \"0.4\") "
     "(company \"ENSEA - Projet 2A\") (comment 1 \"Genere par generate_schematic.py\")) "
     f"(lib_symbols {lib}) {' '.join(items)} "
     "(sheet_instances (path \"/\" (page \"1\"))) (embedded_fonts no))\n",

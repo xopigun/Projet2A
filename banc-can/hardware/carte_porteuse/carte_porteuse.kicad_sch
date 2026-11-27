@@ -6,7 +6,7 @@
 	(paper "A3")
 	(title_block
 		(title "Carte porteuse - banc CAN G69")
-		(rev "0.3")
+		(rev "0.4")
 		(company "ENSEA - Projet 2A")
 		(comment 1 "Genere par generate_schematic.py")
 	)
