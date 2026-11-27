@@ -156,6 +156,36 @@ BENCH_TEST(long_silence_compte_comme_une_reprise) {
     BENCH_ASSERT_EQ_UINT(100u, bench_rxq_on_frame(&q, &f));
 }
 
+BENCH_TEST(redemarrage_de_l_emetteur_compte_comme_une_reprise) {
+    /* N1 redémarre : 2 s de silence, puis compteur et séquence repartent de 0.
+     * Sans reprise, le saut de compteur 9 -> 0 compterait 246 trames perdues. */
+    bench_rxq_t q;
+    bench_rxq_init(&q, 2u);
+    perfect_energy(&q, 10u);  /* compteurs 0 à 9, dernière trame à 180 ms */
+    bench_can_frame_t f = app_frame(0u, 0u, 0u, 2180u * MS);
+    BENCH_ASSERT_EQ_UINT(100u, bench_rxq_on_frame(&q, &f));
+    BENCH_ASSERT_EQ_UINT(0u, q.total_lost);
+    BENCH_ASSERT_EQ_UINT(0u, q.total_bad);
+    BENCH_ASSERT_EQ_UINT(0u, q.total_late);
+    /* La trame suivante est de nouveau jugée sur tout, ponctualité comprise. */
+    f = app_frame(0u, 1u, 1u, 2200u * MS);
+    BENCH_ASSERT_EQ_UINT(100u, bench_rxq_on_frame(&q, &f));
+    f = app_frame(0u, 3u, 3u, 2240u * MS);  /* une trame manquée */
+    BENCH_ASSERT_EQ_UINT(80u, bench_rxq_on_frame(&q, &f));
+    BENCH_ASSERT_EQ_UINT(1u, q.total_lost);
+}
+
+BENCH_TEST(coupure_courte_reste_comptee) {
+    /* 400 ms de silence (20 périodes) : ce n'est pas encore une reprise. */
+    bench_rxq_t q;
+    bench_rxq_init(&q, 2u);
+    perfect_energy(&q, 2u);  /* dernière trame à 20 ms, compteur 1, pas 1 */
+    bench_can_frame_t f = app_frame(0u, 1u, 21u, 420u * MS);
+    BENCH_ASSERT_EQ_UINT(40u, bench_rxq_on_frame(&q, &f));
+    BENCH_ASSERT_EQ_UINT(19u, q.total_lost);
+    BENCH_ASSERT_EQ_UINT(0u, q.total_late);
+}
+
 BENCH_TEST(periode_de_heartbeat_reconfiguree) {
     bench_rxq_t q;
     bench_rxq_init(&q, 1u);
@@ -194,5 +224,6 @@ BENCH_TEST_MAIN(flux_parfait_note_100, trame_manquee_detectee_par_le_compteur, s
                 dlc_incoherent_note_0, contenu_hors_sequence_penalise,
                 retard_penalise_au_dela_de_la_tolerance, arbitrage_suspend_la_ponctualite,
                 heartbeats_pertes_deduites_de_l_intervalle, long_silence_compte_comme_une_reprise,
+                redemarrage_de_l_emetteur_compte_comme_une_reprise, coupure_courte_reste_comptee,
                 periode_de_heartbeat_reconfiguree,
                 rapport_moyenne_et_remise_a_zero)

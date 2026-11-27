@@ -116,9 +116,12 @@ extern const char *bench_test_current;
         return EXIT_SUCCESS;                                                                \
     }
 
-/* Déroulement de la liste variadique : jusqu'à 12 cas par fichier de test. */
-#define BENCH_ARG_N(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, N, ...) N
-#define BENCH_COUNT(...) BENCH_ARG_N(__VA_ARGS__, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
+/* Déroulement de la liste variadique : jusqu'à 16 cas par fichier de test. */
+#define BENCH_ARG_N(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, \
+                    N, ...)                                                                 \
+    N
+#define BENCH_COUNT(...) \
+    BENCH_ARG_N(__VA_ARGS__, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
 
 #define BENCH_FE_1(x) BENCH_RUN(x);
 #define BENCH_FE_2(x, ...) BENCH_RUN(x); BENCH_FE_1(__VA_ARGS__)
@@ -132,6 +135,10 @@ extern const char *bench_test_current;
 #define BENCH_FE_10(x, ...) BENCH_RUN(x); BENCH_FE_9(__VA_ARGS__)
 #define BENCH_FE_11(x, ...) BENCH_RUN(x); BENCH_FE_10(__VA_ARGS__)
 #define BENCH_FE_12(x, ...) BENCH_RUN(x); BENCH_FE_11(__VA_ARGS__)
+#define BENCH_FE_13(x, ...) BENCH_RUN(x); BENCH_FE_12(__VA_ARGS__)
+#define BENCH_FE_14(x, ...) BENCH_RUN(x); BENCH_FE_13(__VA_ARGS__)
+#define BENCH_FE_15(x, ...) BENCH_RUN(x); BENCH_FE_14(__VA_ARGS__)
+#define BENCH_FE_16(x, ...) BENCH_RUN(x); BENCH_FE_15(__VA_ARGS__)
 
 #define BENCH_CONCAT_(a, b) a##b
 #define BENCH_CONCAT(a, b) BENCH_CONCAT_(a, b)
